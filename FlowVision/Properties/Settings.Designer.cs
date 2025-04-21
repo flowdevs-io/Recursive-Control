@@ -26,5 +26,7 @@ namespace FlowVision.Properties
                 return defaultInstance;
             }
         }
+
+        public string OmniParserURL { get; internal set; }
     }
 }

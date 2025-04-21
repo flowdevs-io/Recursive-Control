@@ -293,7 +293,18 @@ namespace FlowVision
 
         private void omniParserToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            // Check if the config form is already open
+            if (Application.OpenForms.OfType<OmniParserForm>().Count() == 1)
+            {
+                // If it is, bring it to the front
+                Application.OpenForms.OfType<OmniParserForm>().First().BringToFront();
+            }
+            else
+            {
+                // If it isn't, create a new instance of the form
+                OmniParserForm omniParserForm = new OmniParserForm();
+                omniParserForm.Show();
+            }
         }
     }
 

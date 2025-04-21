@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using FlowVision.lib.Classes;
+using FlowVision.Properties;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -11,7 +13,7 @@ using System.Threading.Tasks;
 public class OmniParserClient
 {
     // Set the API endpoint for the FastAPI server.
-    private const string ApiEndpoint = "http://127.0.0.1:8080/parse/";
+    private const string ApiEndpoint = "/parse/"; 
     private readonly HttpClient _httpClient;
 
     public OmniParserClient(HttpClient httpClient)
@@ -26,8 +28,14 @@ public class OmniParserClient
     /// <returns>An instance of MyCustomObject representing the API response.</returns>
     public async Task<OmniparserResponse> ProcessScreenshotAsync(string base64Image)
     {
+        // Use the static LoadConfig method to retrieve configuration
+        OmniParserConfig config = OmniParserConfig.LoadConfig();
+
         if (string.IsNullOrWhiteSpace(base64Image))
             throw new ArgumentException("Base64 image data is required", nameof(base64Image));
+
+        if (string.IsNullOrWhiteSpace(config.ServerURL))
+            throw new InvalidOperationException("OmniParser server URL is not configured. Please set it in the OmniParser settings.");
 
         // Build the JSON payload expected by the API.
         var payload = new { base64_image = base64Image };
@@ -38,7 +46,10 @@ public class OmniParserClient
 
         // Increase timeout to 10 minutes.
         _httpClient.Timeout = TimeSpan.FromMinutes(10);
-        HttpResponseMessage response = await _httpClient.PostAsync(ApiEndpoint, content);
+        
+        // Properly concatenate the server URL with the API endpoint
+        string fullUrl = config.ServerURL.TrimEnd('/') + ApiEndpoint;
+        HttpResponseMessage response = await _httpClient.PostAsync(fullUrl, content);
         response.EnsureSuccessStatusCode();
 
         // Read and deserialize the response content into MyCustomObject.

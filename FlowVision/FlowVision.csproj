@@ -186,13 +186,25 @@
     <Compile Include="lib\Plugins\MousePlugin.cs" />
     <Compile Include="lib\Plugins\PowershellPlugin.cs" />
     <Compile Include="lib\Plugins\ScreenCapturePlugin.cs" />
+    <Compile Include="OmniParserForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OmniParserForm.Designer.cs">
+      <DependentUpon>OmniParserForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="T:/FlowVision/FlowVision/lib/Classes/\OmniParserConfig.cs">
+      <Link>lib\Classes\ai\OmniParserConfig.cs</Link>
+    </Compile>
     <EmbeddedResource Include="ConfigForm.resx">
       <DependentUpon>ConfigForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OmniParserForm.resx">
+      <DependentUpon>OmniParserForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
