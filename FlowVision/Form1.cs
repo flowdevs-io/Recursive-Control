@@ -1,0 +1,296 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using FlowVision.lib.Classes;
+
+namespace FlowVision
+{
+    public partial class Form1 : Form
+    {
+        private FlowLayoutPanel messagesPanel;
+        private RichTextBox userInputTextBox;
+        private Button sendButton;
+        private List<ChatMessage> chatHistory = new List<ChatMessage>();
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void configureToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void azureOpenAIToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Check if the config form is already open
+            if (Application.OpenForms.OfType<ConfigForm>().Count() == 1)
+            {
+                // If it is, bring it to the front
+                Application.OpenForms.OfType<ConfigForm>().First().BringToFront();
+            }
+            else
+            {
+                // If it isn't, create a new instance of the form
+                ConfigForm configForm = new ConfigForm("actioner");
+                configForm.Show();
+            }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            
+            // Create messages panel as a FlowLayoutPanel with auto-scroll
+            messagesPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink
+            };
+
+            // This is critical - it makes the controls in the panel fill the width
+            messagesPanel.SetFlowBreak(messagesPanel, true);
+
+            mainPanel.Controls.Add(messagesPanel);
+
+            // Create input panel at the bottom
+            Panel inputPanel = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 40
+            };
+            mainPanel.Controls.Add(inputPanel);
+
+            // Create text input
+            userInputTextBox = new RichTextBox
+            {
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI", 10F)
+            };
+            inputPanel.Controls.Add(userInputTextBox);
+
+            // Create send button
+            sendButton = new Button
+            {
+                Dock = DockStyle.Right,
+                Text = "Send",
+                Width = 80
+            };
+            sendButton.Click += SendButton_Click;
+            inputPanel.Controls.Add(sendButton);
+
+            // Handle window resize to adjust message widths
+            this.Resize += (s, args) =>
+            {
+                foreach (Control control in messagesPanel.Controls)
+                {
+                    if (control is Panel panel)
+                    {
+                        int newWidth = messagesPanel.ClientSize.Width - 60;
+                        panel.MaximumSize = new Size(newWidth, 0);
+                        panel.Width = newWidth;
+
+                        // Adjust message label width
+                        foreach (Control innerControl in panel.Controls)
+                        {
+                            if (innerControl is Label label && label.Font.Size == 10F)
+                            {
+                                label.MaximumSize = new Size(newWidth - 20, 0);
+                            }
+                        }
+                    }
+                }
+            };
+
+            // Add welcome message
+            AddMessage("AI Assistant", "Welcome! How can I help you today?", true);
+            
+        }
+
+        private void allowUserInput(bool enable)
+        {
+                userInputTextBox.Enabled = enable;
+                sendButton.Enabled = enable;
+        }
+
+        private async void SendButton_Click(object sender, EventArgs e)
+        {
+            allowUserInput(false);
+
+            // Check if the user input is empty
+            string userInput = userInputTextBox.Text;
+            if (string.IsNullOrWhiteSpace(userInput))
+            {
+                MessageBox.Show("Please enter a message before sending.", "Input Required");
+                allowUserInput(true);
+                return;
+            }
+
+            AddMessage("You", userInput, false);
+
+            try
+            {
+                string aiResponse = await GetAIResponseAsync(userInput);
+                AddMessage("AI", aiResponse, true);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error communicating with AI: {ex.Message}", "Error");
+                allowUserInput(true);
+            }
+
+            userInputTextBox.Clear();
+            allowUserInput(true);
+        }
+
+        private async Task<string> GetAIResponseAsync(string userInput)
+        {
+            // Get the current config to determine which model to use
+            var actionerConfig = APIConfig.LoadConfig("actioner");
+            var githubConfig = APIConfig.LoadConfig("github");
+            
+
+                // Fall back to Actioner model
+                Actioner actioner = new Actioner(userInputTextBox);
+                return await actioner.ExecuteAction(userInput);
+        }
+
+        private void AddMessage(string author, string message, bool isInbound)
+        {
+            // Create a new chat message and add to history
+            var chatMessage = new ChatMessage
+            {
+                Author = author,
+                Content = message,
+                IsInbound = isInbound,
+                Timestamp = DateTime.Now
+            };
+            chatHistory.Add(chatMessage);
+
+            // Calculate appropriate width for the bubble
+            int bubbleWidth = messagesPanel.ClientSize.Width - 60;
+
+            // Create message bubble panel
+            Panel bubblePanel = new Panel
+            {
+                AutoSize = true,
+                Width = bubbleWidth,
+                MaximumSize = new Size(bubbleWidth, 0),
+                MinimumSize = new Size(100, 0),
+                Padding = new Padding(10),
+                Margin = new Padding(10, 5, 10, 5),
+                BackColor = isInbound ? Color.LightBlue : Color.LightGreen
+            };
+
+            // Layout for controls inside the bubble panel
+            int currentY = 10;
+
+            // Add author label
+            Label authorLabel = new Label
+            {
+                Text = author,
+                AutoSize = true,
+                Font = new Font("Segoe UI", 8F, FontStyle.Bold),
+                Location = new Point(10, currentY)
+            };
+            bubblePanel.Controls.Add(authorLabel);
+            currentY += authorLabel.Height + 2;
+
+            // Add message text
+            Label messageLabel = new Label
+            {
+                Text = message,
+                AutoSize = true,
+                MaximumSize = new Size(bubbleWidth - 20, 0),
+                Font = new Font("Segoe UI", 10F),
+                Location = new Point(10, currentY)
+            };
+            bubblePanel.Controls.Add(messageLabel);
+            currentY += messageLabel.Height + 2;
+
+            // Add timestamp
+            Label timeLabel = new Label
+            {
+                Text = chatMessage.Timestamp.ToString("HH:mm"),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 7F, FontStyle.Italic),
+                ForeColor = Color.Gray,
+                Location = new Point(10, currentY)
+            };
+            bubblePanel.Controls.Add(timeLabel);
+            currentY += timeLabel.Height + 10;
+
+            // Set final height based on content
+            bubblePanel.Height = currentY;
+
+            // Add to messages panel
+            messagesPanel.Controls.Add(bubblePanel);
+
+            // Ensure the FlowLayoutPanel's properties are correct
+            messagesPanel.AutoScroll = true;
+            messagesPanel.FlowDirection = FlowDirection.TopDown;
+            messagesPanel.WrapContents = false;
+            messagesPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+
+            // Set the width of the bubblePanel to be appropriate
+            bubblePanel.Width = bubbleWidth;
+
+            // Make sure each bubble takes its own line
+            bubblePanel.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
+
+            // Scroll to bottom
+            messagesPanel.ScrollControlIntoView(bubblePanel);
+
+            // Force layout update
+            messagesPanel.PerformLayout();
+        }
+
+        private void githubToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Check if the config form is already open
+            if (Application.OpenForms.OfType<ConfigForm>().Count() == 1)
+            {
+                // If it is, bring it to the front
+                Application.OpenForms.OfType<ConfigForm>().First().BringToFront();
+            }
+            else
+            {
+                // If it isn't, create a new instance of the form
+                ConfigForm configForm = new ConfigForm("github");
+                configForm.Show();
+            }
+        }
+
+        private void playwrightToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void omniParserToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
+
+    public class ChatMessage
+    {
+        public string Author { get; set; }
+        public string Content { get; set; }
+        public bool IsInbound { get; set; }
+        public DateTime Timestamp { get; set; }
+    }
+}
