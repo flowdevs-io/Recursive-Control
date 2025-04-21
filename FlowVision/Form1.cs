@@ -162,11 +162,27 @@ namespace FlowVision
             // Get the current config to determine which model to use
             var actionerConfig = APIConfig.LoadConfig("actioner");
             var githubConfig = APIConfig.LoadConfig("github");
-            
 
-                // Fall back to Actioner model
+            // Check if the github is configured
+            /**
+            if (!string.IsNullOrWhiteSpace(githubConfig.DeploymentName) &&
+                !string.IsNullOrWhiteSpace(githubConfig.EndpointURL) &&
+                !string.IsNullOrWhiteSpace(githubConfig.APIKey))
+            {
+                // Use GitHub model
+                Github_Actioner github = new Github_Actioner(userInputTextBox);
+                return await github.ExecuteAction(userInput);
+            }
+            else
+            {
+                // Use Actioner model
                 Actioner actioner = new Actioner(userInputTextBox);
                 return await actioner.ExecuteAction(userInput);
+            }
+            **/
+            // Use Actioner model
+            Actioner actioner = new Actioner(userInputTextBox);
+            return await actioner.ExecuteAction(userInput);
         }
 
         private void AddMessage(string author, string message, bool isInbound)
@@ -273,11 +289,6 @@ namespace FlowVision
                 ConfigForm configForm = new ConfigForm("github");
                 configForm.Show();
             }
-        }
-
-        private void playwrightToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void omniParserToolStripMenuItem_Click(object sender, EventArgs e)

@@ -31,13 +31,13 @@
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.filesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.visionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.omniParserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lLMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.configureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.azureOpenAIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.githubToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reasonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainPanel = new System.Windows.Forms.Panel();
-            this.githubToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.omniParserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -68,6 +68,13 @@
             this.visionToolStripMenuItem.Size = new System.Drawing.Size(51, 20);
             this.visionToolStripMenuItem.Text = "Vision";
             // 
+            // omniParserToolStripMenuItem
+            // 
+            this.omniParserToolStripMenuItem.Name = "omniParserToolStripMenuItem";
+            this.omniParserToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.omniParserToolStripMenuItem.Text = "OmniParser";
+            this.omniParserToolStripMenuItem.Click += new System.EventHandler(this.omniParserToolStripMenuItem_Click);
+            // 
             // lLMToolStripMenuItem
             // 
             this.lLMToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -89,9 +96,16 @@
             // azureOpenAIToolStripMenuItem
             // 
             this.azureOpenAIToolStripMenuItem.Name = "azureOpenAIToolStripMenuItem";
-            this.azureOpenAIToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.azureOpenAIToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.azureOpenAIToolStripMenuItem.Text = "Azure OpenAI";
             this.azureOpenAIToolStripMenuItem.Click += new System.EventHandler(this.azureOpenAIToolStripMenuItem_Click);
+            // 
+            // githubToolStripMenuItem
+            // 
+            this.githubToolStripMenuItem.Name = "githubToolStripMenuItem";
+            this.githubToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.githubToolStripMenuItem.Text = "Github";
+            this.githubToolStripMenuItem.Click += new System.EventHandler(this.githubToolStripMenuItem_Click);
             // 
             // reasonToolStripMenuItem
             // 
@@ -106,20 +120,6 @@
             this.mainPanel.Name = "mainPanel";
             this.mainPanel.Size = new System.Drawing.Size(367, 543);
             this.mainPanel.TabIndex = 3;
-            // 
-            // githubToolStripMenuItem
-            // 
-            this.githubToolStripMenuItem.Name = "githubToolStripMenuItem";
-            this.githubToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.githubToolStripMenuItem.Text = "Github";
-            this.githubToolStripMenuItem.Click += new System.EventHandler(this.githubToolStripMenuItem_Click);
-            // 
-            // omniParserToolStripMenuItem
-            // 
-            this.omniParserToolStripMenuItem.Name = "omniParserToolStripMenuItem";
-            this.omniParserToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.omniParserToolStripMenuItem.Text = "OmniParser";
-            this.omniParserToolStripMenuItem.Click += new System.EventHandler(this.omniParserToolStripMenuItem_Click);
             // 
             // Form1
             // 

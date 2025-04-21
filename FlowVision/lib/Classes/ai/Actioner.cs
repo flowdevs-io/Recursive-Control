@@ -56,7 +56,7 @@ namespace FlowVision.lib.Classes
 
                 settings = new OpenAIPromptExecutionSettings
                 {
-                    Temperature = 0.2,
+                    //Temperature = 0.2,
                     ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions
                 };
                 builder.Plugins.AddFromType<CMDPlugin>();
