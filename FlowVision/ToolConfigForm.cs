@@ -50,6 +50,7 @@ namespace FlowVision
             chkScreenCapturePlugin.Checked = _toolConfig.EnableScreenCapturePlugin;
             chkKeyboardPlugin.Checked = _toolConfig.EnableKeyboardPlugin;
             chkMousePlugin.Checked = _toolConfig.EnableMousePlugin;
+            chkWindowSelectionPlugin.Checked = _toolConfig.EnableWindowSelectionPlugin; // Add this line
 
             numTemperature.Value = (decimal)_toolConfig.Temperature;
             chkAutoInvoke.Checked = _toolConfig.AutoInvokeKernelFunctions;
@@ -71,6 +72,7 @@ namespace FlowVision
             _toolConfig.EnableScreenCapturePlugin = chkScreenCapturePlugin.Checked;
             _toolConfig.EnableKeyboardPlugin = chkKeyboardPlugin.Checked;
             _toolConfig.EnableMousePlugin = chkMousePlugin.Checked;
+            _toolConfig.EnableWindowSelectionPlugin = chkWindowSelectionPlugin.Checked; // Add this line
 
             _toolConfig.Temperature = (double)numTemperature.Value;
             _toolConfig.AutoInvokeKernelFunctions = chkAutoInvoke.Checked;

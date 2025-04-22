@@ -78,13 +78,16 @@ namespace FlowVision.lib.Classes
                 builder.Plugins.AddFromType<PowerShellPlugin>();
                 
             if (toolConfig.EnableScreenCapturePlugin)
-                builder.Plugins.AddFromType<ScreenCapturePlugin>();
+                builder.Plugins.AddFromType<ScreenCaptureOmniParserPlugin>();
                 
             if (toolConfig.EnableKeyboardPlugin)
                 builder.Plugins.AddFromType<KeyboardPlugin>();
                 
             if (toolConfig.EnableMousePlugin)
                 builder.Plugins.AddFromType<MousePlugin>();
+                
+            if (toolConfig.EnableWindowSelectionPlugin) // Add this conditional
+                builder.Plugins.AddFromType<WindowSelectionPlugin>();
 
             builder.Services.AddSingleton(outputTextBox);
 

@@ -51,6 +51,14 @@ namespace FlowVision
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            // Check if tools are configured, if not, create default configuration
+            string toolConfigName = "toolsconfig";
+            if (!ToolConfig.IsConfigured(toolConfigName))
+            {
+                // Create and save default configuration with mouse and screen capture disabled
+                var defaultConfig = new ToolConfig();
+                defaultConfig.SaveConfig(toolConfigName);
+            }
             
             // Create messages panel as a FlowLayoutPanel with auto-scroll
             messagesPanel = new FlowLayoutPanel
@@ -118,7 +126,6 @@ namespace FlowVision
 
             // Add welcome message
             AddMessage("AI Assistant", "Welcome! How can I help you today?", true);
-            
         }
 
         private void allowUserInput(bool enable)
@@ -243,44 +250,85 @@ namespace FlowVision
             bubblePanel.Controls.Add(authorLabel);
             currentY += authorLabel.Height + 2;
 
-            // Add message text as a TextBox instead of Label to enable text selection
-            TextBox messageTextBox = new TextBox
+            // Check if the message contains markdown
+            bool hasMarkdown = MarkdownHelper.ContainsMarkdown(message);
+
+            if (hasMarkdown)
             {
-                Text = message,
-                Multiline = true,
-                ReadOnly = true,
-                BorderStyle = BorderStyle.None,
-                BackColor = bubblePanel.BackColor,
-                Location = new Point(10, currentY),
-                Width = bubbleWidth - 20,
-                Font = new Font("Segoe UI", 10F),
-                ScrollBars = ScrollBars.None,
-                WordWrap = true
-            };
-            
-            // Auto-size the TextBox to fit content
-            int textHeight = TextRenderer.MeasureText(
-                messageTextBox.Text, 
-                messageTextBox.Font, 
-                new Size(bubbleWidth - 20, int.MaxValue), 
-                TextFormatFlags.WordBreak
-            ).Height;
-            messageTextBox.Height = textHeight + 10;
-            
-            // Add copy context menu
-            ContextMenuStrip contextMenu = new ContextMenuStrip();
-            ToolStripMenuItem copyMenuItem = new ToolStripMenuItem("Copy");
-            copyMenuItem.Click += (sender, args) => {
-                if (messageTextBox.SelectedText.Length > 0)
-                    Clipboard.SetText(messageTextBox.SelectedText);
-                else
-                    Clipboard.SetText(messageTextBox.Text);
-            };
-            contextMenu.Items.Add(copyMenuItem);
-            messageTextBox.ContextMenuStrip = contextMenu;
-            
-            bubblePanel.Controls.Add(messageTextBox);
-            currentY += messageTextBox.Height + 2;
+                // Use RichTextBox for markdown formatting
+                RichTextBox messageRichTextBox = new RichTextBox
+                {
+                    ReadOnly = true,
+                    BorderStyle = BorderStyle.None,
+                    BackColor = bubblePanel.BackColor,
+                    Location = new Point(10, currentY),
+                    Width = bubbleWidth - 20,
+                    ScrollBars = RichTextBoxScrollBars.None,
+                    DetectUrls = true
+                };
+
+                // Apply markdown formatting
+                MarkdownHelper.ApplyMarkdownFormatting(messageRichTextBox, message);
+                
+                // Adjust height to fit content
+                messageRichTextBox.Height = messageRichTextBox.GetPositionFromCharIndex(messageRichTextBox.TextLength).Y + 20;
+                
+                // Add copy context menu
+                ContextMenuStrip contextMenu = new ContextMenuStrip();
+                ToolStripMenuItem copyMenuItem = new ToolStripMenuItem("Copy");
+                copyMenuItem.Click += (sender, args) => {
+                    if (messageRichTextBox.SelectedText.Length > 0)
+                        Clipboard.SetText(messageRichTextBox.SelectedText);
+                    else
+                        Clipboard.SetText(messageRichTextBox.Text);
+                };
+                contextMenu.Items.Add(copyMenuItem);
+                messageRichTextBox.ContextMenuStrip = contextMenu;
+                
+                bubblePanel.Controls.Add(messageRichTextBox);
+                currentY += messageRichTextBox.Height + 2;
+            }
+            else
+            {
+                // Regular TextBox for plain text
+                TextBox messageTextBox = new TextBox
+                {
+                    Text = message,
+                    Multiline = true,
+                    ReadOnly = true,
+                    BorderStyle = BorderStyle.None,
+                    BackColor = bubblePanel.BackColor,
+                    Location = new Point(10, currentY),
+                    Width = bubbleWidth - 20,
+                    Font = new Font("Segoe UI", 10F),
+                    ScrollBars = ScrollBars.None,
+                    WordWrap = true
+                };
+                
+                // Auto-size the TextBox to fit content
+                int textHeight = TextRenderer.MeasureText(
+                    messageTextBox.Text, 
+                    messageTextBox.Font, 
+                    new Size(bubbleWidth - 20, int.MaxValue), 
+                    TextFormatFlags.WordBreak
+                ).Height;
+                messageTextBox.Height = textHeight + 10;
+                
+                // Add copy context menu
+                ContextMenuStrip contextMenu = new ContextMenuStrip();
+                ToolStripMenuItem copyMenuItem = new ToolStripMenuItem("Copy");
+                copyMenuItem.Click += (sender, args) => {
+                    if (messageTextBox.SelectedText.Length > 0)
+                        Clipboard.SetText(messageTextBox.SelectedText);
+                    else
+                        Clipboard.SetText(messageTextBox.Text);
+                };
+                contextMenu.Items.Add(copyMenuItem);
+                messageTextBox.ContextMenuStrip = contextMenu;
+                
+                bubblePanel.Controls.Add(messageTextBox);
+                currentY += messageTextBox.Height + 2;
+            }
 
             // Add timestamp
             Label timeLabel = new Label

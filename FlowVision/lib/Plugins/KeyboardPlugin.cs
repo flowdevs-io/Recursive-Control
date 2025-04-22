@@ -53,6 +53,21 @@ namespace FlowVision.lib.Plugins
                 return false;
             }
         }
+        [KernelFunction, Description("Ctrl + L")]
+        public async Task<bool> CtrlL()
+        {
+            AppendLog("Sending Key Command: Ctrl + L");
+            try
+            {
+                SendKeys.SendWait("^l");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AppendLog($"Error Sending Key: {ex.Message}");
+                return false;
+            }
+        }
         /*
          *
          *[KernelFunction, Description("Alt + F4")]

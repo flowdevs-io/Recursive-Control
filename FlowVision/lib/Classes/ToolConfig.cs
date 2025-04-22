@@ -8,9 +8,10 @@ namespace FlowVision.lib.Classes
     {
         public bool EnableCMDPlugin { get; set; } = true;
         public bool EnablePowerShellPlugin { get; set; } = true;
-        public bool EnableScreenCapturePlugin { get; set; } = true;
+        public bool EnableScreenCapturePlugin { get; set; } = false; // Changed default to false
         public bool EnableKeyboardPlugin { get; set; } = true;
-        public bool EnableMousePlugin { get; set; } = true;
+        public bool EnableMousePlugin { get; set; } = false; // Changed default to false
+        public bool EnableWindowSelectionPlugin { get; set; } = false; // Added WindowSelectionPlugin
         public double Temperature { get; set; } = 0.2;
         public bool AutoInvokeKernelFunctions { get; set; } = true;
         public bool RetainChatHistory { get; set; } = true;
@@ -21,7 +22,7 @@ namespace FlowVision.lib.Classes
             return Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "FlowVision",
-                $"{configName}toolconfig.json");
+                $"{configName}.json");
         }
 
         public static bool IsConfigured(string configName)

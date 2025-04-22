@@ -34,6 +34,7 @@
             this.chkScreenCapturePlugin = new System.Windows.Forms.CheckBox();
             this.chkPowerShellPlugin = new System.Windows.Forms.CheckBox();
             this.chkCMDPlugin = new System.Windows.Forms.CheckBox();
+            this.chkWindowSelectionPlugin = new System.Windows.Forms.CheckBox();
             this.groupBoxSettings = new System.Windows.Forms.GroupBox();
             this.chkAutoInvoke = new System.Windows.Forms.CheckBox();
             this.chkRetainChatHistory = new System.Windows.Forms.CheckBox();
@@ -56,10 +57,11 @@
             this.groupBoxPlugins.Controls.Add(this.chkScreenCapturePlugin);
             this.groupBoxPlugins.Controls.Add(this.chkPowerShellPlugin);
             this.groupBoxPlugins.Controls.Add(this.chkCMDPlugin);
+            this.groupBoxPlugins.Controls.Add(this.chkWindowSelectionPlugin);
             this.groupBoxPlugins.Font = new System.Drawing.Font("Comic Sans MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBoxPlugins.Location = new System.Drawing.Point(12, 12);
             this.groupBoxPlugins.Name = "groupBoxPlugins";
-            this.groupBoxPlugins.Size = new System.Drawing.Size(436, 179);
+            this.groupBoxPlugins.Size = new System.Drawing.Size(436, 200);
             this.groupBoxPlugins.TabIndex = 0;
             this.groupBoxPlugins.TabStop = false;
             this.groupBoxPlugins.Text = "Available Plugins";
@@ -119,6 +121,17 @@
             this.chkCMDPlugin.Text = "Enable CMD Plugin (Command Prompt)";
             this.chkCMDPlugin.UseVisualStyleBackColor = true;
             // 
+            // chkWindowSelectionPlugin
+            // 
+            this.chkWindowSelectionPlugin.AutoSize = true;
+            this.chkWindowSelectionPlugin.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkWindowSelectionPlugin.Location = new System.Drawing.Point(17, 171);
+            this.chkWindowSelectionPlugin.Name = "chkWindowSelectionPlugin";
+            this.chkWindowSelectionPlugin.Size = new System.Drawing.Size(328, 23);
+            this.chkWindowSelectionPlugin.TabIndex = 5;
+            this.chkWindowSelectionPlugin.Text = "Enable Window Selection Plugin (Window Handles)";
+            this.chkWindowSelectionPlugin.UseVisualStyleBackColor = true;
+            // 
             // groupBoxSettings
             // 
             this.groupBoxSettings.Controls.Add(this.chkAutoInvoke);
@@ -126,7 +139,7 @@
             this.groupBoxSettings.Controls.Add(this.numTemperature);
             this.groupBoxSettings.Controls.Add(this.lblTemperature);
             this.groupBoxSettings.Font = new System.Drawing.Font("Comic Sans MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBoxSettings.Location = new System.Drawing.Point(12, 197);
+            this.groupBoxSettings.Location = new System.Drawing.Point(12, 218);
             this.groupBoxSettings.Name = "groupBoxSettings";
             this.groupBoxSettings.Size = new System.Drawing.Size(436, 120);
             this.groupBoxSettings.TabIndex = 1;
@@ -215,7 +228,7 @@
             // 
             this.groupBoxSystemPrompt.Controls.Add(this.txtSystemPrompt);
             this.groupBoxSystemPrompt.Font = new System.Drawing.Font("Comic Sans MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBoxSystemPrompt.Location = new System.Drawing.Point(12, 323);
+            this.groupBoxSystemPrompt.Location = new System.Drawing.Point(12, 344);
             this.groupBoxSystemPrompt.Name = "groupBoxSystemPrompt";
             this.groupBoxSystemPrompt.Size = new System.Drawing.Size(436, 146);
             this.groupBoxSystemPrompt.TabIndex = 4;
@@ -265,6 +278,7 @@
         private System.Windows.Forms.CheckBox chkScreenCapturePlugin;
         private System.Windows.Forms.CheckBox chkPowerShellPlugin;
         private System.Windows.Forms.CheckBox chkCMDPlugin;
+        private System.Windows.Forms.CheckBox chkWindowSelectionPlugin;
         private System.Windows.Forms.GroupBox groupBoxSettings;
         private System.Windows.Forms.NumericUpDown numTemperature;
         private System.Windows.Forms.Label lblTemperature;

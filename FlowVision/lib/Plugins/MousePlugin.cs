@@ -62,7 +62,29 @@ namespace FlowVision.lib.Plugins
             AppendLog("== MousePlugin ClickOnWindow CALL END ==");
             return true;
         }
-
+        [KernelFunction, Description("uses scroll wheel on a specific window handle.")]
+        public async Task<bool> ScrollOnWindow(string windowHandleString, int scrollAmount)
+        {
+            AppendLog("== MousePlugin ScrollOnWindow CALL START ==");
+            IntPtr windowHandle = new IntPtr(Convert.ToInt32(windowHandleString));
+            if (!GetWindowRect(windowHandle, out RECT rc))
+            {
+                AppendLog("Failed to get window rectangle.");
+                throw new InvalidOperationException("Failed to get window rectangle.");
+            }
+            int x = (rc.Left + rc.Right) / 2;
+            int y = (rc.Top + rc.Bottom) / 2;
+            if (!SetCursorPos(x, y))
+            {
+                AppendLog("Failed to set cursor position.");
+                throw new InvalidOperationException("Failed to set cursor position.");
+            }
+            await Task.Delay(100);
+            mouse_event(0x0800, 0, 0, (uint)scrollAmount, UIntPtr.Zero);
+            AppendLog($"Simulated scroll of {scrollAmount} units.");
+            AppendLog("== MousePlugin ScrollOnWindow CALL END ==");
+            return true;
+        }
         private void SimulateClick(int x, int y, bool leftClick)
         {
             uint down = leftClick ? MOUSEEVENTF_LEFTDOWN : MOUSEEVENTF_RIGHTDOWN;
