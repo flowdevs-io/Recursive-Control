@@ -46,8 +46,8 @@
             this.txtSystemPrompt = new System.Windows.Forms.TextBox();
             this.groupBoxPlugins.SuspendLayout();
             this.groupBoxSettings.SuspendLayout();
-            this.groupBoxSystemPrompt.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numTemperature)).BeginInit();
+            this.groupBoxSystemPrompt.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBoxPlugins
@@ -127,7 +127,7 @@
             this.chkWindowSelectionPlugin.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkWindowSelectionPlugin.Location = new System.Drawing.Point(17, 171);
             this.chkWindowSelectionPlugin.Name = "chkWindowSelectionPlugin";
-            this.chkWindowSelectionPlugin.Size = new System.Drawing.Size(328, 23);
+            this.chkWindowSelectionPlugin.Size = new System.Drawing.Size(351, 23);
             this.chkWindowSelectionPlugin.TabIndex = 5;
             this.chkWindowSelectionPlugin.Text = "Enable Window Selection Plugin (Window Handles)";
             this.chkWindowSelectionPlugin.UseVisualStyleBackColor = true;
@@ -205,7 +205,7 @@
             // saveButton
             // 
             this.saveButton.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.saveButton.Location = new System.Drawing.Point(236, 475);
+            this.saveButton.Location = new System.Drawing.Point(236, 496);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(98, 30);
             this.saveButton.TabIndex = 2;
@@ -216,7 +216,7 @@
             // cancelButton
             // 
             this.cancelButton.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cancelButton.Location = new System.Drawing.Point(340, 475);
+            this.cancelButton.Location = new System.Drawing.Point(340, 496);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(98, 30);
             this.cancelButton.TabIndex = 3;
@@ -248,7 +248,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(450, 517);
+            this.ClientSize = new System.Drawing.Size(450, 536);
             this.Controls.Add(this.groupBoxSystemPrompt);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.saveButton);
@@ -263,9 +263,9 @@
             this.groupBoxPlugins.PerformLayout();
             this.groupBoxSettings.ResumeLayout(false);
             this.groupBoxSettings.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numTemperature)).EndInit();
             this.groupBoxSystemPrompt.ResumeLayout(false);
             this.groupBoxSystemPrompt.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numTemperature)).EndInit();
             this.ResumeLayout(false);
 
         }

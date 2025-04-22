@@ -178,11 +178,9 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="lib\Classes\MarkdownHelper.cs" />
     <Compile Include="lib\Plugins\ScreenCaptureOmniParserPlugin.cs" />
     <Compile Include="lib\Plugins\WindowSelectionPlugin.cs" />
-    <Compile Include="T:/FlowVision/FlowVision/lib/Classes/\MarkdownHelper.cs">
-      <Link>MarkdownHelper.cs</Link>
-    </Compile>
     <Compile Include="ToolConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
