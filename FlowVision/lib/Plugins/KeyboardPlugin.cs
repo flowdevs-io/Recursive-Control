@@ -25,6 +25,7 @@ namespace FlowVision.lib.Plugins
         [KernelFunction, Description("Used to interact with the keyboard")]
         public async Task<bool> SendKey(string keyCombo)
         {
+            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("KeyboardPlugin", "SendKey", keyCombo);
             AppendLog($"Sending Key Command: {keyCombo}");
             try
             {
@@ -41,6 +42,7 @@ namespace FlowVision.lib.Plugins
         [KernelFunction, Description("Enter Key")]
         public async Task<bool> EnterKey()
         {
+            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("KeyboardPlugin", "EnterKey", "ENTER");
             AppendLog("Sending Key Command: ENTER");
             try
             {
@@ -53,9 +55,11 @@ namespace FlowVision.lib.Plugins
                 return false;
             }
         }
+
         [KernelFunction, Description("Ctrl + Letter")]
         public async Task<bool> CtrlKey(string letter)
         {
+            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("KeyboardPlugin", "CtrlKey", letter);
             AppendLog($"Sending Key Command: Ctrl + {letter}");
             try
             {
@@ -68,11 +72,13 @@ namespace FlowVision.lib.Plugins
                 return false;
             }
         }
+
         /*
          *
          *[KernelFunction, Description("Alt + F4")]
         public async Task<bool> AltFFour()
         {
+            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("KeyboardPlugin", "AltFFour", "Alt + F4");
             AppendLog("Sending Key Command: Alt + F4");
             try
             {
@@ -91,6 +97,7 @@ namespace FlowVision.lib.Plugins
         [KernelFunction, Description("Opens the Run dialog (Windows+R)")]
         public async Task<bool> OpenRunDialog()
         {
+            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("KeyboardPlugin", "OpenRunDialog", "Windows+R");
             AppendLog("Opening Run dialog (Windows+R)");
             try
             {
@@ -112,6 +119,7 @@ namespace FlowVision.lib.Plugins
             }
         }
         */
+
         /// <summary>
         /// Appends a message to the UI control safely.
         /// </summary>

@@ -16,6 +16,9 @@ namespace FlowVision.lib.Plugins
         [KernelFunction, Description("Executes a CMD command and returns the output.")]
         public async Task<string> ExecuteCommand([Description("Command Prompt Command")] string command)
         {
+            // Log the plugin usage
+            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("CMDPlugin", "ExecuteCommand", command);
+
             AppendLog($"Executing CMD command: {command}");
             try
             {

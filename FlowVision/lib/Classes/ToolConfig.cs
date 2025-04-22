@@ -12,6 +12,7 @@ namespace FlowVision.lib.Classes
         public bool EnableKeyboardPlugin { get; set; } = true;
         public bool EnableMousePlugin { get; set; } = false; // Changed default to false
         public bool EnableWindowSelectionPlugin { get; set; } = true; // Added WindowSelectionPlugin
+        public bool EnablePluginLogging { get; set; } = true;
         public double Temperature { get; set; } = 0.2;
         public bool AutoInvokeKernelFunctions { get; set; } = true;
         public bool RetainChatHistory { get; set; } = true;

@@ -26,10 +26,8 @@ namespace FlowVision.lib.Classes
             this.outputTextBox = outputTextBox;
             actionerHistory = new ChatHistory();
 
-            // Load tool config to get system message
-            
-            // Set system message from config
-            
+            // Initialize the plugin logger with the output text box
+            PluginLogger.Initialize(outputTextBox);
         }
 
         public async Task<string> ExecuteAction(string actionPrompt)
@@ -70,24 +68,47 @@ namespace FlowVision.lib.Classes
                     : ToolCallBehavior.EnableKernelFunctions
             };
             
+            // Log which plugins are being enabled
+            outputTextBox.AppendText("Enabling the following plugins:\n");
+            
             // Add plugins dynamically based on tool configuration
             if (toolConfig.EnableCMDPlugin)
+            {
                 builder.Plugins.AddFromType<CMDPlugin>();
+                outputTextBox.AppendText("- CMD Plugin\n");
+            }
                 
             if (toolConfig.EnablePowerShellPlugin)
+            {
                 builder.Plugins.AddFromType<PowerShellPlugin>();
+                outputTextBox.AppendText("- PowerShell Plugin\n");
+            }
                 
             if (toolConfig.EnableScreenCapturePlugin)
+            {
                 builder.Plugins.AddFromType<ScreenCaptureOmniParserPlugin>();
+                outputTextBox.AppendText("- Screen Capture Plugin\n");
+            }
                 
             if (toolConfig.EnableKeyboardPlugin)
+            {
                 builder.Plugins.AddFromType<KeyboardPlugin>();
+                outputTextBox.AppendText("- Keyboard Plugin\n");
+            }
                 
             if (toolConfig.EnableMousePlugin)
+            {
                 builder.Plugins.AddFromType<MousePlugin>();
+                outputTextBox.AppendText("- Mouse Plugin\n");
+            }
                 
             if (toolConfig.EnableWindowSelectionPlugin) // Add this conditional
+            {
                 builder.Plugins.AddFromType<WindowSelectionPlugin>();
+                outputTextBox.AppendText("- Window Selection Plugin\n");
+            }
+
+            outputTextBox.AppendText("\n");
 
             builder.Services.AddSingleton(outputTextBox);
 

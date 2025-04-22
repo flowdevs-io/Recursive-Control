@@ -18,10 +18,23 @@ namespace FlowVision
         private ToolConfig _toolConfig;
         private bool _isNewConfiguration = false;
 
+        private CheckBox enablePluginLoggingCheckBox;
+
         public ToolConfigForm(bool openAsNew = false)
         {
             InitializeComponent();
             _isNewConfiguration = openAsNew;
+
+            this.enablePluginLoggingCheckBox = new CheckBox();
+            this.enablePluginLoggingCheckBox.AutoSize = true;
+            this.enablePluginLoggingCheckBox.Location = new Point(10, 200); // Replace with appropriate x, y coordinates
+            this.enablePluginLoggingCheckBox.Name = "enablePluginLoggingCheckBox";
+            this.enablePluginLoggingCheckBox.Size = new Size(165, 19);
+            this.enablePluginLoggingCheckBox.TabIndex = 10; // Replace with appropriate tab index
+            this.enablePluginLoggingCheckBox.Text = "Log Plugin Usage";
+            this.enablePluginLoggingCheckBox.UseVisualStyleBackColor = true;
+            this.Controls.Add(this.enablePluginLoggingCheckBox);
+
             LoadToolConfig();
 
             // If this is a new configuration being opened automatically,
@@ -51,6 +64,7 @@ namespace FlowVision
             chkKeyboardPlugin.Checked = _toolConfig.EnableKeyboardPlugin;
             chkMousePlugin.Checked = _toolConfig.EnableMousePlugin;
             chkWindowSelectionPlugin.Checked = _toolConfig.EnableWindowSelectionPlugin; // Add this line
+            enablePluginLoggingCheckBox.Checked = _toolConfig.EnablePluginLogging;
 
             numTemperature.Value = (decimal)_toolConfig.Temperature;
             chkAutoInvoke.Checked = _toolConfig.AutoInvokeKernelFunctions;
@@ -73,6 +87,7 @@ namespace FlowVision
             _toolConfig.EnableKeyboardPlugin = chkKeyboardPlugin.Checked;
             _toolConfig.EnableMousePlugin = chkMousePlugin.Checked;
             _toolConfig.EnableWindowSelectionPlugin = chkWindowSelectionPlugin.Checked; // Add this line
+            _toolConfig.EnablePluginLogging = enablePluginLoggingCheckBox.Checked;
 
             _toolConfig.Temperature = (double)numTemperature.Value;
             _toolConfig.AutoInvokeKernelFunctions = chkAutoInvoke.Checked;

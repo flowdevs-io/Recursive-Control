@@ -12,6 +12,9 @@ namespace FlowVision.lib.Plugins
         [KernelFunction, Description("Executes a PowerShell command and returns the output.")]
         public async Task<string> ExecuteCommand([Description("Powershell Command")] string command)
         {
+            // Log the plugin usage
+            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("PowerShellPlugin", "ExecuteCommand", command);
+
             AppendLog($"Executing PowerShell command: {command}");
             try
             {

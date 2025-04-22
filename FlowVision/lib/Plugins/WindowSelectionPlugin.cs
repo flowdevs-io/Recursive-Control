@@ -19,6 +19,9 @@ namespace FlowVision.lib.Plugins
         [KernelFunction, Description("Used to set current handle as foreground")]
         public async Task<bool> ForegroundSelect(string handleString)
         {
+            // Log the plugin usage
+            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("WindowSelectionPlugin", "ForegroundSelect");
+
             IntPtr windowHandle = new IntPtr(Convert.ToInt32(handleString));
             if (!SetForegroundWindow(windowHandle))
             {
@@ -30,6 +33,9 @@ namespace FlowVision.lib.Plugins
         [KernelFunction, Description("Returns a list of available window handles, titles, and process names.")]
         public string ListWindowHandles()
         {
+            // Log the plugin usage
+            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("WindowSelectionPlugin", "ListWindowHandles");
+
             var windowList = new List<string>();
             Process[] processes = Process.GetProcesses();
             foreach (Process p in processes)
@@ -54,6 +60,9 @@ namespace FlowVision.lib.Plugins
         /// </summary>
         public bool IsWindowHandleValid(IntPtr hWnd)
         {
+            // Log the plugin usage
+            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("WindowSelectionPlugin", "IsWindowHandleValid");
+
             return hWnd != IntPtr.Zero && GetWindowRect(hWnd, out _);
         }
 
@@ -63,6 +72,8 @@ namespace FlowVision.lib.Plugins
         /// <param name="message">The message to append.</param>
         private void AppendLog(string message)
         {
+            // Log the plugin usage
+            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("WindowSelectionPlugin", "AppendLog");
         }
 
         [StructLayout(LayoutKind.Sequential)]

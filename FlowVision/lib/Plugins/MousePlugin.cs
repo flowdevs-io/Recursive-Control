@@ -26,6 +26,10 @@ namespace FlowVision.lib.Plugins
         [KernelFunction, Description("Clicks at the specified normalized bounding box coordinates on a specific window handle.")]
         public async Task<bool> ClickOnWindow(string windowHandleString, double[] bBox, bool leftClick, int clickTimes)
         {
+            // Log the plugin usage
+            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("MousePlugin", "ClickOnWindow", 
+                $"window={windowHandleString}, pos={string.Join(",", bBox)}, leftClick={leftClick}, times={clickTimes}");
+            
             AppendLog("== MousePlugin ClickOnWindow CALL START ==");
             IntPtr windowHandle = new IntPtr(Convert.ToInt32(windowHandleString));
 
@@ -62,9 +66,14 @@ namespace FlowVision.lib.Plugins
             AppendLog("== MousePlugin ClickOnWindow CALL END ==");
             return true;
         }
+
         [KernelFunction, Description("uses scroll wheel on a specific window handle.")]
         public async Task<bool> ScrollOnWindow(string windowHandleString, int scrollAmount)
         {
+            // Log the plugin usage
+            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("MousePlugin", "ScrollOnWindow", 
+                $"window={windowHandleString}, amount={scrollAmount}");
+            
             AppendLog("== MousePlugin ScrollOnWindow CALL START ==");
             IntPtr windowHandle = new IntPtr(Convert.ToInt32(windowHandleString));
             if (!GetWindowRect(windowHandle, out RECT rc))
@@ -85,6 +94,7 @@ namespace FlowVision.lib.Plugins
             AppendLog("== MousePlugin ScrollOnWindow CALL END ==");
             return true;
         }
+
         private void SimulateClick(int x, int y, bool leftClick)
         {
             uint down = leftClick ? MOUSEEVENTF_LEFTDOWN : MOUSEEVENTF_RIGHTDOWN;
