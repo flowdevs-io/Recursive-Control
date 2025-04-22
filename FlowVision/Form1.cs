@@ -361,8 +361,12 @@ namespace FlowVision
             }
             else
             {
+                // Check if tool configuration exists
+                bool isConfigured = ToolConfig.IsConfigured("toolsconfig");
+                
                 // If it isn't, create a new instance of the form
-                ToolConfigForm toolConfigForm = new ToolConfigForm();
+                // Pass true to open as new configuration if not configured
+                ToolConfigForm toolConfigForm = new ToolConfigForm(!isConfigured);
                 toolConfigForm.Show();
             }
         }

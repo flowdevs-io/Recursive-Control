@@ -16,12 +16,17 @@ namespace FlowVision.lib.Classes
         public bool RetainChatHistory { get; set; } = true;
         public string SystemPrompt { get; set; } = "You are an AI Agent that can run powershell commands to help the user. Do not restart the server";
 
-        private static string ConfigFilePath(string configName)
+        public static string ConfigFilePath(string configName)
         {
             return Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "FlowVision",
                 $"{configName}toolconfig.json");
+        }
+
+        public static bool IsConfigured(string configName)
+        {
+            return File.Exists(ConfigFilePath(configName));
         }
 
         public static ToolConfig LoadConfig(string configName)

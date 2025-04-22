@@ -1,14 +1,9 @@
 ﻿using System;
-// ...existing code...
-
-// Ensure there is no duplicate declaration of 'chkRetainChatHistory' in this file
-// If necessary, remove or rename any conflicting declaration
-
-// ...existing code...
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,16 +16,33 @@ namespace FlowVision
     {
         private string toolFileName = "toolsconfig";
         private ToolConfig _toolConfig;
+        private bool _isNewConfiguration = false;
 
-        public ToolConfigForm()
+        public ToolConfigForm(bool openAsNew = false)
         {
             InitializeComponent();
-
+            _isNewConfiguration = openAsNew;
             LoadToolConfig();
+
+            // If this is a new configuration being opened automatically,
+            // show a helpful message to the user
+            if (_isNewConfiguration)
+            {
+                MessageBox.Show(
+                    "Welcome to Tool Configuration! Default settings have been applied. " +
+                    "You can customize these settings and save them for future sessions.",
+                    "Tool Configuration",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
         }
 
         private void LoadToolConfig()
         {
+            // Check if config file exists
+            string configPath = ToolConfig.ConfigFilePath(toolFileName);
+            bool configExists = File.Exists(configPath);
+            
             _toolConfig = ToolConfig.LoadConfig(toolFileName);
 
             chkCMDPlugin.Checked = _toolConfig.EnableCMDPlugin;
@@ -43,6 +55,12 @@ namespace FlowVision
             chkAutoInvoke.Checked = _toolConfig.AutoInvokeKernelFunctions;
             chkRetainChatHistory.Checked = _toolConfig.RetainChatHistory;
             txtSystemPrompt.Text = _toolConfig.SystemPrompt;
+            
+            // If this is a new configuration being created, save the default values
+            if (_isNewConfiguration && !configExists)
+            {
+                _toolConfig.SaveConfig(toolFileName);
+            }
         }
 
         private void saveButton_Click(object sender, EventArgs e)
