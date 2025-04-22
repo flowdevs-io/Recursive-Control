@@ -53,13 +53,13 @@ namespace FlowVision.lib.Plugins
                 return false;
             }
         }
-        [KernelFunction, Description("Ctrl + L")]
-        public async Task<bool> CtrlL()
+        [KernelFunction, Description("Ctrl + Letter")]
+        public async Task<bool> CtrlKey(string letter)
         {
-            AppendLog("Sending Key Command: Ctrl + L");
+            AppendLog($"Sending Key Command: Ctrl + {letter}");
             try
             {
-                SendKeys.SendWait("^l");
+                SendKeys.SendWait($"^({letter})");
                 return true;
             }
             catch (Exception ex)

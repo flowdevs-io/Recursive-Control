@@ -418,6 +418,18 @@ namespace FlowVision
                 toolConfigForm.Show();
             }
         }
+
+        private void newChatToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //clear all chat messages and start conversation over
+            messagesPanel.Controls.Clear();
+            chatHistory.Clear();
+            AddMessage("AI Assistant", "Welcome! How can I help you today?", true);
+            userInputTextBox.Clear();
+            userInputTextBox.Enabled = true;
+            sendButton.Enabled = true;
+
+        }
     }
 
     public class ChatMessage

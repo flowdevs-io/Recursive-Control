@@ -11,11 +11,11 @@ namespace FlowVision.lib.Classes
         public bool EnableScreenCapturePlugin { get; set; } = false; // Changed default to false
         public bool EnableKeyboardPlugin { get; set; } = true;
         public bool EnableMousePlugin { get; set; } = false; // Changed default to false
-        public bool EnableWindowSelectionPlugin { get; set; } = false; // Added WindowSelectionPlugin
+        public bool EnableWindowSelectionPlugin { get; set; } = true; // Added WindowSelectionPlugin
         public double Temperature { get; set; } = 0.2;
         public bool AutoInvokeKernelFunctions { get; set; } = true;
         public bool RetainChatHistory { get; set; } = true;
-        public string SystemPrompt { get; set; } = "You are an AI Agent that can run powershell commands to help the user. Do not restart the server";
+        public string SystemPrompt { get; set; } = @"You are an AI Agent that can use tools to help the user. Use your tools to come up with novel ideas to answer the users requests you dont have the answer to. Do not restart the server";
 
         public static string ConfigFilePath(string configName)
         {

@@ -30,6 +30,7 @@
         {
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.filesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.visionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.omniParserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lLMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -38,7 +39,7 @@
             this.githubToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reasonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainPanel = new System.Windows.Forms.Panel();
-            this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newChatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -58,10 +59,18 @@
             // filesToolStripMenuItem
             // 
             this.filesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolsToolStripMenuItem});
+            this.toolsToolStripMenuItem,
+            this.newChatToolStripMenuItem});
             this.filesToolStripMenuItem.Name = "filesToolStripMenuItem";
             this.filesToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.filesToolStripMenuItem.Text = "File";
+            // 
+            // toolsToolStripMenuItem
+            // 
+            this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.toolsToolStripMenuItem.Text = "Tools";
+            this.toolsToolStripMenuItem.Click += new System.EventHandler(this.toolsToolStripMenuItem_Click);
             // 
             // visionToolStripMenuItem
             // 
@@ -92,21 +101,21 @@
             this.azureOpenAIToolStripMenuItem,
             this.githubToolStripMenuItem});
             this.configureToolStripMenuItem.Name = "configureToolStripMenuItem";
-            this.configureToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.configureToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
             this.configureToolStripMenuItem.Text = "Setup";
             this.configureToolStripMenuItem.Click += new System.EventHandler(this.configureToolStripMenuItem_Click);
             // 
             // azureOpenAIToolStripMenuItem
             // 
             this.azureOpenAIToolStripMenuItem.Name = "azureOpenAIToolStripMenuItem";
-            this.azureOpenAIToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.azureOpenAIToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.azureOpenAIToolStripMenuItem.Text = "Azure OpenAI";
             this.azureOpenAIToolStripMenuItem.Click += new System.EventHandler(this.azureOpenAIToolStripMenuItem_Click);
             // 
             // githubToolStripMenuItem
             // 
             this.githubToolStripMenuItem.Name = "githubToolStripMenuItem";
-            this.githubToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.githubToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.githubToolStripMenuItem.Text = "Github";
             this.githubToolStripMenuItem.Click += new System.EventHandler(this.githubToolStripMenuItem_Click);
             // 
@@ -124,12 +133,12 @@
             this.mainPanel.Size = new System.Drawing.Size(367, 543);
             this.mainPanel.TabIndex = 3;
             // 
-            // toolsToolStripMenuItem
+            // newChatToolStripMenuItem
             // 
-            this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.toolsToolStripMenuItem.Text = "Tools";
-            this.toolsToolStripMenuItem.Click += new System.EventHandler(this.toolsToolStripMenuItem_Click);
+            this.newChatToolStripMenuItem.Name = "newChatToolStripMenuItem";
+            this.newChatToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newChatToolStripMenuItem.Text = "New Chat";
+            this.newChatToolStripMenuItem.Click += new System.EventHandler(this.newChatToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -160,6 +169,7 @@
         private System.Windows.Forms.ToolStripMenuItem githubToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem omniParserToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem newChatToolStripMenuItem;
     }
 }
 
