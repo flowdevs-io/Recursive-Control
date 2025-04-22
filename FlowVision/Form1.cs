@@ -104,12 +104,12 @@ namespace FlowVision
                         panel.MaximumSize = new Size(newWidth, 0);
                         panel.Width = newWidth;
 
-                        // Adjust message label width
+                        // Adjust message TextBox width
                         foreach (Control innerControl in panel.Controls)
                         {
-                            if (innerControl is Label label && label.Font.Size == 10F)
+                            if (innerControl is TextBox textBox && textBox.Font.Size == 10F)
                             {
-                                label.MaximumSize = new Size(newWidth - 20, 0);
+                                textBox.Width = newWidth - 20;
                             }
                         }
                     }
@@ -140,12 +140,24 @@ namespace FlowVision
                 return;
             }
 
+            // Add user message to UI
             AddMessage("You", userInput, false);
 
             try
             {
                 string aiResponse = await GetAIResponseAsync(userInput);
                 AddMessage("AI", aiResponse, true);
+                
+                // Check if we should retain chat history
+                var toolConfig = ToolConfig.LoadConfig("toolsconfig");
+                if (!toolConfig.RetainChatHistory)
+                {
+                    // Keep only the latest exchange in chat history
+                    if (chatHistory.Count > 2)
+                    {
+                        chatHistory.RemoveRange(0, chatHistory.Count - 2);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -162,6 +174,7 @@ namespace FlowVision
             // Get the current config to determine which model to use
             var actionerConfig = APIConfig.LoadConfig("actioner");
             var githubConfig = APIConfig.LoadConfig("github");
+            var toolConfig = ToolConfig.LoadConfig("toolsconfig"); // Added to ensure we have the latest config
 
             // Check if the github is configured
             /**
@@ -180,8 +193,12 @@ namespace FlowVision
                 return await actioner.ExecuteAction(userInput);
             }
             **/
-            // Use Actioner model
+            // Use Actioner model - passing down the toolConfig to ensure chat history setting is properly applied
             Actioner actioner = new Actioner(userInputTextBox);
+            if(toolConfig.RetainChatHistory)
+            {
+                actioner.SetChatHistory(chatHistory);
+            }
             return await actioner.ExecuteAction(userInput);
         }
 
@@ -226,17 +243,44 @@ namespace FlowVision
             bubblePanel.Controls.Add(authorLabel);
             currentY += authorLabel.Height + 2;
 
-            // Add message text
-            Label messageLabel = new Label
+            // Add message text as a TextBox instead of Label to enable text selection
+            TextBox messageTextBox = new TextBox
             {
                 Text = message,
-                AutoSize = true,
-                MaximumSize = new Size(bubbleWidth - 20, 0),
+                Multiline = true,
+                ReadOnly = true,
+                BorderStyle = BorderStyle.None,
+                BackColor = bubblePanel.BackColor,
+                Location = new Point(10, currentY),
+                Width = bubbleWidth - 20,
                 Font = new Font("Segoe UI", 10F),
-                Location = new Point(10, currentY)
+                ScrollBars = ScrollBars.None,
+                WordWrap = true
             };
-            bubblePanel.Controls.Add(messageLabel);
-            currentY += messageLabel.Height + 2;
+            
+            // Auto-size the TextBox to fit content
+            int textHeight = TextRenderer.MeasureText(
+                messageTextBox.Text, 
+                messageTextBox.Font, 
+                new Size(bubbleWidth - 20, int.MaxValue), 
+                TextFormatFlags.WordBreak
+            ).Height;
+            messageTextBox.Height = textHeight + 10;
+            
+            // Add copy context menu
+            ContextMenuStrip contextMenu = new ContextMenuStrip();
+            ToolStripMenuItem copyMenuItem = new ToolStripMenuItem("Copy");
+            copyMenuItem.Click += (sender, args) => {
+                if (messageTextBox.SelectedText.Length > 0)
+                    Clipboard.SetText(messageTextBox.SelectedText);
+                else
+                    Clipboard.SetText(messageTextBox.Text);
+            };
+            contextMenu.Items.Add(copyMenuItem);
+            messageTextBox.ContextMenuStrip = contextMenu;
+            
+            bubblePanel.Controls.Add(messageTextBox);
+            currentY += messageTextBox.Height + 2;
 
             // Add timestamp
             Label timeLabel = new Label
@@ -304,6 +348,22 @@ namespace FlowVision
                 // If it isn't, create a new instance of the form
                 OmniParserForm omniParserForm = new OmniParserForm();
                 omniParserForm.Show();
+            }
+        }
+
+        private void toolsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Check if the config form is already open
+            if (Application.OpenForms.OfType<ToolConfigForm>().Count() == 1)
+            {
+                // If it is, bring it to the front
+                Application.OpenForms.OfType<ToolConfigForm>().First().BringToFront();
+            }
+            else
+            {
+                // If it isn't, create a new instance of the form
+                ToolConfigForm toolConfigForm = new ToolConfigForm();
+                toolConfigForm.Show();
             }
         }
     }

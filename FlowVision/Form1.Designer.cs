@@ -38,6 +38,7 @@
             this.githubToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reasonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainPanel = new System.Windows.Forms.Panel();
+            this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -56,9 +57,11 @@
             // 
             // filesToolStripMenuItem
             // 
+            this.filesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolsToolStripMenuItem});
             this.filesToolStripMenuItem.Name = "filesToolStripMenuItem";
-            this.filesToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
-            this.filesToolStripMenuItem.Text = "Files";
+            this.filesToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.filesToolStripMenuItem.Text = "File";
             // 
             // visionToolStripMenuItem
             // 
@@ -71,7 +74,7 @@
             // omniParserToolStripMenuItem
             // 
             this.omniParserToolStripMenuItem.Name = "omniParserToolStripMenuItem";
-            this.omniParserToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.omniParserToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.omniParserToolStripMenuItem.Text = "OmniParser";
             this.omniParserToolStripMenuItem.Click += new System.EventHandler(this.omniParserToolStripMenuItem_Click);
             // 
@@ -96,14 +99,14 @@
             // azureOpenAIToolStripMenuItem
             // 
             this.azureOpenAIToolStripMenuItem.Name = "azureOpenAIToolStripMenuItem";
-            this.azureOpenAIToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.azureOpenAIToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.azureOpenAIToolStripMenuItem.Text = "Azure OpenAI";
             this.azureOpenAIToolStripMenuItem.Click += new System.EventHandler(this.azureOpenAIToolStripMenuItem_Click);
             // 
             // githubToolStripMenuItem
             // 
             this.githubToolStripMenuItem.Name = "githubToolStripMenuItem";
-            this.githubToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.githubToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.githubToolStripMenuItem.Text = "Github";
             this.githubToolStripMenuItem.Click += new System.EventHandler(this.githubToolStripMenuItem_Click);
             // 
@@ -120,6 +123,13 @@
             this.mainPanel.Name = "mainPanel";
             this.mainPanel.Size = new System.Drawing.Size(367, 543);
             this.mainPanel.TabIndex = 3;
+            // 
+            // toolsToolStripMenuItem
+            // 
+            this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.toolsToolStripMenuItem.Text = "Tools";
+            this.toolsToolStripMenuItem.Click += new System.EventHandler(this.toolsToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -149,6 +159,7 @@
         private System.Windows.Forms.Panel mainPanel;
         private System.Windows.Forms.ToolStripMenuItem githubToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem omniParserToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
     }
 }
 

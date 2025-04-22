@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -17,25 +19,32 @@ namespace FlowVision.lib.Classes
         private Kernel actionerKernel;
         private RichTextBox outputTextBox;
         private const string ACTIONER_CONFIG = "actioner";
+        private const string TOOL_CONFIG = "toolsconfig"; // Added constant for tool config
 
         public Actioner(RichTextBox outputTextBox)
         {
             this.outputTextBox = outputTextBox;
             actionerHistory = new ChatHistory();
 
-            // Set system message
-            actionerHistory.AddSystemMessage("You are an AI Agent that can run powershell commands to help the user." +
-                "Do not restart the server");
+            // Load tool config to get system message
+            
+            // Set system message from config
+            
         }
-
 
         public async Task<string> ExecuteAction(string actionPrompt)
         {
+
+            ToolConfig toolConfig = ToolConfig.LoadConfig(TOOL_CONFIG);
+            // Add system message to actioner history
+            actionerHistory.AddSystemMessage(toolConfig.SystemPrompt);
+
             // Add action prompt to actioner history
             actionerHistory.AddUserMessage(actionPrompt);
 
             // Load actioner model config
             APIConfig config = APIConfig.LoadConfig(ACTIONER_CONFIG);
+            // Changed to use the same config file as ToolConfigForm
 
             if (string.IsNullOrWhiteSpace(config.DeploymentName) ||
                 string.IsNullOrWhiteSpace(config.EndpointURL) ||
@@ -44,35 +53,38 @@ namespace FlowVision.lib.Classes
                 outputTextBox.AppendText("Error: Actioner model not configured\n\n");
                 return "Error: Actioner model not configured";
             }
-            PromptExecutionSettings settings;
-            // Setup the kernel for actioner with CMD plugin
+            
+            // Setup the kernel for actioner with plugins
             var builder = Kernel.CreateBuilder();
-            if ("1" == "1")
-            {
-                builder.AddAzureOpenAIChatCompletion(
+            builder.AddAzureOpenAIChatCompletion(
                 config.DeploymentName,
                 config.EndpointURL,
                 config.APIKey);
 
-                settings = new OpenAIPromptExecutionSettings
-                {
-                    //Temperature = 0.2,
-                    ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions
-                };
-                builder.Plugins.AddFromType<CMDPlugin>();
-                builder.Plugins.AddFromType<PowerShellPlugin>();
-                builder.Plugins.AddFromType<ScreenCapturePlugin>();
-                builder.Plugins.AddFromType<KeyboardPlugin>();
-                builder.Plugins.AddFromType<MousePlugin>();
-
-            }
-            else
+            // Configure OpenAI settings based on toolConfig
+            var settings = new OpenAIPromptExecutionSettings
             {
-                //builder.Plugins.AddFromType<CMDPlugin>();
-            }
-            //check if settings is null
-
-            // Add plugins for command execution
+                Temperature = toolConfig.Temperature,
+                ToolCallBehavior = toolConfig.AutoInvokeKernelFunctions 
+                    ? ToolCallBehavior.AutoInvokeKernelFunctions 
+                    : ToolCallBehavior.EnableKernelFunctions
+            };
+            
+            // Add plugins dynamically based on tool configuration
+            if (toolConfig.EnableCMDPlugin)
+                builder.Plugins.AddFromType<CMDPlugin>();
+                
+            if (toolConfig.EnablePowerShellPlugin)
+                builder.Plugins.AddFromType<PowerShellPlugin>();
+                
+            if (toolConfig.EnableScreenCapturePlugin)
+                builder.Plugins.AddFromType<ScreenCapturePlugin>();
+                
+            if (toolConfig.EnableKeyboardPlugin)
+                builder.Plugins.AddFromType<KeyboardPlugin>();
+                
+            if (toolConfig.EnableMousePlugin)
+                builder.Plugins.AddFromType<MousePlugin>();
 
             builder.Services.AddSingleton(outputTextBox);
 
@@ -100,17 +112,23 @@ namespace FlowVision.lib.Classes
 
             string response = responseBuilder.ToString();
 
-            /*
-            var response = await actionerChat.GetChatMessageContentsAsync(actionerHistory, settings, actionerKernel);
-            responseBuilder.Append(response[0].Content);
-            outputTextBox.AppendText(response[0].Content);
-
-            actionerHistory.AddAssistantMessage(responseBuilder.ToString());
-            */
-            //check if response contains command
-
-
             return responseBuilder.ToString();
+        }
+
+        internal void SetChatHistory(List<ChatMessage> chatHistory)
+        {
+            actionerHistory.Clear();
+            foreach (var message in chatHistory)
+            {
+                if (message.Author == "You")
+                {
+                    actionerHistory.AddUserMessage(message.Content);
+                }
+                else if (message.Author == "AI")
+                {
+                    actionerHistory.AddAssistantMessage(message.Content);
+                }
+            }
         }
     }
 }

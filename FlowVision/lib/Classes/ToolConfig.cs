@@ -1,0 +1,67 @@
+using System;
+using System.IO;
+using System.Text.Json;
+
+namespace FlowVision.lib.Classes
+{
+    public class ToolConfig
+    {
+        public bool EnableCMDPlugin { get; set; } = true;
+        public bool EnablePowerShellPlugin { get; set; } = true;
+        public bool EnableScreenCapturePlugin { get; set; } = true;
+        public bool EnableKeyboardPlugin { get; set; } = true;
+        public bool EnableMousePlugin { get; set; } = true;
+        public double Temperature { get; set; } = 0.2;
+        public bool AutoInvokeKernelFunctions { get; set; } = true;
+        public bool RetainChatHistory { get; set; } = true;
+        public string SystemPrompt { get; set; } = "You are an AI Agent that can run powershell commands to help the user. Do not restart the server";
+
+        private static string ConfigFilePath(string configName)
+        {
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "FlowVision",
+                $"{configName}toolconfig.json");
+        }
+
+        public static ToolConfig LoadConfig(string configName)
+        {
+            try
+            {
+                // Ensure the directory exists.
+                Directory.CreateDirectory(Path.GetDirectoryName(ConfigFilePath(configName)));
+
+                if (File.Exists(ConfigFilePath(configName)))
+                {
+                    string jsonContent = File.ReadAllText(ConfigFilePath(configName));
+                    if (!string.IsNullOrWhiteSpace(jsonContent))
+                    {
+                        return JsonSerializer.Deserialize<ToolConfig>(jsonContent) ?? new ToolConfig();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading tool config: {ex.Message}");
+            }
+            return new ToolConfig();
+        }
+
+        public void SaveConfig(string configName)
+        {
+            try
+            {
+                // Ensure the directory exists.
+                Directory.CreateDirectory(Path.GetDirectoryName(ConfigFilePath(configName)));
+
+                var options = new JsonSerializerOptions { WriteIndented = true };
+                string jsonContent = JsonSerializer.Serialize(this, options);
+                File.WriteAllText(ConfigFilePath(configName), jsonContent);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving tool config: {ex.Message}");
+            }
+        }
+    }
+}

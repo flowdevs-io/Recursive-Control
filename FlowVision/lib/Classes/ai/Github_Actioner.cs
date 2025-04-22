@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -21,14 +22,18 @@ namespace FlowVision.lib.Classes
         private Kernel _kernel;
         private RichTextBox _output;
         private const string ACTIONER_CONFIG = "github";
+        private const string TOOL_CONFIG = "toolsconfig";
 
         public Github_Actioner(RichTextBox outputTextBox)
         {
             _output = outputTextBox;
             _history = new ChatHistory();
-            _history.AddSystemMessage(
-                "You are an AI Agent that uses tools to control a windows computer"
-            );
+            
+            // Load tool config to get system message
+            ToolConfig toolConfig = ToolConfig.LoadConfig(TOOL_CONFIG);
+            
+            // Set system message from config
+            _history.AddSystemMessage(toolConfig.SystemPrompt);
         }
 
         public async Task<string> ExecuteAction(string actionPrompt)
@@ -37,6 +42,8 @@ namespace FlowVision.lib.Classes
 
             // 1. Load your GitHub‑Models config
             APIConfig config = APIConfig.LoadConfig(ACTIONER_CONFIG);
+            ToolConfig toolConfig = ToolConfig.LoadConfig(ACTIONER_CONFIG);
+
             if (string.IsNullOrWhiteSpace(config.EndpointURL) ||
                 string.IsNullOrWhiteSpace(config.APIKey) ||
                 string.IsNullOrWhiteSpace(config.DeploymentName))
@@ -81,7 +88,6 @@ namespace FlowVision.lib.Classes
                 ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions
             };
 
-
             // Process the response
             var responseBuilder = new StringBuilder();
             // Uncomment for Open AI
@@ -103,7 +109,7 @@ namespace FlowVision.lib.Classes
 
             string response = responseBuilder.ToString();
 
-            _history.AddAssistantMessage(response);
+
             return response;
         }
     }
