@@ -178,7 +178,13 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="lib\Classes\LLMPluginInteractionManager.cs" />
     <Compile Include="lib\Classes\MarkdownHelper.cs" />
+    <Compile Include="lib\Classes\PluginLogger.cs" />
+    <Compile Include="lib\Controls\LogViewer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="lib\Interfaces\IPluginLogger.cs" />
     <Compile Include="lib\Plugins\ScreenCaptureOmniParserPlugin.cs" />
     <Compile Include="lib\Plugins\WindowSelectionPlugin.cs" />
     <Compile Include="ToolConfigForm.cs">
@@ -243,9 +249,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="lib\Controls\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets" Condition="Exists('..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

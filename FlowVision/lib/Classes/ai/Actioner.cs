@@ -21,6 +21,8 @@ namespace FlowVision.lib.Classes
         private const string ACTIONER_CONFIG = "actioner";
         private const string TOOL_CONFIG = "toolsconfig"; // Added constant for tool config
 
+        public object ToolCallBehavior { get; private set; }
+
         // Update the Actioner constructor to support both the delegate and the RichTextBox approaches
         public Actioner(Form1.PluginOutputHandler outputHandler)
         {
@@ -82,9 +84,9 @@ namespace FlowVision.lib.Classes
             var settings = new OpenAIPromptExecutionSettings
             {
                 Temperature = toolConfig.Temperature,
-                ToolCallBehavior = toolConfig.AutoInvokeKernelFunctions 
-                    ? ToolCallBehavior.AutoInvokeKernelFunctions 
-                    : ToolCallBehavior.EnableKernelFunctions
+                ToolCallBehavior = toolConfig.AutoInvokeKernelFunctions
+                    ? Microsoft.SemanticKernel.Connectors.OpenAI.ToolCallBehavior.AutoInvokeKernelFunctions
+                    : Microsoft.SemanticKernel.Connectors.OpenAI.ToolCallBehavior.EnableKernelFunctions
             };
             
             // Log which plugins are being enabled
