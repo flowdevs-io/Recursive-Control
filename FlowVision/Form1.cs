@@ -18,6 +18,9 @@ namespace FlowVision
         private Button sendButton;
         private List<ChatMessage> chatHistory = new List<ChatMessage>();
 
+        // Add a delegate for handling plugin output messages
+        public delegate void PluginOutputHandler(string message);
+
         public Form1()
         {
             InitializeComponent();
@@ -183,30 +186,31 @@ namespace FlowVision
             var githubConfig = APIConfig.LoadConfig("github");
             var toolConfig = ToolConfig.LoadConfig("toolsconfig"); // Added to ensure we have the latest config
 
-            // Check if the github is configured
-            /**
-            if (!string.IsNullOrWhiteSpace(githubConfig.DeploymentName) &&
-                !string.IsNullOrWhiteSpace(githubConfig.EndpointURL) &&
-                !string.IsNullOrWhiteSpace(githubConfig.APIKey))
-            {
-                // Use GitHub model
-                Github_Actioner github = new Github_Actioner(userInputTextBox);
-                return await github.ExecuteAction(userInput);
-            }
-            else
-            {
-                // Use Actioner model
-                Actioner actioner = new Actioner(userInputTextBox);
-                return await actioner.ExecuteAction(userInput);
-            }
-            **/
+            // Create a StringBuilder to collect plugin output
+            StringBuilder pluginOutput = new StringBuilder();
+            
+            // Define a plugin output handler that adds messages to the plugin output
+            PluginOutputHandler outputHandler = (message) => {
+                pluginOutput.AppendLine(message);
+            };
+
             // Use Actioner model - passing down the toolConfig to ensure chat history setting is properly applied
-            Actioner actioner = new Actioner(userInputTextBox);
+            Actioner actioner = new Actioner(outputHandler);
             if(toolConfig.RetainChatHistory)
             {
                 actioner.SetChatHistory(chatHistory);
             }
-            return await actioner.ExecuteAction(userInput);
+            
+            // Execute the action and get the AI response
+            string aiResponse = await actioner.ExecuteAction(userInput);
+            
+            // If there's plugin output, prepend it to the AI response
+            if (pluginOutput.Length > 0)
+            {
+                return $"{pluginOutput}\n\n{aiResponse}";
+            }
+            
+            return aiResponse;
         }
 
         private void AddMessage(string author, string message, bool isInbound)

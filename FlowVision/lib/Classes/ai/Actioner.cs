@@ -21,13 +21,32 @@ namespace FlowVision.lib.Classes
         private const string ACTIONER_CONFIG = "actioner";
         private const string TOOL_CONFIG = "toolsconfig"; // Added constant for tool config
 
-        public Actioner(RichTextBox outputTextBox)
+        // Update the Actioner constructor to support both the delegate and the RichTextBox approaches
+        public Actioner(Form1.PluginOutputHandler outputHandler)
         {
-            this.outputTextBox = outputTextBox;
             actionerHistory = new ChatHistory();
 
-            // Initialize the plugin logger with the output text box
-            PluginLogger.Initialize(outputTextBox);
+            // Create a RichTextBox that isn't displayed but used for logging
+            var hiddenTextBox = new RichTextBox { Visible = false };
+
+            // Initialize the plugin logger with the hidden text box
+            PluginLogger.Initialize(hiddenTextBox);
+
+            // Override the UpdateUI method to use our output handler
+            if (outputHandler != null)
+            {
+                // Update UI via the handler when text is added to the hidden textbox
+                hiddenTextBox.TextChanged += (sender, e) =>
+                {
+                    string newText = hiddenTextBox.Lines.LastOrDefault();
+                    if (!string.IsNullOrEmpty(newText))
+                    {
+                        outputHandler(newText);
+                    }
+                };
+            }
+
+            this.outputTextBox = hiddenTextBox;
         }
 
         public async Task<string> ExecuteAction(string actionPrompt)
