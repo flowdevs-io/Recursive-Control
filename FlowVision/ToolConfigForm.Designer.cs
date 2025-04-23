@@ -35,6 +35,7 @@
             this.chkPowerShellPlugin = new System.Windows.Forms.CheckBox();
             this.chkCMDPlugin = new System.Windows.Forms.CheckBox();
             this.chkWindowSelectionPlugin = new System.Windows.Forms.CheckBox();
+            this.enablePluginLoggingCheckBox = new System.Windows.Forms.CheckBox();
             this.groupBoxSettings = new System.Windows.Forms.GroupBox();
             this.chkAutoInvoke = new System.Windows.Forms.CheckBox();
             this.chkRetainChatHistory = new System.Windows.Forms.CheckBox();
@@ -132,6 +133,17 @@
             this.chkWindowSelectionPlugin.Text = "Enable Window Selection Plugin (Window Handles)";
             this.chkWindowSelectionPlugin.UseVisualStyleBackColor = true;
             // 
+            // enablePluginLoggingCheckBox
+            // 
+            this.enablePluginLoggingCheckBox.AutoSize = true;
+            this.enablePluginLoggingCheckBox.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.enablePluginLoggingCheckBox.Location = new System.Drawing.Point(12, 218);
+            this.enablePluginLoggingCheckBox.Name = "enablePluginLoggingCheckBox";
+            this.enablePluginLoggingCheckBox.Size = new System.Drawing.Size(140, 23);
+            this.enablePluginLoggingCheckBox.TabIndex = 6;
+            this.enablePluginLoggingCheckBox.Text = "Log Plugin Usage";
+            this.enablePluginLoggingCheckBox.UseVisualStyleBackColor = true;
+            // 
             // groupBoxSettings
             // 
             this.groupBoxSettings.Controls.Add(this.chkAutoInvoke);
@@ -139,7 +151,7 @@
             this.groupBoxSettings.Controls.Add(this.numTemperature);
             this.groupBoxSettings.Controls.Add(this.lblTemperature);
             this.groupBoxSettings.Font = new System.Drawing.Font("Comic Sans MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBoxSettings.Location = new System.Drawing.Point(12, 218);
+            this.groupBoxSettings.Location = new System.Drawing.Point(12, 253);
             this.groupBoxSettings.Name = "groupBoxSettings";
             this.groupBoxSettings.Size = new System.Drawing.Size(436, 120);
             this.groupBoxSettings.TabIndex = 1;
@@ -205,7 +217,7 @@
             // saveButton
             // 
             this.saveButton.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.saveButton.Location = new System.Drawing.Point(236, 496);
+            this.saveButton.Location = new System.Drawing.Point(236, 531);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(98, 30);
             this.saveButton.TabIndex = 2;
@@ -216,7 +228,7 @@
             // cancelButton
             // 
             this.cancelButton.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cancelButton.Location = new System.Drawing.Point(340, 496);
+            this.cancelButton.Location = new System.Drawing.Point(340, 531);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(98, 30);
             this.cancelButton.TabIndex = 3;
@@ -228,7 +240,7 @@
             // 
             this.groupBoxSystemPrompt.Controls.Add(this.txtSystemPrompt);
             this.groupBoxSystemPrompt.Font = new System.Drawing.Font("Comic Sans MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBoxSystemPrompt.Location = new System.Drawing.Point(12, 344);
+            this.groupBoxSystemPrompt.Location = new System.Drawing.Point(12, 379);
             this.groupBoxSystemPrompt.Name = "groupBoxSystemPrompt";
             this.groupBoxSystemPrompt.Size = new System.Drawing.Size(436, 146);
             this.groupBoxSystemPrompt.TabIndex = 4;
@@ -248,7 +260,8 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(450, 536);
+            this.ClientSize = new System.Drawing.Size(450, 571);
+            this.Controls.Add(this.enablePluginLoggingCheckBox);
             this.Controls.Add(this.groupBoxSystemPrompt);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.saveButton);
@@ -267,6 +280,7 @@
             this.groupBoxSystemPrompt.ResumeLayout(false);
             this.groupBoxSystemPrompt.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -288,5 +302,6 @@
         private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.GroupBox groupBoxSystemPrompt;
         private System.Windows.Forms.TextBox txtSystemPrompt;
+        private System.Windows.Forms.CheckBox enablePluginLoggingCheckBox;
     }
 }
