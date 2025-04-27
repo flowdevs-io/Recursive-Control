@@ -38,6 +38,9 @@ namespace FlowVision
             };
 
             config.SaveConfig(currentModel);
+
+            // Close the form
+            this.Close();
         }
 
     }
