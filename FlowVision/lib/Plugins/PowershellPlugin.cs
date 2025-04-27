@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FlowVision.lib.Classes;
 using Microsoft.SemanticKernel;
 
 namespace FlowVision.lib.Plugins
@@ -13,9 +14,8 @@ namespace FlowVision.lib.Plugins
         public async Task<string> ExecuteCommand([Description("Powershell Command")] string command)
         {
             // Log the plugin usage
-            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("PowerShellPlugin", "ExecuteCommand", command);
+            PluginLogger.LogPluginUsage("PowerShellPlugin", "ExecuteCommand", command);
 
-            AppendLog($"Executing PowerShell command: {command}");
             try
             {
                 var startInfo = new ProcessStartInfo()
@@ -37,28 +37,15 @@ namespace FlowVision.lib.Plugins
 
                     if (!string.IsNullOrWhiteSpace(errors))
                     {
-                        AppendLog($"Error: {errors}");
                         return $"Error: {errors}";
                     }
-
-                    AppendLog("Command executed successfully.");
-                    AppendLog($"Output: {output.Trim()}");
                     return output.Trim();
                 }
             }
             catch (Exception ex)
             {
-                AppendLog($"Exception: {ex.Message}");
                 return $"Exception: {ex.Message}";
             }
-        }
-
-        /// <summary>
-        /// Appends a message to the UI control safely.
-        /// </summary>
-        /// <param name="message">Message to log.</param>
-        private void AppendLog(string message)
-        {
         }
     }
 }

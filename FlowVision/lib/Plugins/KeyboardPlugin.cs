@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FlowVision.lib.Classes;
 using Microsoft.SemanticKernel;
 
 namespace FlowVision.lib.Plugins
@@ -25,8 +26,7 @@ namespace FlowVision.lib.Plugins
         [KernelFunction, Description("Used to interact with the keyboard")]
         public async Task<bool> SendKey(string keyCombo)
         {
-            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("KeyboardPlugin", "SendKey", keyCombo);
-            AppendLog($"Sending Key Command: {keyCombo}");
+            PluginLogger.LogPluginUsage("KeyboardPlugin", "SendKey", keyCombo);
             try
             {
                 SendKeys.SendWait(keyCombo);
@@ -34,7 +34,6 @@ namespace FlowVision.lib.Plugins
             }
             catch (Exception ex)
             {
-                AppendLog($"Error Sending Key: {ex.Message}");
                 return false;
             }
         }
@@ -42,8 +41,7 @@ namespace FlowVision.lib.Plugins
         [KernelFunction, Description("Enter Key")]
         public async Task<bool> EnterKey()
         {
-            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("KeyboardPlugin", "EnterKey", "ENTER");
-            AppendLog("Sending Key Command: ENTER");
+            PluginLogger.LogPluginUsage("KeyboardPlugin", "EnterKey", "ENTER");
             try
             {
                 SendKeys.SendWait("{ENTER}");
@@ -51,7 +49,6 @@ namespace FlowVision.lib.Plugins
             }
             catch (Exception ex)
             {
-                AppendLog($"Error Sending Key: {ex.Message}");
                 return false;
             }
         }
@@ -59,8 +56,7 @@ namespace FlowVision.lib.Plugins
         [KernelFunction, Description("Ctrl + Letter")]
         public async Task<bool> CtrlKey(string letter)
         {
-            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("KeyboardPlugin", "CtrlKey", letter);
-            AppendLog($"Sending Key Command: Ctrl + {letter}");
+            PluginLogger.LogPluginUsage("KeyboardPlugin", "CtrlKey", letter);
             try
             {
                 SendKeys.SendWait($"^({letter})");
@@ -68,7 +64,6 @@ namespace FlowVision.lib.Plugins
             }
             catch (Exception ex)
             {
-                AppendLog($"Error Sending Key: {ex.Message}");
                 return false;
             }
         }
@@ -119,13 +114,5 @@ namespace FlowVision.lib.Plugins
             }
         }
         */
-
-        /// <summary>
-        /// Appends a message to the UI control safely.
-        /// </summary>
-        /// <param name="message">Message to log.</param>
-        private void AppendLog(string message)
-        { 
-        }
     }
 }

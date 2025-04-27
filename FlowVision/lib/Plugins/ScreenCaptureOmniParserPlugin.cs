@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FlowVision.lib.Classes;
 using Microsoft.SemanticKernel;
 
 namespace FlowVision.lib.Plugins
@@ -32,9 +33,7 @@ namespace FlowVision.lib.Plugins
         [KernelFunction, Description("Used to capture the Screen and return Parsed Content")]
         public async Task<List<ParsedContent>> CaptureScreen(string handleString)
         {
-            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("ScreenCaptureOmniParserPlugin", "CaptureScreen");
-            AppendLog("== ScreenCaptureOmniParserPlugin CALL START ==");
-            AppendLog("Screen Capture");
+            PluginLogger.LogPluginUsage("ScreenCaptureOmniParserPlugin", "CaptureScreen");
 
             OmniparserResponse omniResult;
             var capBase64 = CaptureWindow(handleString);
@@ -47,7 +46,6 @@ namespace FlowVision.lib.Plugins
                 SaveSomImage(omniResult.SomImageBase64);
             }
 
-            AppendLog("== ScreenCaptureOmniParserPlugin CALL END ==");
             return omniResult.ParsedContentList;
         }
 
@@ -81,7 +79,6 @@ namespace FlowVision.lib.Plugins
                 SaveSomImage(omniResult.SomImageBase64);
             }
 
-            AppendLog("== ScreenCaptureOmniParserPlugin CALL END ==");
             return omniResult.ParsedContentList;
         }
 
@@ -138,14 +135,6 @@ namespace FlowVision.lib.Plugins
                     return Convert.ToBase64String(ms.ToArray());
                 }
             }
-        }
-
-        /// <summary>
-        /// Appends a message to the UI control safely.
-        /// </summary>
-        /// <param name="message">The message to append.</param>
-        private void AppendLog(string message)
-        {
         }
     }
 }

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using FlowVision.lib.Classes;
 using Microsoft.SemanticKernel;
 
 namespace FlowVision.lib.Plugins
@@ -61,7 +62,7 @@ namespace FlowVision.lib.Plugins
         public bool IsWindowHandleValid(IntPtr hWnd)
         {
             // Log the plugin usage
-            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("WindowSelectionPlugin", "IsWindowHandleValid");
+            PluginLogger.LogPluginUsage("WindowSelectionPlugin", "IsWindowHandleValid");
 
             return hWnd != IntPtr.Zero && GetWindowRect(hWnd, out _);
         }
@@ -73,7 +74,7 @@ namespace FlowVision.lib.Plugins
         private void AppendLog(string message)
         {
             // Log the plugin usage
-            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("WindowSelectionPlugin", "AppendLog");
+            PluginLogger.LogPluginUsage("WindowSelectionPlugin", "AppendLog");
         }
 
         [StructLayout(LayoutKind.Sequential)]
