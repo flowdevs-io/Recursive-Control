@@ -17,7 +17,6 @@ namespace FlowVision.lib.Classes
         private IChatCompletionService actionerChat;
         private ChatHistory actionerHistory;
         private Kernel actionerKernel;
-        private RichTextBox outputTextBox;
         private const string ACTIONER_CONFIG = "actioner";
         private const string TOOL_CONFIG = "toolsconfig"; // Added constant for tool config
 
@@ -32,7 +31,18 @@ namespace FlowVision.lib.Classes
             var hiddenTextBox = new RichTextBox { Visible = false };
 
             // Initialize the plugin logger with the hidden text box
-            PluginLogger.Initialize(hiddenTextBox);
+            // Pass the direct UI update delegate that takes the message and adds it to the chat UI
+            if (Application.OpenForms.Count > 0 && Application.OpenForms[0] is Form1 mainForm)
+            {
+                // Get reference to the AddMessage method on the Form1 instance
+                Action<string, string, bool> addMessageAction = mainForm.AddMessage;
+                PluginLogger.Initialize(hiddenTextBox, addMessageAction);
+            }
+            else
+            {
+                // Fall back to just using the hidden text box
+                PluginLogger.Initialize(hiddenTextBox);
+            }
 
             // Override the UpdateUI method to use our output handler
             if (outputHandler != null)
@@ -47,117 +57,118 @@ namespace FlowVision.lib.Classes
                     }
                 };
             }
-
-            this.outputTextBox = hiddenTextBox;
         }
 
         public async Task<string> ExecuteAction(string actionPrompt)
         {
-
             ToolConfig toolConfig = ToolConfig.LoadConfig(TOOL_CONFIG);
-            // Add system message to actioner history
-            actionerHistory.AddSystemMessage(toolConfig.SystemPrompt);
-
-            // Add action prompt to actioner history
-            actionerHistory.AddUserMessage(actionPrompt);
-
-            // Load actioner model config
-            APIConfig config = APIConfig.LoadConfig(ACTIONER_CONFIG);
-            // Changed to use the same config file as ToolConfigForm
-
-            if (string.IsNullOrWhiteSpace(config.DeploymentName) ||
-                string.IsNullOrWhiteSpace(config.EndpointURL) ||
-                string.IsNullOrWhiteSpace(config.APIKey))
-            {
-                outputTextBox.AppendText("Error: Actioner model not configured\n\n");
-                return "Error: Actioner model not configured";
-            }
             
-            // Setup the kernel for actioner with plugins
-            var builder = Kernel.CreateBuilder();
-            builder.AddAzureOpenAIChatCompletion(
-                config.DeploymentName,
-                config.EndpointURL,
-                config.APIKey);
-
-            // Configure OpenAI settings based on toolConfig
-            var settings = new OpenAIPromptExecutionSettings
-            {
-                Temperature = toolConfig.Temperature,
-                ToolCallBehavior = toolConfig.AutoInvokeKernelFunctions
-                    ? Microsoft.SemanticKernel.Connectors.OpenAI.ToolCallBehavior.AutoInvokeKernelFunctions
-                    : Microsoft.SemanticKernel.Connectors.OpenAI.ToolCallBehavior.EnableKernelFunctions
-            };
+            // Notify that we're starting the action execution
+            PluginLogger.NotifyTaskStart("Action Execution", "Processing your request");
+            PluginLogger.StartLoadingIndicator("request");
             
-            // Log which plugins are being enabled
-            outputTextBox.AppendText("Enabling the following plugins:\n");
-            
-            // Add plugins dynamically based on tool configuration
-            if (toolConfig.EnableCMDPlugin)
-            {
-                builder.Plugins.AddFromType<CMDPlugin>();
-                outputTextBox.AppendText("- CMD Plugin\n");
-            }
-                
-            if (toolConfig.EnablePowerShellPlugin)
-            {
-                builder.Plugins.AddFromType<PowerShellPlugin>();
-                outputTextBox.AppendText("- PowerShell Plugin\n");
-            }
-                
-            if (toolConfig.EnableScreenCapturePlugin)
-            {
-                builder.Plugins.AddFromType<ScreenCaptureOmniParserPlugin>();
-                outputTextBox.AppendText("- Screen Capture Plugin\n");
-            }
-                
-            if (toolConfig.EnableKeyboardPlugin)
-            {
-                builder.Plugins.AddFromType<KeyboardPlugin>();
-                outputTextBox.AppendText("- Keyboard Plugin\n");
-            }
-                
-            if (toolConfig.EnableMousePlugin)
-            {
-                builder.Plugins.AddFromType<MousePlugin>();
-                outputTextBox.AppendText("- Mouse Plugin\n");
-            }
-                
-            if (toolConfig.EnableWindowSelectionPlugin) // Add this conditional
-            {
-                builder.Plugins.AddFromType<WindowSelectionPlugin>();
-                outputTextBox.AppendText("- Window Selection Plugin\n");
-            }
-
-            outputTextBox.AppendText("\n");
-
-            builder.Services.AddSingleton(outputTextBox);
-
-            actionerKernel = builder.Build();
-            actionerChat = actionerKernel.GetRequiredService<IChatCompletionService>();
-
-            // Process the response
-            var responseBuilder = new StringBuilder();
-            // Uncomment for Open AI
-            var responseStream = actionerChat.GetStreamingChatMessageContentsAsync(actionerHistory, settings, actionerKernel);
-            var enumerator = responseStream.GetAsyncEnumerator();
             try
             {
-                while (await enumerator.MoveNextAsync())
+                // Add system message to actioner history
+                actionerHistory.AddSystemMessage(toolConfig.SystemPrompt);
+
+                // Add action prompt to actioner history
+                actionerHistory.AddUserMessage(actionPrompt);
+
+                // Load actioner model config
+                APIConfig config = APIConfig.LoadConfig(ACTIONER_CONFIG);
+
+                if (string.IsNullOrWhiteSpace(config.DeploymentName) ||
+                    string.IsNullOrWhiteSpace(config.EndpointURL) ||
+                    string.IsNullOrWhiteSpace(config.APIKey))
                 {
-                    var message = enumerator.Current;
-                    if (message.Content == "None") continue;
-                    responseBuilder.Append(message.Content);
+                    PluginLogger.NotifyTaskComplete("Action Execution", false);
+                    return "Error: Actioner model not configured";
                 }
+                
+                // Setup the kernel for actioner with plugins
+                var builder = Kernel.CreateBuilder();
+                builder.AddAzureOpenAIChatCompletion(
+                    config.DeploymentName,
+                    config.EndpointURL,
+                    config.APIKey);
+
+                // Configure OpenAI settings based on toolConfig
+                var settings = new OpenAIPromptExecutionSettings
+                {
+                    Temperature = toolConfig.Temperature,
+                    ToolCallBehavior = toolConfig.AutoInvokeKernelFunctions
+                        ? Microsoft.SemanticKernel.Connectors.OpenAI.ToolCallBehavior.AutoInvokeKernelFunctions
+                        : Microsoft.SemanticKernel.Connectors.OpenAI.ToolCallBehavior.EnableKernelFunctions
+                };
+                
+                // Add plugins dynamically based on tool configuration
+                if (toolConfig.EnableCMDPlugin)
+                {
+                    builder.Plugins.AddFromType<CMDPlugin>();
+                }
+                    
+                if (toolConfig.EnablePowerShellPlugin)
+                {
+                    builder.Plugins.AddFromType<PowerShellPlugin>();
+                }
+                    
+                if (toolConfig.EnableScreenCapturePlugin)
+                {
+                    builder.Plugins.AddFromType<ScreenCaptureOmniParserPlugin>();
+                }
+                    
+                if (toolConfig.EnableKeyboardPlugin)
+                {
+                    builder.Plugins.AddFromType<KeyboardPlugin>();
+                }
+                    
+                if (toolConfig.EnableMousePlugin)
+                {
+                    builder.Plugins.AddFromType<MousePlugin>();
+                }
+                    
+                if (toolConfig.EnableWindowSelectionPlugin)
+                {
+                    builder.Plugins.AddFromType<WindowSelectionPlugin>();
+                }
+
+                actionerKernel = builder.Build();
+                actionerChat = actionerKernel.GetRequiredService<IChatCompletionService>();
+
+                // Update loading message to show we're now processing the response
+                PluginLogger.StopLoadingIndicator();
+                PluginLogger.StartLoadingIndicator("AI response");
+
+                // Process the response
+                var responseBuilder = new StringBuilder();
+                var responseStream = actionerChat.GetStreamingChatMessageContentsAsync(actionerHistory, settings, actionerKernel);
+                var enumerator = responseStream.GetAsyncEnumerator();
+                try
+                {
+                    while (await enumerator.MoveNextAsync())
+                    {
+                        var message = enumerator.Current;
+                        if (message.Content == "None") continue;
+                        responseBuilder.Append(message.Content);
+                    }
+                }
+                finally
+                {
+                    await enumerator.DisposeAsync();
+                }
+
+                // Task completed successfully
+                PluginLogger.NotifyTaskComplete("Action Execution", true);
+                
+                return responseBuilder.ToString();
             }
-            finally
+            catch (Exception ex)
             {
-                await enumerator.DisposeAsync();
+                // Task failed
+                PluginLogger.NotifyTaskComplete("Action Execution", false);
+                return $"Error: {ex.Message}";
             }
-
-            string response = responseBuilder.ToString();
-
-            return responseBuilder.ToString();
         }
 
         internal void SetChatHistory(List<ChatMessage> chatHistory)

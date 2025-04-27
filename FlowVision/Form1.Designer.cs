@@ -110,7 +110,6 @@
             this.configureToolStripMenuItem.Name = "configureToolStripMenuItem";
             this.configureToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
             this.configureToolStripMenuItem.Text = "Setup";
-            this.configureToolStripMenuItem.Click += new System.EventHandler(this.configureToolStripMenuItem_Click);
             // 
             // azureOpenAIToolStripMenuItem
             // 
