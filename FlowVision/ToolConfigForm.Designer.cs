@@ -139,7 +139,7 @@
             this.enablePluginLoggingCheckBox.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.enablePluginLoggingCheckBox.Location = new System.Drawing.Point(12, 218);
             this.enablePluginLoggingCheckBox.Name = "enablePluginLoggingCheckBox";
-            this.enablePluginLoggingCheckBox.Size = new System.Drawing.Size(140, 23);
+            this.enablePluginLoggingCheckBox.Size = new System.Drawing.Size(133, 23);
             this.enablePluginLoggingCheckBox.TabIndex = 6;
             this.enablePluginLoggingCheckBox.Text = "Log Plugin Usage";
             this.enablePluginLoggingCheckBox.UseVisualStyleBackColor = true;
@@ -270,6 +270,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ToolConfigForm";
+            this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Tool Configuration";
             this.groupBoxPlugins.ResumeLayout(false);
