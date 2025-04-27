@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FlowVision.lib.Classes;
 using Microsoft.SemanticKernel;
 
 namespace FlowVision.lib.Plugins
@@ -17,9 +18,8 @@ namespace FlowVision.lib.Plugins
         public async Task<string> ExecuteCommand([Description("Command Prompt Command")] string command)
         {
             // Log the plugin usage
-            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("CMDPlugin", "ExecuteCommand", command);
+            PluginLogger.LogPluginUsage("CMDPlugin", "ExecuteCommand", command);
 
-            AppendLog($"Executing CMD command: {command}");
             try
             {
                 var startInfo = new ProcessStartInfo()
@@ -41,28 +41,17 @@ namespace FlowVision.lib.Plugins
 
                     if (!string.IsNullOrWhiteSpace(errors))
                     {
-                        AppendLog($"Error: {errors}");
+
                         return $"Error: {errors}";
                     }
 
-                    AppendLog("CMD command executed successfully.");
-                    AppendLog($"Output: {output.Trim()}");
                     return output.Trim();
                 }
             }
             catch (Exception ex)
             {
-                AppendLog($"Exception: {ex.Message}");
                 return $"Exception: {ex.Message}";
             }
-        }
-
-        /// <summary>
-        /// Appends a message to the UI control safely.
-        /// </summary>
-        /// <param name="message">Message to log.</param>
-        private void AppendLog(string message)
-        {
         }
     }
 }
