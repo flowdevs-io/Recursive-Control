@@ -31,6 +31,7 @@
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.filesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newChatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.visionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.omniParserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lLMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -39,7 +40,6 @@
             this.githubToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reasonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainPanel = new System.Windows.Forms.Panel();
-            this.newChatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -68,9 +68,16 @@
             // toolsToolStripMenuItem
             // 
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
             this.toolsToolStripMenuItem.Text = "Tools";
             this.toolsToolStripMenuItem.Click += new System.EventHandler(this.toolsToolStripMenuItem_Click);
+            // 
+            // newChatToolStripMenuItem
+            // 
+            this.newChatToolStripMenuItem.Name = "newChatToolStripMenuItem";
+            this.newChatToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
+            this.newChatToolStripMenuItem.Text = "New Chat";
+            this.newChatToolStripMenuItem.Click += new System.EventHandler(this.newChatToolStripMenuItem_Click);
             // 
             // visionToolStripMenuItem
             // 
@@ -83,7 +90,7 @@
             // omniParserToolStripMenuItem
             // 
             this.omniParserToolStripMenuItem.Name = "omniParserToolStripMenuItem";
-            this.omniParserToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.omniParserToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
             this.omniParserToolStripMenuItem.Text = "OmniParser";
             this.omniParserToolStripMenuItem.Click += new System.EventHandler(this.omniParserToolStripMenuItem_Click);
             // 
@@ -133,13 +140,6 @@
             this.mainPanel.Size = new System.Drawing.Size(367, 543);
             this.mainPanel.TabIndex = 3;
             // 
-            // newChatToolStripMenuItem
-            // 
-            this.newChatToolStripMenuItem.Name = "newChatToolStripMenuItem";
-            this.newChatToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.newChatToolStripMenuItem.Text = "New Chat";
-            this.newChatToolStripMenuItem.Click += new System.EventHandler(this.newChatToolStripMenuItem_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -148,7 +148,8 @@
             this.Controls.Add(this.mainPanel);
             this.Controls.Add(this.menuStrip2);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.ShowIcon = false;
+            this.Text = "Human Interface";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.menuStrip2.ResumeLayout(false);
             this.menuStrip2.PerformLayout();

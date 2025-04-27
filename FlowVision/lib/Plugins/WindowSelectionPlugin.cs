@@ -21,7 +21,7 @@ namespace FlowVision.lib.Plugins
         public async Task<bool> ForegroundSelect(string handleString)
         {
             // Log the plugin usage
-            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("WindowSelectionPlugin", "ForegroundSelect");
+            PluginLogger.LogPluginUsage("WindowSelectionPlugin", "ForegroundSelect");
 
             IntPtr windowHandle = new IntPtr(Convert.ToInt32(handleString));
             if (!SetForegroundWindow(windowHandle))
@@ -35,7 +35,7 @@ namespace FlowVision.lib.Plugins
         public string ListWindowHandles()
         {
             // Log the plugin usage
-            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("WindowSelectionPlugin", "ListWindowHandles");
+            PluginLogger.LogPluginUsage("WindowSelectionPlugin", "ListWindowHandles");
 
             var windowList = new List<string>();
             Process[] processes = Process.GetProcesses();

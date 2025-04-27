@@ -43,7 +43,7 @@ namespace FlowVision.lib.Plugins
                 OmniParserClient omniClient = new OmniParserClient(httpClient);
                 // ProcessScreenshotAsync now returns a custom object.
                 omniResult = await omniClient.ProcessScreenshotAsync(capBase64);
-                SaveSomImage(omniResult.SomImageBase64);
+                //SaveSomImage(omniResult.SomImageBase64);
             }
 
             return omniResult.ParsedContentList;
@@ -53,7 +53,7 @@ namespace FlowVision.lib.Plugins
         [KernelFunction, Description("Used to capture the whole screen")]
         public async Task<List<ParsedContent>> CaptureWholeScreen()
         {
-            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("ScreenCaptureOmniParserPlugin", "CaptureWholeScreen");
+            PluginLogger.LogPluginUsage("ScreenCaptureOmniParserPlugin", "CaptureWholeScreen");
             var capBase64 = "";
             OmniparserResponse omniResult;
 
@@ -76,7 +76,7 @@ namespace FlowVision.lib.Plugins
                 OmniParserClient omniClient = new OmniParserClient(httpClient);
                 // ProcessScreenshotAsync now returns a custom object.
                 omniResult = await omniClient.ProcessScreenshotAsync(capBase64);
-                SaveSomImage(omniResult.SomImageBase64);
+                //SaveSomImage(omniResult.SomImageBase64);
             }
 
             return omniResult.ParsedContentList;
@@ -86,9 +86,10 @@ namespace FlowVision.lib.Plugins
         /// Save the image to the file system.
         /// </summary>
         /// <param name="somImageBase64"></param>
+        /*
         private void SaveSomImage(string somImageBase64)
         {
-            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("ScreenCaptureOmniParserPlugin", "SaveSomImage");
+            PluginLogger.LogPluginUsage("ScreenCaptureOmniParserPlugin", "SaveSomImage");
             byte[] imageBytes = Convert.FromBase64String(somImageBase64);
             using (var ms = new System.IO.MemoryStream(imageBytes))
             {
@@ -96,10 +97,11 @@ namespace FlowVision.lib.Plugins
                 image.Save(prosPath, ImageFormat.Png);
             }
         }
+        */
 
         public string CaptureWindow(string handleString)
         {
-            FlowVision.lib.Classes.PluginLogger.LogPluginUsage("ScreenCaptureOmniParserPlugin", "CaptureWindow");
+            PluginLogger.LogPluginUsage("ScreenCaptureOmniParserPlugin", "CaptureWindow");
             IntPtr windowHandle = new IntPtr(Convert.ToInt32(handleString));
 
             if (!_windowSelector.IsWindowHandleValid(windowHandle))
