@@ -184,6 +184,7 @@
     </Compile>
     <Compile Include="lib\Classes\MarkdownHelper.cs" />
     <Compile Include="lib\Classes\PluginLogger.cs" />
+    <Compile Include="lib\Classes\TaskNotifier.cs" />
     <Compile Include="lib\Plugins\ScreenCaptureOmniParserPlugin.cs" />
     <Compile Include="lib\Plugins\WindowSelectionPlugin.cs" />
     <Compile Include="ToolConfigForm.cs">

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using FlowVision.lib.Classes;
+using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace FlowVision
 {
@@ -24,16 +25,6 @@ namespace FlowVision
         public Form1()
         {
             InitializeComponent();
-        }
-
-        private void toolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void configureToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void azureOpenAIToolStripMenuItem_Click(object sender, EventArgs e)
@@ -172,10 +163,12 @@ namespace FlowVision
             catch (Exception ex)
             {
                 MessageBox.Show($"Error communicating with AI: {ex.Message}", "Error");
+                
                 allowUserInput(true);
             }
 
             userInputTextBox.Clear();
+            RemoveMessagesByAuthor("System");
             allowUserInput(true);
         }
 
@@ -184,7 +177,7 @@ namespace FlowVision
             // Get the current config to determine which model to use
             var actionerConfig = APIConfig.LoadConfig("actioner");
             var githubConfig = APIConfig.LoadConfig("github");
-            var toolConfig = ToolConfig.LoadConfig("toolsconfig"); // Added to ensure we have the latest config
+            var toolConfig = ToolConfig.LoadConfig("toolsconfig");
 
             // Create a StringBuilder to collect plugin output
             StringBuilder pluginOutput = new StringBuilder();
@@ -194,27 +187,64 @@ namespace FlowVision
                 pluginOutput.AppendLine(message);
             };
 
-            // Use Actioner model - passing down the toolConfig to ensure chat history setting is properly applied
-            Actioner actioner = new Actioner(outputHandler);
-            if(toolConfig.RetainChatHistory)
+            // Show a pre-execution notification to the user in the UI
+            AddMessage("System", "Your request is being processed. Please wait...", true);
+            
+            string aiResponse = string.Empty;
+            
+            // Use TaskNotifier to wrap the action execution with notifications 
+            try
             {
-                actioner.SetChatHistory(chatHistory);
+                await TaskNotifier.RunWithNotificationAsync(
+                    "Request Processing", 
+                    "Processing your request and preparing tools",
+                    async () =>
+                    {
+                        // Use Actioner model with the notification infrastructure
+                        Actioner actioner = new Actioner(outputHandler);
+                        if(toolConfig.RetainChatHistory)
+                        {
+                            actioner.SetChatHistory(chatHistory);
+                        }
+                        
+                        // Execute the action and get the AI response
+                        aiResponse = await actioner.ExecuteAction(userInput);
+                    });
+                
+                // If there's plugin output, prepend it to the AI response
+                if (pluginOutput.Length > 0)
+                {
+                    aiResponse = $"{pluginOutput}\n\n{aiResponse}";
+                }
+                
+                // Remove the "processing" message from the UI
+                RemoveMessageIfSystem();
+                return aiResponse;
             }
-            
-            // Execute the action and get the AI response
-            string aiResponse = await actioner.ExecuteAction(userInput);
-            
-            // If there's plugin output, prepend it to the AI response
-            if (pluginOutput.Length > 0)
+            catch (Exception ex)
             {
-                return $"{pluginOutput}\n\n{aiResponse}";
+                // Remove the "processing" message from the UI
+                RemoveMessageIfSystem();
+                
+                return $"Error processing request: {ex.Message}";
             }
-            
-            return aiResponse;
         }
 
-        private void AddMessage(string author, string message, bool isInbound)
+        // Helper method to remove system messages
+        private void RemoveMessageIfSystem()
         {
+
+        }
+
+        public void AddMessage(string author, string message, bool isInbound)
+        {
+            // If called from a non-UI thread, use Invoke to switch to UI thread
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action<string, string, bool>(AddMessage), new object[] { author, message, isInbound });
+                return;
+            }
+
             // Create a new chat message and add to history
             var chatMessage = new ChatMessage
             {
@@ -401,6 +431,42 @@ namespace FlowVision
                 OmniParserForm omniParserForm = new OmniParserForm();
                 omniParserForm.Show();
             }
+        }
+        // Add this anywhere inside Form1
+        private void RemoveMessagesByAuthor(string author)
+        {
+            if (string.IsNullOrWhiteSpace(author)) return;
+
+            /* 1. Strip them out of the in-memory conversation -------- */
+            chatHistory.RemoveAll(m =>
+                m.Author.Equals(author, StringComparison.OrdinalIgnoreCase));
+
+            /* 2. Find every message bubble whose first child Label      *
+             *    contains the requested author name, queue for removal  */
+            var doomed = new List<Control>();
+
+            foreach (Control c in messagesPanel.Controls)
+            {
+                if (c is Panel bubble)
+                {
+                    // the author label is the first control we added
+                    var lbl = bubble.Controls.OfType<Label>().FirstOrDefault();
+                    if (lbl != null &&
+                        lbl.Text.Equals(author, StringComparison.OrdinalIgnoreCase))
+                    {
+                        doomed.Add(bubble);
+                    }
+                }
+            }
+
+            /* 3. Remove from UI and dispose to free resources --------- */
+            foreach (var bubble in doomed)
+            {
+                messagesPanel.Controls.Remove(bubble);
+                bubble.Dispose();
+            }
+
+            messagesPanel.PerformLayout();
         }
 
         private void toolsToolStripMenuItem_Click(object sender, EventArgs e)
