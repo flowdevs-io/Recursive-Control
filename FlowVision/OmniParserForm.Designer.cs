@@ -69,8 +69,11 @@
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.omniParserServerURL);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "OmniParserForm";
-            this.Text = "OmniParserForm";
+            this.ShowIcon = false;
+            this.Text = "OmniParserServer Config";
             this.Load += new System.EventHandler(this.OmniParserForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

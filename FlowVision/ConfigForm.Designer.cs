@@ -43,7 +43,7 @@
             this.DeploymentNameLabel.Font = new System.Drawing.Font("Comic Sans MS", 14F);
             this.DeploymentNameLabel.Location = new System.Drawing.Point(12, 9);
             this.DeploymentNameLabel.Name = "DeploymentNameLabel";
-            this.DeploymentNameLabel.Size = new System.Drawing.Size(170, 26);
+            this.DeploymentNameLabel.Size = new System.Drawing.Size(121, 26);
             this.DeploymentNameLabel.TabIndex = 0;
             this.DeploymentNameLabel.Text = "Model Name";
             // 
@@ -115,10 +115,13 @@
             this.Controls.Add(this.deploymentNameTextBox);
             this.Controls.Add(this.EndpointURLLabel);
             this.Controls.Add(this.DeploymentNameLabel);
+            this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(700, 200);
+            this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(700, 200);
             this.Name = "ConfigForm";
-            this.Text = "ConfigForm";
+            this.ShowIcon = false;
+            this.Text = "Model Config";
             this.ResumeLayout(false);
             this.PerformLayout();
 
