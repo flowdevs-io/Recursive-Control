@@ -19,8 +19,8 @@ namespace FlowVision
         private FlowLayoutPanel messagesPanel;
         private RichTextBox userInputTextBox;
         private Button sendButton;
+        private List<LocalChatMessage> chatHistory = new List<LocalChatMessage>();
         private Button microphoneButton; // New microphone button
-        private List<ChatMessage> chatHistory = new List<ChatMessage>();
         // Speech recognition components
         private SpeechRecognitionService speechRecognition;
         private bool isListening = false;
@@ -410,7 +410,7 @@ namespace FlowVision
             }
 
             // Create a new chat message and add to history
-            var chatMessage = new ChatMessage
+            var chatMessage = new LocalChatMessage
             {
                 Author = author,
                 Content = message,
@@ -665,7 +665,7 @@ namespace FlowVision
         }
     }
 
-    public class ChatMessage
+    public class LocalChatMessage
     {
         public string Author { get; set; }
         public string Content { get; set; }
