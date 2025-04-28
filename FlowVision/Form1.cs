@@ -17,7 +17,7 @@ namespace FlowVision
         private FlowLayoutPanel messagesPanel;
         private RichTextBox userInputTextBox;
         private Button sendButton;
-        private List<ChatMessage> chatHistory = new List<ChatMessage>();
+        private List<LocalChatMessage> chatHistory = new List<LocalChatMessage>();
 
         // Add a delegate for handling plugin output messages
         public delegate void PluginOutputHandler(string message);
@@ -246,7 +246,7 @@ namespace FlowVision
             }
 
             // Create a new chat message and add to history
-            var chatMessage = new ChatMessage
+            var chatMessage = new LocalChatMessage
             {
                 Author = author,
                 Content = message,
@@ -502,7 +502,7 @@ namespace FlowVision
         }
     }
 
-    public class ChatMessage
+    public class LocalChatMessage
     {
         public string Author { get; set; }
         public string Content { get; set; }
