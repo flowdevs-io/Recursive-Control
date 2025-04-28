@@ -171,7 +171,7 @@ namespace FlowVision.lib.Classes
             }
         }
 
-        internal void SetChatHistory(List<ChatMessage> chatHistory)
+        internal void SetChatHistory(List<LocalChatMessage> chatHistory)
         {
             actionerHistory.Clear();
             foreach (var message in chatHistory)
