@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using FlowVision.lib.Classes;
 using Microsoft.SemanticKernel.ChatCompletion;
+// Add System.Speech namespace
+using System.Speech.Recognition;
 
 namespace FlowVision
 {
@@ -18,6 +20,10 @@ namespace FlowVision
         private RichTextBox userInputTextBox;
         private Button sendButton;
         private List<LocalChatMessage> chatHistory = new List<LocalChatMessage>();
+        private Button microphoneButton; // New microphone button
+        // Speech recognition components
+        private SpeechRecognitionService speechRecognition;
+        private bool isListening = false;
 
         // Add a delegate for handling plugin output messages
         public delegate void PluginOutputHandler(string message);
@@ -95,6 +101,20 @@ namespace FlowVision
             sendButton.Click += SendButton_Click;
             inputPanel.Controls.Add(sendButton);
 
+            // Create microphone button
+            microphoneButton = new Button
+            {
+                Dock = DockStyle.Right,
+                Text = "🎤",
+                Width = 40,
+                Font = new Font("Segoe UI", 12F)
+            };
+            microphoneButton.Click += MicrophoneButton_Click;
+            inputPanel.Controls.Add(microphoneButton);
+
+            // Initialize speech recognition service
+            InitializeSpeechRecognition();
+            
             // Handle window resize to adjust message widths
             this.Resize += (s, args) =>
             {
@@ -122,10 +142,154 @@ namespace FlowVision
             AddMessage("AI Assistant", "Welcome! How can I help you today?", true);
         }
 
+        private void InitializeSpeechRecognition()
+        {
+            try
+            {
+                var toolConfig = ToolConfig.LoadConfig("toolsconfig");
+                
+                // Only initialize if speech recognition is enabled in config
+                if (toolConfig.EnableSpeechRecognition)
+                {
+                    speechRecognition = new SpeechRecognitionService();
+                    speechRecognition.SpeechRecognized += (sender, result) => 
+                    {
+                        // Use Invoke to update UI from a different thread
+                        if (this.InvokeRequired)
+                        {
+                            this.Invoke(new Action<string>((text) => {
+                                userInputTextBox.Text = text;
+                            }), result);
+                        }
+                        else
+                        {
+                            userInputTextBox.Text = result;
+                        }
+                    };
+                    
+                    // Add handler for voice commands
+                    if (toolConfig.EnableVoiceCommands)
+                    {
+                        speechRecognition.CommandRecognized += (sender, command) =>
+                        {
+                            if (this.InvokeRequired)
+                            {
+                                this.Invoke(new Action(() => {
+                                    if (!string.IsNullOrWhiteSpace(userInputTextBox.Text))
+                                    {
+                                        AddMessage("System", $"Voice command recognized: \"{command}\"", true);
+                                        SendButton_Click(this, EventArgs.Empty);
+                                    }
+                                }));
+                            }
+                            else
+                            {
+                                if (!string.IsNullOrWhiteSpace(userInputTextBox.Text))
+                                {
+                                    AddMessage("System", $"Voice command recognized: \"{command}\"", true);
+                                    SendButton_Click(this, EventArgs.Empty);
+                                }
+                            }
+                        };
+                        
+                        // Start continuous listening if voice commands are enabled
+                        if (toolConfig.EnableVoiceCommands)
+                        {
+                            speechRecognition.StartListening();
+                        }
+                    }
+                }
+                else
+                {
+                    microphoneButton.Enabled = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error initializing speech recognition: {ex.Message}", "Speech Recognition Error");
+                microphoneButton.Enabled = false;
+            }
+        }
+
+        private void MicrophoneButton_Click(object sender, EventArgs e)
+        {
+            if (speechRecognition == null)
+            {
+                MessageBox.Show("Speech recognition is not available.", "Feature Not Available");
+                return;
+            }
+
+            if (isListening)
+            {
+                StopListening();
+            }
+            else
+            {
+                StartListening();
+            }
+        }
+
+        private void StartListening()
+        {
+            try
+            {
+                var toolConfig = ToolConfig.LoadConfig("toolsconfig");
+                
+                // Clear existing text before starting to listen
+                userInputTextBox.Text = "";
+                
+                // Change button appearance to indicate recording
+                microphoneButton.Text = "⏹️";
+                microphoneButton.BackColor = Color.Red;
+                isListening = true;
+                
+                // Start listening
+                speechRecognition.StartListening();
+                
+                // Add temporary message to indicate we're listening
+                AddMessage("System", "Listening... Speak now." + 
+                    (toolConfig.EnableVoiceCommands ? 
+                        $" Say \"{toolConfig.VoiceCommandPhrase}\" to send your message." : ""), true);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error starting voice recognition: {ex.Message}", "Voice Recognition Error");
+                StopListening();
+            }
+        }
+
+        private void StopListening()
+        {
+            try
+            {
+                // Change button appearance back to normal
+                microphoneButton.Text = "🎤";
+                microphoneButton.BackColor = SystemColors.Control;
+                isListening = false;
+                
+                // Stop listening
+                speechRecognition.StopListening();
+                
+                // Remove the listening message
+                RemoveMessagesByAuthor("System");
+                
+                // If we have recognized text, send it automatically
+                if (!string.IsNullOrWhiteSpace(userInputTextBox.Text))
+                {
+                    SendButton_Click(this, EventArgs.Empty);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error stopping voice recognition: {ex.Message}", "Voice Recognition Error");
+            }
+        }
+
         private void allowUserInput(bool enable)
         {
-                userInputTextBox.Enabled = enable;
-                sendButton.Enabled = enable;
+            userInputTextBox.Enabled = enable;
+            sendButton.Enabled = enable;
+            microphoneButton.Enabled = enable && speechRecognition != null;
         }
 
         private async void SendButton_Click(object sender, EventArgs e)
@@ -432,7 +596,7 @@ namespace FlowVision
                 omniParserForm.Show();
             }
         }
-        // Add this anywhere inside Form1
+
         private void RemoveMessagesByAuthor(string author)
         {
             if (string.IsNullOrWhiteSpace(author)) return;
@@ -498,7 +662,6 @@ namespace FlowVision
             userInputTextBox.Clear();
             userInputTextBox.Enabled = true;
             sendButton.Enabled = true;
-
         }
     }
 

@@ -17,6 +17,13 @@
             {
                 components.Dispose();
             }
+            
+            // Clean up speech recognition resources
+            if (speechRecognition != null)
+            {
+                speechRecognition.Dispose();
+            }
+            
             base.Dispose(disposing);
         }
 
