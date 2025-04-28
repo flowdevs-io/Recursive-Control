@@ -45,10 +45,20 @@
             this.cancelButton = new System.Windows.Forms.Button();
             this.groupBoxSystemPrompt = new System.Windows.Forms.GroupBox();
             this.txtSystemPrompt = new System.Windows.Forms.TextBox();
+            this.groupBoxSpeechRecognition = new System.Windows.Forms.GroupBox();
+            this.chkEnableSpeechRecognition = new System.Windows.Forms.CheckBox();
+            this.lblSpeechLanguage = new System.Windows.Forms.Label();
+            this.comboSpeechLanguage = new System.Windows.Forms.ComboBox();
+            this.groupBoxVoiceCommands = new System.Windows.Forms.GroupBox();
+            this.chkEnableVoiceCommands = new System.Windows.Forms.CheckBox();
+            this.lblVoiceCommandPhrase = new System.Windows.Forms.Label();
+            this.txtVoiceCommandPhrase = new System.Windows.Forms.TextBox();
             this.groupBoxPlugins.SuspendLayout();
             this.groupBoxSettings.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numTemperature)).BeginInit();
             this.groupBoxSystemPrompt.SuspendLayout();
+            this.groupBoxSpeechRecognition.SuspendLayout();
+            this.groupBoxVoiceCommands.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBoxPlugins
@@ -217,7 +227,7 @@
             // saveButton
             // 
             this.saveButton.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.saveButton.Location = new System.Drawing.Point(236, 531);
+            this.saveButton.Location = new System.Drawing.Point(236, 725);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(98, 30);
             this.saveButton.TabIndex = 2;
@@ -228,7 +238,7 @@
             // cancelButton
             // 
             this.cancelButton.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cancelButton.Location = new System.Drawing.Point(340, 531);
+            this.cancelButton.Location = new System.Drawing.Point(340, 725);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(98, 30);
             this.cancelButton.TabIndex = 3;
@@ -240,7 +250,7 @@
             // 
             this.groupBoxSystemPrompt.Controls.Add(this.txtSystemPrompt);
             this.groupBoxSystemPrompt.Font = new System.Drawing.Font("Comic Sans MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBoxSystemPrompt.Location = new System.Drawing.Point(12, 379);
+            this.groupBoxSystemPrompt.Location = new System.Drawing.Point(12, 571);
             this.groupBoxSystemPrompt.Name = "groupBoxSystemPrompt";
             this.groupBoxSystemPrompt.Size = new System.Drawing.Size(436, 146);
             this.groupBoxSystemPrompt.TabIndex = 4;
@@ -256,12 +266,111 @@
             this.txtSystemPrompt.Size = new System.Drawing.Size(402, 100);
             this.txtSystemPrompt.TabIndex = 0;
             // 
+            // groupBoxSpeechRecognition
+            // 
+            this.groupBoxSpeechRecognition.Controls.Add(this.comboSpeechLanguage);
+            this.groupBoxSpeechRecognition.Controls.Add(this.lblSpeechLanguage);
+            this.groupBoxSpeechRecognition.Controls.Add(this.chkEnableSpeechRecognition);
+            this.groupBoxSpeechRecognition.Font = new System.Drawing.Font("Comic Sans MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBoxSpeechRecognition.Location = new System.Drawing.Point(12, 379);
+            this.groupBoxSpeechRecognition.Name = "groupBoxSpeechRecognition";
+            this.groupBoxSpeechRecognition.Size = new System.Drawing.Size(436, 92);
+            this.groupBoxSpeechRecognition.TabIndex = 5;
+            this.groupBoxSpeechRecognition.TabStop = false;
+            this.groupBoxSpeechRecognition.Text = "Speech Recognition";
+            // 
+            // chkEnableSpeechRecognition
+            // 
+            this.chkEnableSpeechRecognition.AutoSize = true;
+            this.chkEnableSpeechRecognition.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkEnableSpeechRecognition.Location = new System.Drawing.Point(17, 29);
+            this.chkEnableSpeechRecognition.Name = "chkEnableSpeechRecognition";
+            this.chkEnableSpeechRecognition.Size = new System.Drawing.Size(192, 23);
+            this.chkEnableSpeechRecognition.TabIndex = 0;
+            this.chkEnableSpeechRecognition.Text = "Enable Speech Recognition";
+            this.chkEnableSpeechRecognition.UseVisualStyleBackColor = true;
+            // 
+            // lblSpeechLanguage
+            // 
+            this.lblSpeechLanguage.AutoSize = true;
+            this.lblSpeechLanguage.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSpeechLanguage.Location = new System.Drawing.Point(14, 59);
+            this.lblSpeechLanguage.Name = "lblSpeechLanguage";
+            this.lblSpeechLanguage.Size = new System.Drawing.Size(160, 19);
+            this.lblSpeechLanguage.TabIndex = 1;
+            this.lblSpeechLanguage.Text = "Recognition Language:";
+            // 
+            // comboSpeechLanguage
+            // 
+            this.comboSpeechLanguage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboSpeechLanguage.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.comboSpeechLanguage.FormattingEnabled = true;
+            this.comboSpeechLanguage.Items.AddRange(new object[] {
+            "en-US",
+            "en-GB",
+            "en-AU",
+            "fr-FR",
+            "es-ES",
+            "de-DE",
+            "it-IT",
+            "ja-JP",
+            "zh-CN",
+            "ru-RU"});
+            this.comboSpeechLanguage.Location = new System.Drawing.Point(180, 56);
+            this.comboSpeechLanguage.Name = "comboSpeechLanguage";
+            this.comboSpeechLanguage.Size = new System.Drawing.Size(239, 27);
+            this.comboSpeechLanguage.TabIndex = 2;
+            // 
+            // groupBoxVoiceCommands
+            // 
+            this.groupBoxVoiceCommands.Controls.Add(this.txtVoiceCommandPhrase);
+            this.groupBoxVoiceCommands.Controls.Add(this.lblVoiceCommandPhrase);
+            this.groupBoxVoiceCommands.Controls.Add(this.chkEnableVoiceCommands);
+            this.groupBoxVoiceCommands.Font = new System.Drawing.Font("Comic Sans MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBoxVoiceCommands.Location = new System.Drawing.Point(12, 477);
+            this.groupBoxVoiceCommands.Name = "groupBoxVoiceCommands";
+            this.groupBoxVoiceCommands.Size = new System.Drawing.Size(436, 88);
+            this.groupBoxVoiceCommands.TabIndex = 6;
+            this.groupBoxVoiceCommands.TabStop = false;
+            this.groupBoxVoiceCommands.Text = "Voice Commands";
+            // 
+            // chkEnableVoiceCommands
+            // 
+            this.chkEnableVoiceCommands.AutoSize = true;
+            this.chkEnableVoiceCommands.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkEnableVoiceCommands.Location = new System.Drawing.Point(17, 29);
+            this.chkEnableVoiceCommands.Name = "chkEnableVoiceCommands";
+            this.chkEnableVoiceCommands.Size = new System.Drawing.Size(173, 23);
+            this.chkEnableVoiceCommands.TabIndex = 0;
+            this.chkEnableVoiceCommands.Text = "Enable Voice Commands";
+            this.chkEnableVoiceCommands.UseVisualStyleBackColor = true;
+            // 
+            // lblVoiceCommandPhrase
+            // 
+            this.lblVoiceCommandPhrase.AutoSize = true;
+            this.lblVoiceCommandPhrase.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblVoiceCommandPhrase.Location = new System.Drawing.Point(14, 59);
+            this.lblVoiceCommandPhrase.Name = "lblVoiceCommandPhrase";
+            this.lblVoiceCommandPhrase.Size = new System.Drawing.Size(151, 19);
+            this.lblVoiceCommandPhrase.TabIndex = 1;
+            this.lblVoiceCommandPhrase.Text = "Voice Command Phrase:";
+            // 
+            // txtVoiceCommandPhrase
+            // 
+            this.txtVoiceCommandPhrase.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtVoiceCommandPhrase.Location = new System.Drawing.Point(180, 56);
+            this.txtVoiceCommandPhrase.Name = "txtVoiceCommandPhrase";
+            this.txtVoiceCommandPhrase.Size = new System.Drawing.Size(239, 26);
+            this.txtVoiceCommandPhrase.TabIndex = 2;
+            // 
             // ToolConfigForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(450, 571);
+            this.ClientSize = new System.Drawing.Size(450, 766);
             this.Controls.Add(this.enablePluginLoggingCheckBox);
+            this.Controls.Add(this.groupBoxVoiceCommands);
+            this.Controls.Add(this.groupBoxSpeechRecognition);
             this.Controls.Add(this.groupBoxSystemPrompt);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.saveButton);
@@ -280,6 +389,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.numTemperature)).EndInit();
             this.groupBoxSystemPrompt.ResumeLayout(false);
             this.groupBoxSystemPrompt.PerformLayout();
+            this.groupBoxSpeechRecognition.ResumeLayout(false);
+            this.groupBoxSpeechRecognition.PerformLayout();
+            this.groupBoxVoiceCommands.ResumeLayout(false);
+            this.groupBoxVoiceCommands.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -304,5 +417,13 @@
         private System.Windows.Forms.GroupBox groupBoxSystemPrompt;
         private System.Windows.Forms.TextBox txtSystemPrompt;
         private System.Windows.Forms.CheckBox enablePluginLoggingCheckBox;
+        private System.Windows.Forms.GroupBox groupBoxSpeechRecognition;
+        private System.Windows.Forms.CheckBox chkEnableSpeechRecognition;
+        private System.Windows.Forms.Label lblSpeechLanguage;
+        private System.Windows.Forms.ComboBox comboSpeechLanguage;
+        private System.Windows.Forms.GroupBox groupBoxVoiceCommands;
+        private System.Windows.Forms.CheckBox chkEnableVoiceCommands;
+        private System.Windows.Forms.Label lblVoiceCommandPhrase;
+        private System.Windows.Forms.TextBox txtVoiceCommandPhrase;
     }
 }
