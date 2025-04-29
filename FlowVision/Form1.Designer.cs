@@ -44,7 +44,6 @@
             this.lLMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.configureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.azureOpenAIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.githubToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reasonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainPanel = new System.Windows.Forms.Panel();
             this.menuStrip2.SuspendLayout();
@@ -112,25 +111,17 @@
             // configureToolStripMenuItem
             // 
             this.configureToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.azureOpenAIToolStripMenuItem,
-            this.githubToolStripMenuItem});
+            this.azureOpenAIToolStripMenuItem});
             this.configureToolStripMenuItem.Name = "configureToolStripMenuItem";
-            this.configureToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
+            this.configureToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.configureToolStripMenuItem.Text = "Setup";
             // 
             // azureOpenAIToolStripMenuItem
             // 
             this.azureOpenAIToolStripMenuItem.Name = "azureOpenAIToolStripMenuItem";
-            this.azureOpenAIToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.azureOpenAIToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.azureOpenAIToolStripMenuItem.Text = "Azure OpenAI";
             this.azureOpenAIToolStripMenuItem.Click += new System.EventHandler(this.azureOpenAIToolStripMenuItem_Click);
-            // 
-            // githubToolStripMenuItem
-            // 
-            this.githubToolStripMenuItem.Name = "githubToolStripMenuItem";
-            this.githubToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
-            this.githubToolStripMenuItem.Text = "Github";
-            this.githubToolStripMenuItem.Click += new System.EventHandler(this.githubToolStripMenuItem_Click);
             // 
             // reasonToolStripMenuItem
             // 
@@ -173,7 +164,6 @@
         private System.Windows.Forms.ToolStripMenuItem configureToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem azureOpenAIToolStripMenuItem;
         private System.Windows.Forms.Panel mainPanel;
-        private System.Windows.Forms.ToolStripMenuItem githubToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem omniParserToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newChatToolStripMenuItem;
