@@ -20,6 +20,9 @@ namespace FlowVision.lib.Classes
         private const string ACTIONER_CONFIG = "actioner";
         private const string TOOL_CONFIG = "toolsconfig"; // Added constant for tool config
 
+        private MultiAgentActioner multiAgentActioner;
+        private bool useMultiAgentMode = false;
+
         public object ToolCallBehavior { get; private set; }
 
         // Update the Actioner constructor to support both the delegate and the RichTextBox approaches
@@ -57,16 +60,32 @@ namespace FlowVision.lib.Classes
                     }
                 };
             }
+
+            // Initialize the multi-agent actioner with the same output handler
+            multiAgentActioner = new MultiAgentActioner(outputHandler);
+        }
+
+        // Add method to toggle multi-agent mode
+        public void SetMultiAgentMode(bool enabled)
+        {
+            useMultiAgentMode = enabled;
         }
 
         public async Task<string> ExecuteAction(string actionPrompt)
         {
+            // If multi-agent mode is enabled, use the multi-agent actioner
+            if (useMultiAgentMode)
+            {
+                return await multiAgentActioner.ExecuteAction(actionPrompt);
+            }
+
+            // Otherwise use the original implementation
             ToolConfig toolConfig = ToolConfig.LoadConfig(TOOL_CONFIG);
-            
+
             // Notify that we're starting the action execution
             PluginLogger.NotifyTaskStart("Action Execution", "Processing your request");
             PluginLogger.StartLoadingIndicator("request");
-            
+
             try
             {
                 // Add system message to actioner history
@@ -85,7 +104,7 @@ namespace FlowVision.lib.Classes
                     PluginLogger.NotifyTaskComplete("Action Execution", false);
                     return "Error: Actioner model not configured";
                 }
-                
+
                 // Setup the kernel for actioner with plugins
                 var builder = Kernel.CreateBuilder();
                 builder.AddAzureOpenAIChatCompletion(
@@ -101,33 +120,33 @@ namespace FlowVision.lib.Classes
                         ? Microsoft.SemanticKernel.Connectors.OpenAI.ToolCallBehavior.AutoInvokeKernelFunctions
                         : Microsoft.SemanticKernel.Connectors.OpenAI.ToolCallBehavior.EnableKernelFunctions
                 };
-                
+
                 // Add plugins dynamically based on tool configuration
                 if (toolConfig.EnableCMDPlugin)
                 {
                     builder.Plugins.AddFromType<CMDPlugin>();
                 }
-                    
+
                 if (toolConfig.EnablePowerShellPlugin)
                 {
                     builder.Plugins.AddFromType<PowerShellPlugin>();
                 }
-                    
+
                 if (toolConfig.EnableScreenCapturePlugin)
                 {
                     builder.Plugins.AddFromType<ScreenCaptureOmniParserPlugin>();
                 }
-                    
+
                 if (toolConfig.EnableKeyboardPlugin)
                 {
                     builder.Plugins.AddFromType<KeyboardPlugin>();
                 }
-                    
+
                 if (toolConfig.EnableMousePlugin)
                 {
                     builder.Plugins.AddFromType<MousePlugin>();
                 }
-                    
+
                 if (toolConfig.EnableWindowSelectionPlugin)
                 {
                     builder.Plugins.AddFromType<WindowSelectionPlugin>();
@@ -160,7 +179,7 @@ namespace FlowVision.lib.Classes
 
                 // Task completed successfully
                 PluginLogger.NotifyTaskComplete("Action Execution", true);
-                
+
                 return responseBuilder.ToString();
             }
             catch (Exception ex)
@@ -185,6 +204,9 @@ namespace FlowVision.lib.Classes
                     actionerHistory.AddAssistantMessage(message.Content);
                 }
             }
+
+            // Also update the multi-agent chat history
+            multiAgentActioner.SetChatHistory(chatHistory);
         }
     }
 }

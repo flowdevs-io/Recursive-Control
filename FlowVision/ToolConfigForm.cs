@@ -97,6 +97,9 @@ namespace FlowVision
             chkRetainChatHistory.Checked = _toolConfig.RetainChatHistory;
             txtSystemPrompt.Text = _toolConfig.SystemPrompt;
 
+            // Add multi-agent mode setting
+            chkMultiAgentMode.Checked = _toolConfig.EnableMultiAgentMode;
+
             // Speech recognition settings
             chkEnableSpeechRecognition.Checked = _toolConfig.EnableSpeechRecognition;
 
@@ -138,6 +141,9 @@ namespace FlowVision
             _toolConfig.RetainChatHistory = chkRetainChatHistory.Checked;
             _toolConfig.SystemPrompt = txtSystemPrompt.Text;
 
+            // Save multi-agent mode setting
+            _toolConfig.EnableMultiAgentMode = chkMultiAgentMode.Checked;
+
             // Save speech recognition settings
             _toolConfig.EnableSpeechRecognition = chkEnableSpeechRecognition.Checked;
             if (comboSpeechLanguage.SelectedItem != null)
@@ -173,6 +179,14 @@ namespace FlowVision
         private void cancelButton_Click_1(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        // Optional: Add an event handler for the checkbox if needed
+        private void chkMultiAgentMode_CheckedChanged(object sender, EventArgs e)
+        {
+            // You can add logic here if needed, for example:
+            // - Show/hide additional settings that are specific to multi-agent mode
+            // - Display a warning or information message about multi-agent mode
         }
     }
 }
