@@ -187,8 +187,11 @@
     <Compile Include="lib\Classes\ai\MultiAgentActioner.cs" />
     <Compile Include="lib\Classes\MarkdownHelper.cs" />
     <Compile Include="lib\Classes\PluginLogger.cs" />
+    <Compile Include="lib\Classes\SettingsProfileManager.cs" />
     <Compile Include="lib\Classes\SpeechRecognitionService.cs" />
     <Compile Include="lib\Classes\TaskNotifier.cs" />
+    <Compile Include="lib\Classes\UI\ThemeColors.cs" />
+    <Compile Include="lib\Classes\UI\ThemeManager.cs" />
     <Compile Include="lib\Plugins\ScreenCaptureOmniParserPlugin.cs" />
     <Compile Include="lib\Plugins\WindowSelectionPlugin.cs" />
     <Compile Include="T:/Human-Use/FlowVision/lib/Classes/\SpeechRecognitionService.cs">
