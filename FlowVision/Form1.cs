@@ -255,7 +255,7 @@ namespace FlowVision
                         // Start continuous listening if voice commands are enabled
                         if (toolConfig.EnableVoiceCommands)
                         {
-                            speechRecognition.StartListening();
+                            //speechRecognition.StartListening();
                         }
                     }
                 }
@@ -648,7 +648,7 @@ namespace FlowVision
             // Force layout update
             messagesPanel.PerformLayout();
         }
-
+        /*
         private void githubToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Check if the config form is already open
@@ -664,7 +664,7 @@ namespace FlowVision
                 configForm.Show();
             }
         }
-
+        */
         private void omniParserToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Check if the config form is already open
