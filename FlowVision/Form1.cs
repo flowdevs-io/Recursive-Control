@@ -11,6 +11,7 @@ using FlowVision.lib.Classes;
 using Microsoft.SemanticKernel.ChatCompletion;
 // Add System.Speech namespace
 using System.Speech.Recognition;
+using FlowVision.lib.UI;
 
 namespace FlowVision
 {
@@ -24,6 +25,7 @@ namespace FlowVision
         // Speech recognition components
         private SpeechRecognitionService speechRecognition;
         private bool isListening = false;
+        private ThemeManager _themeManager; // Add ThemeManager field declaration
 
         // Add a delegate for handling plugin output messages
         public delegate void PluginOutputHandler(string message);
@@ -49,6 +51,60 @@ namespace FlowVision
             }
         }
 
+        private void ApplyTheme(string themeName = null) // Fix ApplyTheme method to handle parameter
+        {
+            // Initialize ThemeManager if it doesn't exist yet
+            if (_themeManager == null)
+            {
+                _themeManager = new ThemeManager();
+            }
+
+            // Use provided theme name or current theme from ThemeManager
+            string theme = themeName ?? _themeManager.CurrentTheme;
+
+            if (theme == "Dark")
+            {
+                ApplyDarkTheme();
+            }
+            else
+            {
+                ApplyLightTheme();
+            }
+        }
+
+        private void ApplyLightTheme()
+        {
+            // Let ThemeManager handle applying the light theme to all controls
+            _themeManager.ApplyThemeToControls(this);
+
+            // Update status indicator
+            UpdateStatusIndicators();
+        }
+
+        private void ApplyDarkTheme()
+        {
+            // Let ThemeManager handle applying the dark theme to all controls
+            _themeManager.ApplyThemeToControls(this);
+
+            // Apply specific overrides for any controls that need special handling
+
+            // Update status indicator
+            UpdateStatusIndicators();
+        }
+
+        private void UpdateStatusIndicators() // Add missing UpdateStatusIndicators method
+        {
+            // Update any status indicators based on current state
+            // This can be extended later if more indicators are added
+
+            // Update microphone button appearance based on isListening state
+            if (microphoneButton != null)
+            {
+                microphoneButton.Text = isListening ? "⏹️" : "🎤";
+                microphoneButton.BackColor = isListening ? Color.Red : SystemColors.Control;
+            }
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
             // Check if tools are configured, if not, create default configuration
@@ -59,7 +115,9 @@ namespace FlowVision
                 var defaultConfig = new ToolConfig();
                 defaultConfig.SaveConfig(toolConfigName);
             }
-            
+            // Add this call after initializing UI components
+            ApplyTheme();
+
             // Create messages panel as a FlowLayoutPanel with auto-scroll
             messagesPanel = new FlowLayoutPanel
             {
@@ -114,7 +172,7 @@ namespace FlowVision
 
             // Initialize speech recognition service
             InitializeSpeechRecognition();
-            
+
             // Handle window resize to adjust message widths
             this.Resize += (s, args) =>
             {
@@ -147,17 +205,18 @@ namespace FlowVision
             try
             {
                 var toolConfig = ToolConfig.LoadConfig("toolsconfig");
-                
+
                 // Only initialize if speech recognition is enabled in config
                 if (toolConfig.EnableSpeechRecognition)
                 {
                     speechRecognition = new SpeechRecognitionService();
-                    speechRecognition.SpeechRecognized += (sender, result) => 
+                    speechRecognition.SpeechRecognized += (sender, result) =>
                     {
                         // Use Invoke to update UI from a different thread
                         if (this.InvokeRequired)
                         {
-                            this.Invoke(new Action<string>((text) => {
+                            this.Invoke(new Action<string>((text) =>
+                            {
                                 userInputTextBox.Text = text;
                             }), result);
                         }
@@ -166,7 +225,7 @@ namespace FlowVision
                             userInputTextBox.Text = result;
                         }
                     };
-                    
+
                     // Add handler for voice commands
                     if (toolConfig.EnableVoiceCommands)
                     {
@@ -174,7 +233,8 @@ namespace FlowVision
                         {
                             if (this.InvokeRequired)
                             {
-                                this.Invoke(new Action(() => {
+                                this.Invoke(new Action(() =>
+                                {
                                     if (!string.IsNullOrWhiteSpace(userInputTextBox.Text))
                                     {
                                         AddMessage("System", $"Voice command recognized: \"{command}\"", true);
@@ -191,7 +251,7 @@ namespace FlowVision
                                 }
                             }
                         };
-                        
+
                         // Start continuous listening if voice commands are enabled
                         if (toolConfig.EnableVoiceCommands)
                         {
@@ -234,21 +294,21 @@ namespace FlowVision
             try
             {
                 var toolConfig = ToolConfig.LoadConfig("toolsconfig");
-                
+
                 // Clear existing text before starting to listen
                 userInputTextBox.Text = "";
-                
+
                 // Change button appearance to indicate recording
                 microphoneButton.Text = "⏹️";
                 microphoneButton.BackColor = Color.Red;
                 isListening = true;
-                
+
                 // Start listening
                 speechRecognition.StartListening();
-                
+
                 // Add temporary message to indicate we're listening
-                AddMessage("System", "Listening... Speak now." + 
-                    (toolConfig.EnableVoiceCommands ? 
+                AddMessage("System", "Listening... Speak now." +
+                    (toolConfig.EnableVoiceCommands ?
                         $" Say \"{toolConfig.VoiceCommandPhrase}\" to send your message." : ""), true);
             }
             catch (Exception ex)
@@ -266,13 +326,13 @@ namespace FlowVision
                 microphoneButton.Text = "🎤";
                 microphoneButton.BackColor = SystemColors.Control;
                 isListening = false;
-                
+
                 // Stop listening
                 speechRecognition.StopListening();
-                
+
                 // Remove the listening message
                 RemoveMessagesByAuthor("System");
-                
+
                 // If we have recognized text, send it automatically
                 if (!string.IsNullOrWhiteSpace(userInputTextBox.Text))
                 {
@@ -312,7 +372,7 @@ namespace FlowVision
             {
                 string aiResponse = await GetAIResponseAsync(userInput);
                 AddMessage("AI", aiResponse, true);
-                
+
                 // Check if we should retain chat history
                 var toolConfig = ToolConfig.LoadConfig("toolsconfig");
                 if (!toolConfig.RetainChatHistory)
@@ -327,7 +387,7 @@ namespace FlowVision
             catch (Exception ex)
             {
                 MessageBox.Show($"Error communicating with AI: {ex.Message}", "Error");
-                
+
                 allowUserInput(true);
             }
 
@@ -341,46 +401,52 @@ namespace FlowVision
             // Get the current config to determine which model to use
             var actionerConfig = APIConfig.LoadConfig("actioner");
             var githubConfig = APIConfig.LoadConfig("github");
-            var toolConfig = ToolConfig.LoadConfig("toolsconfig");
 
             // Create a StringBuilder to collect plugin output
             StringBuilder pluginOutput = new StringBuilder();
-            
+
             // Define a plugin output handler that adds messages to the plugin output
-            PluginOutputHandler outputHandler = (message) => {
+            PluginOutputHandler outputHandler = (message) =>
+            {
                 pluginOutput.AppendLine(message);
             };
 
             // Show a pre-execution notification to the user in the UI
             AddMessage("System", "Your request is being processed. Please wait...", true);
-            
+
             string aiResponse = string.Empty;
-            
+
             // Use TaskNotifier to wrap the action execution with notifications 
             try
             {
                 await TaskNotifier.RunWithNotificationAsync(
-                    "Request Processing", 
+                    "Request Processing",
                     "Processing your request and preparing tools",
                     async () =>
                     {
+                        var toolConfig = ToolConfig.LoadConfig("toolsconfig");
+
                         // Use Actioner model with the notification infrastructure
                         Actioner actioner = new Actioner(outputHandler);
-                        if(toolConfig.RetainChatHistory)
+
+                        // Set multi-agent mode based on tool configuration
+                        actioner.SetMultiAgentMode(toolConfig.EnableMultiAgentMode);
+
+                        if (toolConfig.RetainChatHistory)
                         {
                             actioner.SetChatHistory(chatHistory);
                         }
-                        
+
                         // Execute the action and get the AI response
                         aiResponse = await actioner.ExecuteAction(userInput);
                     });
-                
+
                 // If there's plugin output, prepend it to the AI response
                 if (pluginOutput.Length > 0)
                 {
                     aiResponse = $"{pluginOutput}\n\n{aiResponse}";
                 }
-                
+
                 // Remove the "processing" message from the UI
                 RemoveMessageIfSystem();
                 return aiResponse;
@@ -389,15 +455,31 @@ namespace FlowVision
             {
                 // Remove the "processing" message from the UI
                 RemoveMessageIfSystem();
-                
+
                 return $"Error processing request: {ex.Message}";
             }
         }
 
-        // Helper method to remove system messages
-        private void RemoveMessageIfSystem()
+        private void RemoveMessageIfSystem() // Add missing RemoveMessageIfSystem method
         {
+            // Find and remove any "System" messages that indicate processing
+            for (int i = messagesPanel.Controls.Count - 1; i >= 0; i--)
+            {
+                Control c = messagesPanel.Controls[i];
+                if (c is Panel bubble)
+                {
+                    Label authorLabel = bubble.Controls.OfType<Label>().FirstOrDefault();
+                    if (authorLabel != null &&
+                        authorLabel.Text.Equals("System", StringComparison.OrdinalIgnoreCase) &&
+                        bubble.Controls.OfType<TextBox>().Any(tb => tb.Text.Contains("processing") || tb.Text.Contains("Please wait")))
+                    {
+                        messagesPanel.Controls.RemoveAt(i);
+                        bubble.Dispose();
+                    }
+                }
+            }
 
+            messagesPanel.PerformLayout();
         }
 
         public void AddMessage(string author, string message, bool isInbound)
@@ -467,14 +549,15 @@ namespace FlowVision
 
                 // Apply markdown formatting
                 MarkdownHelper.ApplyMarkdownFormatting(messageRichTextBox, message);
-                
+
                 // Adjust height to fit content
                 messageRichTextBox.Height = messageRichTextBox.GetPositionFromCharIndex(messageRichTextBox.TextLength).Y + 20;
-                
+
                 // Add copy context menu
                 ContextMenuStrip contextMenu = new ContextMenuStrip();
                 ToolStripMenuItem copyMenuItem = new ToolStripMenuItem("Copy");
-                copyMenuItem.Click += (sender, args) => {
+                copyMenuItem.Click += (sender, args) =>
+                {
                     if (messageRichTextBox.SelectedText.Length > 0)
                         Clipboard.SetText(messageRichTextBox.SelectedText);
                     else
@@ -482,7 +565,7 @@ namespace FlowVision
                 };
                 contextMenu.Items.Add(copyMenuItem);
                 messageRichTextBox.ContextMenuStrip = contextMenu;
-                
+
                 bubblePanel.Controls.Add(messageRichTextBox);
                 currentY += messageRichTextBox.Height + 2;
             }
@@ -502,20 +585,21 @@ namespace FlowVision
                     ScrollBars = ScrollBars.None,
                     WordWrap = true
                 };
-                
+
                 // Auto-size the TextBox to fit content
                 int textHeight = TextRenderer.MeasureText(
-                    messageTextBox.Text, 
-                    messageTextBox.Font, 
-                    new Size(bubbleWidth - 20, int.MaxValue), 
+                    messageTextBox.Text,
+                    messageTextBox.Font,
+                    new Size(bubbleWidth - 20, int.MaxValue),
                     TextFormatFlags.WordBreak
                 ).Height;
                 messageTextBox.Height = textHeight + 10;
-                
+
                 // Add copy context menu
                 ContextMenuStrip contextMenu = new ContextMenuStrip();
                 ToolStripMenuItem copyMenuItem = new ToolStripMenuItem("Copy");
-                copyMenuItem.Click += (sender, args) => {
+                copyMenuItem.Click += (sender, args) =>
+                {
                     if (messageTextBox.SelectedText.Length > 0)
                         Clipboard.SetText(messageTextBox.SelectedText);
                     else
@@ -523,7 +607,7 @@ namespace FlowVision
                 };
                 contextMenu.Items.Add(copyMenuItem);
                 messageTextBox.ContextMenuStrip = contextMenu;
-                
+
                 bubblePanel.Controls.Add(messageTextBox);
                 currentY += messageTextBox.Height + 2;
             }
@@ -645,7 +729,7 @@ namespace FlowVision
             {
                 // Check if tool configuration exists
                 bool isConfigured = ToolConfig.IsConfigured("toolsconfig");
-                
+
                 // If it isn't, create a new instance of the form
                 // Pass true to open as new configuration if not configured
                 ToolConfigForm toolConfigForm = new ToolConfigForm(!isConfigured);

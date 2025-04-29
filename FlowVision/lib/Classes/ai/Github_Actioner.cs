@@ -33,7 +33,7 @@ namespace FlowVision.lib.Classes
             ToolConfig toolConfig = ToolConfig.LoadConfig(TOOL_CONFIG);
             
             // Set system message from config
-            _history.AddSystemMessage(toolConfig.SystemPrompt);
+            _history.AddSystemMessage(toolConfig.ExecutorSystemPrompt);
         }
 
         public async Task<string> ExecuteAction(string actionPrompt)
