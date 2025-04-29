@@ -194,9 +194,6 @@
     <Compile Include="lib\Classes\UI\ThemeManager.cs" />
     <Compile Include="lib\Plugins\ScreenCaptureOmniParserPlugin.cs" />
     <Compile Include="lib\Plugins\WindowSelectionPlugin.cs" />
-    <Compile Include="T:/Human-Use/FlowVision/lib/Classes/\SpeechRecognitionService.cs">
-      <Link>SpeechRecognitionService.cs</Link>
-    </Compile>
     <Compile Include="ToolConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
