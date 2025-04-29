@@ -607,7 +607,7 @@
             this.tabMultiAgent.Name = "tabMultiAgent";
             this.tabMultiAgent.Size = new System.Drawing.Size(634, 363);
             this.tabMultiAgent.TabIndex = 3;
-            this.tabMultiAgent.Text = "Multi-Agent";
+            this.tabMultiAgent.Text = "Agent Prompts";
             this.tabMultiAgent.UseVisualStyleBackColor = true;
             // 
             // grpMultiAgentConfig
