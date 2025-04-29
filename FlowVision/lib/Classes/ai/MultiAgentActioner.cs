@@ -24,38 +24,20 @@ namespace FlowVision.lib.Classes
         private Kernel plannerKernel;
         private Kernel executorKernel;
         
-        private const string PLANNER_CONFIG = "planner";
-        private const string EXECUTOR_CONFIG = "executor";
-        private const string ACTIONER_CONFIG = "actioner";
+        // Configuration constants
         private const string TOOL_CONFIG = "toolsconfig";
+        private const string ACTIONER_CONFIG = "actioner";
         
-        private const string PLANNER_SYSTEM_PROMPT = @"You are a planning agent responsible for breaking down complex tasks into clear steps. 
-Your job is to:
-1. Analyze the user's request
-2. Create a step-by-step plan to accomplish the goal
-3. Send each step to the executor agent
-4. Review the executor's results after each step
-5. Adapt the plan as needed based on the results
-6. Continue until the entire task is complete
-7. If use is just greeting respond with hello
-
-YOU CANNOT EXECUTE TOOLS DIRECTLY. Only the execution agent can use tools.
-You must work with the execution agent to accomplish the goals.";
-
-        private const string EXECUTOR_SYSTEM_PROMPT = @"You are an execution agent with access to various tools.
-Your job is to:
-1. Execute the specific step provided by the planner agent
-2. Use available tools to accomplish the requested action
-3. Report back the results and any observations
-4. Do not go beyond the specific step you were asked to perform
-5. Be precise and thorough in your execution
-
-You have access to tools like CMD, PowerShell, screen capture, keyboard input, mouse control, and window selection.";
-
+        // ToolConfig instance to store and access configuration
+        private ToolConfig toolConfig;
+        
         public MultiAgentActioner(Form1.PluginOutputHandler outputHandler)
         {
             plannerHistory = new ChatHistory();
             executorHistory = new ChatHistory();
+            
+            // Load tool configuration when the MultiAgentActioner is initialized
+            toolConfig = ToolConfig.LoadConfig(TOOL_CONFIG);
 
             // Create a RichTextBox that isn't displayed but used for logging
             var hiddenTextBox = new RichTextBox { Visible = false };
@@ -87,7 +69,8 @@ You have access to tools like CMD, PowerShell, screen capture, keyboard input, m
 
         public async Task<string> ExecuteAction(string actionPrompt)
         {
-            ToolConfig toolConfig = ToolConfig.LoadConfig(TOOL_CONFIG);
+            // Reload tool configuration to ensure we have the most recent settings
+            toolConfig = ToolConfig.LoadConfig(TOOL_CONFIG);
             
             PluginLogger.NotifyTaskStart("Multi-Agent Action", "Planning and executing your request");
             PluginLogger.StartLoadingIndicator("planning");
@@ -96,30 +79,46 @@ You have access to tools like CMD, PowerShell, screen capture, keyboard input, m
             {
                 // Configure planner first
                 plannerHistory.Clear();
-                plannerHistory.AddSystemMessage(PLANNER_SYSTEM_PROMPT);
+                plannerHistory.AddSystemMessage(toolConfig.PlannerSystemPrompt);
                 plannerHistory.AddUserMessage(actionPrompt);
 
                 // Configure executor for later use
                 executorHistory.Clear();
-                executorHistory.AddSystemMessage(EXECUTOR_SYSTEM_PROMPT);
+                executorHistory.AddSystemMessage(toolConfig.ExecutorSystemPrompt);
 
-                // Load model configurations
-                APIConfig config = APIConfig.LoadConfig(ACTIONER_CONFIG);
+                // Load model configurations - use either custom configs or default
+                APIConfig plannerConfig = toolConfig.UseCustomPlannerConfig 
+                    ? APIConfig.LoadConfig(toolConfig.PlannerConfigName)
+                    : APIConfig.LoadConfig(ACTIONER_CONFIG);
 
-                if (string.IsNullOrWhiteSpace(config.DeploymentName) ||
-                    string.IsNullOrWhiteSpace(config.EndpointURL) ||
-                    string.IsNullOrWhiteSpace(config.APIKey))
+                APIConfig executorConfig = toolConfig.UseCustomExecutorConfig
+                    ? APIConfig.LoadConfig(toolConfig.ExecutorConfigName)
+                    : APIConfig.LoadConfig(ACTIONER_CONFIG);
+
+                // Verify planner config
+                if (string.IsNullOrWhiteSpace(plannerConfig.DeploymentName) ||
+                    string.IsNullOrWhiteSpace(plannerConfig.EndpointURL) ||
+                    string.IsNullOrWhiteSpace(plannerConfig.APIKey))
                 {
                     PluginLogger.NotifyTaskComplete("Multi-Agent Action", false);
-                    return "Error: Actioner model not configured";
+                    return "Error: Planner model not configured";
+                }
+
+                // Verify executor config
+                if (string.IsNullOrWhiteSpace(executorConfig.DeploymentName) ||
+                    string.IsNullOrWhiteSpace(executorConfig.EndpointURL) ||
+                    string.IsNullOrWhiteSpace(executorConfig.APIKey))
+                {
+                    PluginLogger.NotifyTaskComplete("Multi-Agent Action", false);
+                    return "Error: Executor model not configured";
                 }
 
                 // Setup the kernel for planner (no tools, only planning capabilities)
                 var plannerBuilder = Kernel.CreateBuilder();
                 plannerBuilder.AddAzureOpenAIChatCompletion(
-                    config.DeploymentName,
-                    config.EndpointURL,
-                    config.APIKey);
+                    plannerConfig.DeploymentName,
+                    plannerConfig.EndpointURL,
+                    plannerConfig.APIKey);
 
                 plannerKernel = plannerBuilder.Build();
                 plannerChat = plannerKernel.GetRequiredService<IChatCompletionService>();
@@ -127,9 +126,9 @@ You have access to tools like CMD, PowerShell, screen capture, keyboard input, m
                 // Setup the kernel for executor with all tools
                 var executorBuilder = Kernel.CreateBuilder();
                 executorBuilder.AddAzureOpenAIChatCompletion(
-                    config.DeploymentName,
-                    config.EndpointURL,
-                    config.APIKey);
+                    executorConfig.DeploymentName,
+                    executorConfig.EndpointURL,
+                    executorConfig.APIKey);
 
                 // Add plugins dynamically based on tool configuration
                 if (toolConfig.EnableCMDPlugin)
@@ -285,7 +284,7 @@ You have access to tools like CMD, PowerShell, screen capture, keyboard input, m
         internal void SetChatHistory(List<LocalChatMessage> chatHistory)
         {
             plannerHistory.Clear();
-            plannerHistory.AddSystemMessage(PLANNER_SYSTEM_PROMPT);
+            plannerHistory.AddSystemMessage(toolConfig.PlannerSystemPrompt);
             
             foreach (var message in chatHistory)
             {
