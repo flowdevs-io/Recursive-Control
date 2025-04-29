@@ -21,7 +21,7 @@ namespace FlowVision.lib.Classes
         public bool AutoInvokeKernelFunctions { get; set; } = true;
         public bool RetainChatHistory { get; set; } = true;
         public string SystemPrompt { get; set; } = @"You are an AI Agent that can use tools to help the user. Use your tools to come up with novel ideas to answer the users requests you dont have the answer to. Do not restart the server";
-
+        public bool EnableMultiAgentMode { get; set; } = false; // Changed default to false
         public static string ConfigFilePath(string configName)
         {
             return Path.Combine(

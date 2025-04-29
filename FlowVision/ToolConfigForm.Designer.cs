@@ -37,6 +37,7 @@
             this.chkWindowSelectionPlugin = new System.Windows.Forms.CheckBox();
             this.enablePluginLoggingCheckBox = new System.Windows.Forms.CheckBox();
             this.groupBoxSettings = new System.Windows.Forms.GroupBox();
+            this.chkMultiAgentMode = new System.Windows.Forms.CheckBox();
             this.chkAutoInvoke = new System.Windows.Forms.CheckBox();
             this.chkRetainChatHistory = new System.Windows.Forms.CheckBox();
             this.numTemperature = new System.Windows.Forms.NumericUpDown();
@@ -156,6 +157,7 @@
             // 
             // groupBoxSettings
             // 
+            this.groupBoxSettings.Controls.Add(this.chkMultiAgentMode);
             this.groupBoxSettings.Controls.Add(this.chkAutoInvoke);
             this.groupBoxSettings.Controls.Add(this.chkRetainChatHistory);
             this.groupBoxSettings.Controls.Add(this.numTemperature);
@@ -163,10 +165,22 @@
             this.groupBoxSettings.Font = new System.Drawing.Font("Comic Sans MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBoxSettings.Location = new System.Drawing.Point(12, 253);
             this.groupBoxSettings.Name = "groupBoxSettings";
-            this.groupBoxSettings.Size = new System.Drawing.Size(436, 120);
+            this.groupBoxSettings.Size = new System.Drawing.Size(436, 150);
             this.groupBoxSettings.TabIndex = 1;
             this.groupBoxSettings.TabStop = false;
             this.groupBoxSettings.Text = "AI Settings";
+            // 
+            // chkMultiAgentMode
+            // 
+            this.chkMultiAgentMode.AutoSize = true;
+            this.chkMultiAgentMode.Font = new System.Drawing.Font("Comic Sans MS", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkMultiAgentMode.Location = new System.Drawing.Point(17, 117);
+            this.chkMultiAgentMode.Name = "chkMultiAgentMode";
+            this.chkMultiAgentMode.Size = new System.Drawing.Size(173, 23);
+            this.chkMultiAgentMode.TabIndex = 4;
+            this.chkMultiAgentMode.Text = "Enable Multi-Agent Mode";
+            this.chkMultiAgentMode.UseVisualStyleBackColor = true;
+            this.chkMultiAgentMode.CheckedChanged += new System.EventHandler(this.chkMultiAgentMode_CheckedChanged);
             // 
             // chkAutoInvoke
             // 
@@ -272,7 +286,7 @@
             this.groupBoxSpeechRecognition.Controls.Add(this.lblSpeechLanguage);
             this.groupBoxSpeechRecognition.Controls.Add(this.chkEnableSpeechRecognition);
             this.groupBoxSpeechRecognition.Font = new System.Drawing.Font("Comic Sans MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBoxSpeechRecognition.Location = new System.Drawing.Point(12, 379);
+            this.groupBoxSpeechRecognition.Location = new System.Drawing.Point(12, 409);
             this.groupBoxSpeechRecognition.Name = "groupBoxSpeechRecognition";
             this.groupBoxSpeechRecognition.Size = new System.Drawing.Size(436, 92);
             this.groupBoxSpeechRecognition.TabIndex = 5;
@@ -327,7 +341,7 @@
             this.groupBoxVoiceCommands.Controls.Add(this.lblVoiceCommandPhrase);
             this.groupBoxVoiceCommands.Controls.Add(this.chkEnableVoiceCommands);
             this.groupBoxVoiceCommands.Font = new System.Drawing.Font("Comic Sans MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBoxVoiceCommands.Location = new System.Drawing.Point(12, 477);
+            this.groupBoxVoiceCommands.Location = new System.Drawing.Point(12, 507);
             this.groupBoxVoiceCommands.Name = "groupBoxVoiceCommands";
             this.groupBoxVoiceCommands.Size = new System.Drawing.Size(436, 88);
             this.groupBoxVoiceCommands.TabIndex = 6;
@@ -412,6 +426,7 @@
         private System.Windows.Forms.Label lblTemperature;
         private System.Windows.Forms.CheckBox chkAutoInvoke;
         private System.Windows.Forms.CheckBox chkRetainChatHistory;
+        private System.Windows.Forms.CheckBox chkMultiAgentMode;
         private System.Windows.Forms.Button saveButton;
         private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.GroupBox groupBoxSystemPrompt;

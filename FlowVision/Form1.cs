@@ -341,7 +341,6 @@ namespace FlowVision
             // Get the current config to determine which model to use
             var actionerConfig = APIConfig.LoadConfig("actioner");
             var githubConfig = APIConfig.LoadConfig("github");
-            var toolConfig = ToolConfig.LoadConfig("toolsconfig");
 
             // Create a StringBuilder to collect plugin output
             StringBuilder pluginOutput = new StringBuilder();
@@ -364,9 +363,15 @@ namespace FlowVision
                     "Processing your request and preparing tools",
                     async () =>
                     {
+                        var toolConfig = ToolConfig.LoadConfig("toolsconfig");
+
                         // Use Actioner model with the notification infrastructure
                         Actioner actioner = new Actioner(outputHandler);
-                        if(toolConfig.RetainChatHistory)
+                        
+                        // Set multi-agent mode based on tool configuration
+                        actioner.SetMultiAgentMode(toolConfig.EnableMultiAgentMode);
+                        
+                        if (toolConfig.RetainChatHistory)
                         {
                             actioner.SetChatHistory(chatHistory);
                         }
