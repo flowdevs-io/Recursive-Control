@@ -183,6 +183,8 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="lib\Classes\AgentCoordinator.cs" />
+    <Compile Include="lib\Classes\ai\MultiAgentActioner.cs" />
     <Compile Include="lib\Classes\MarkdownHelper.cs" />
     <Compile Include="lib\Classes\PluginLogger.cs" />
     <Compile Include="lib\Classes\SpeechRecognitionService.cs" />
