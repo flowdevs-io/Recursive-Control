@@ -57,7 +57,7 @@ namespace FlowVision
             ApplyTheme(_themeManager.CurrentTheme);
 
             // Make sure the executor prompt is always editable by forcing the tab to be enabled
-            tabMultiAgent.Enabled = true;
+            tabExecutioner.Enabled = true;
             txtExecutorSystemPrompt.Enabled = true;
             lblExecutorPrompt.Enabled = true;
 
@@ -408,7 +408,9 @@ namespace FlowVision
         {
             // Instead of disabling the entire tab, only disable planner-specific controls
             // while keeping executor-related controls enabled
-            tabMultiAgent.Enabled = true; // Always enable the tab
+            tabPlanner.Enabled = true;
+            tabExecutioner.Enabled = true;
+            tabCoordinator.Enabled = true;
 
             // Only enable planner-specific controls when multi-agent mode is checked
             txtPlannerSystemPrompt.Enabled = chkMultiAgentMode.Checked;
