@@ -8,7 +8,7 @@ using Microsoft.SemanticKernel.ChatCompletion;
 namespace FlowVision.lib.Classes
 {
     /// <summary>
-    /// Coordinates communication between the planner and executor agents
+    /// Coordinates communication between the user, planner and executor agents
     /// </summary>
     public class AgentCoordinator
     {
@@ -19,6 +19,10 @@ namespace FlowVision.lib.Classes
         private const string EXECUTION_RESPONSE = "EXECUTION_RESPONSE: {0}";
         private const string STATUS_UPDATE = "STATUS_UPDATE: {0}";
         private const string TASK_COMPLETE = "TASK_COMPLETE: {0}";
+        private const string USER_REQUEST = "USER_REQUEST: {0}";
+        private const string USER_RESPONSE = "USER_RESPONSE: {0}";
+        private const string COORDINATION_REQUEST = "COORDINATION_REQUEST: {0}";
+        private const string COORDINATION_RESPONSE = "COORDINATION_RESPONSE: {0}";
         
         private List<AgentMessage> messageHistory;
         
@@ -81,6 +85,26 @@ namespace FlowVision.lib.Classes
             return string.Format(TASK_COMPLETE, summary);
         }
         
+        public string FormatUserRequest(string request)
+        {
+            return string.Format(USER_REQUEST, request);
+        }
+        
+        public string FormatUserResponse(string response)
+        {
+            return string.Format(USER_RESPONSE, response);
+        }
+        
+        public string FormatCoordinationRequest(string request)
+        {
+            return string.Format(COORDINATION_REQUEST, request);
+        }
+        
+        public string FormatCoordinationResponse(string response)
+        {
+            return string.Format(COORDINATION_RESPONSE, response);
+        }
+        
         public void Clear()
         {
             messageHistory.Clear();
@@ -90,6 +114,7 @@ namespace FlowVision.lib.Classes
     public enum AgentRole
     {
         User,
+        Coordinator,
         Planner,
         Executor,
         All
