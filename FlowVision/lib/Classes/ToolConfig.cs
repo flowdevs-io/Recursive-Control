@@ -47,10 +47,24 @@ Your job is to:
 
 You have access to tools like CMD, PowerShell, screen capture, keyboard input, mouse control, and window selection.";
 
+        public string CoordinatorSystemPrompt { get; set; } = @"You are a coordinator agent responsible for managing the conversation between the user and the AI system.
+Your job is to:
+1. Understand the user's request
+2. Send appropriate tasks to the planning agent
+3. Receive and evaluate the final results from the planner
+4. Format responses back to the user in a helpful, conversational way
+5. Handle any follow-up questions from the user
+6. Maintain context throughout the conversation
+
+You are the main interface between the human user and the AI system including the planning and execution agents.
+Focus on providing clear, helpful responses that address the user's needs completely.";
+
         public bool UseCustomPlannerConfig { get; set; } = false;
         public bool UseCustomExecutorConfig { get; set; } = false;
+        public bool UseCustomCoordinatorConfig { get; set; } = false;
         public string PlannerConfigName { get; set; } = "planner";
         public string ExecutorConfigName { get; set; } = "executor";
+        public string CoordinatorConfigName { get; set; } = "coordinator";
 
         public static string ConfigFilePath(string configName)
         {
