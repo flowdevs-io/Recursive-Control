@@ -67,15 +67,24 @@
             this.tabPlugins = new System.Windows.Forms.TabPage();
             this.tabAISettings = new System.Windows.Forms.TabPage();
             this.tabVoice = new System.Windows.Forms.TabPage();
-            this.tabMultiAgent = new System.Windows.Forms.TabPage();
-            this.grpMultiAgentConfig = new System.Windows.Forms.GroupBox();
+            this.tabCoordinator = new System.Windows.Forms.TabPage();
+            this.grpCoordinatorConfig = new System.Windows.Forms.GroupBox();
+            this.lblCoordinatorPrompt = new System.Windows.Forms.Label();
+            this.txtCoordinatorSystemPrompt = new System.Windows.Forms.TextBox();
+            this.chkUseCustomCoordinatorConfig = new System.Windows.Forms.CheckBox();
+            this.comboCoordinatorConfig = new System.Windows.Forms.ComboBox();
+            this.btnConfigureCoordinator = new System.Windows.Forms.Button();
+            this.tabPlanner = new System.Windows.Forms.TabPage();
+            this.grpPlannerConfig = new System.Windows.Forms.GroupBox();
             this.lblPlannerPrompt = new System.Windows.Forms.Label();
             this.txtPlannerSystemPrompt = new System.Windows.Forms.TextBox();
-            this.lblExecutorPrompt = new System.Windows.Forms.Label();
-            this.txtExecutorSystemPrompt = new System.Windows.Forms.TextBox();
             this.chkUseCustomPlannerConfig = new System.Windows.Forms.CheckBox();
             this.comboPlannerConfig = new System.Windows.Forms.ComboBox();
             this.btnConfigurePlanner = new System.Windows.Forms.Button();
+            this.tabExecutioner = new System.Windows.Forms.TabPage();
+            this.grpExecutionerConfig = new System.Windows.Forms.GroupBox();
+            this.lblExecutorPrompt = new System.Windows.Forms.Label();
+            this.txtExecutorSystemPrompt = new System.Windows.Forms.TextBox();
             this.chkUseCustomExecutorConfig = new System.Windows.Forms.CheckBox();
             this.comboExecutorConfig = new System.Windows.Forms.ComboBox();
             this.btnConfigureExecutor = new System.Windows.Forms.Button();
@@ -117,8 +126,12 @@
             this.tabPlugins.SuspendLayout();
             this.tabAISettings.SuspendLayout();
             this.tabVoice.SuspendLayout();
-            this.tabMultiAgent.SuspendLayout();
-            this.grpMultiAgentConfig.SuspendLayout();
+            this.tabCoordinator.SuspendLayout();
+            this.grpCoordinatorConfig.SuspendLayout();
+            this.tabPlanner.SuspendLayout();
+            this.grpPlannerConfig.SuspendLayout();
+            this.tabExecutioner.SuspendLayout();
+            this.grpExecutionerConfig.SuspendLayout();
             this.tabAppearance.SuspendLayout();
             this.groupBoxTheme.SuspendLayout();
             this.tabProfiles.SuspendLayout();
@@ -556,7 +569,9 @@
             this.tabControlMain.Controls.Add(this.tabPlugins);
             this.tabControlMain.Controls.Add(this.tabAISettings);
             this.tabControlMain.Controls.Add(this.tabVoice);
-            this.tabControlMain.Controls.Add(this.tabMultiAgent);
+            this.tabControlMain.Controls.Add(this.tabCoordinator);
+            this.tabControlMain.Controls.Add(this.tabPlanner);
+            this.tabControlMain.Controls.Add(this.tabExecutioner);
             this.tabControlMain.Controls.Add(this.tabAppearance);
             this.tabControlMain.Controls.Add(this.tabProfiles);
             this.tabControlMain.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -600,35 +615,108 @@
             this.tabVoice.Text = "Voice";
             this.tabVoice.UseVisualStyleBackColor = true;
             // 
-            // tabMultiAgent
+            // tabCoordinator
             // 
-            this.tabMultiAgent.Controls.Add(this.grpMultiAgentConfig);
-            this.tabMultiAgent.Location = new System.Drawing.Point(4, 26);
-            this.tabMultiAgent.Name = "tabMultiAgent";
-            this.tabMultiAgent.Size = new System.Drawing.Size(634, 363);
-            this.tabMultiAgent.TabIndex = 3;
-            this.tabMultiAgent.Text = "Agent Prompts";
-            this.tabMultiAgent.UseVisualStyleBackColor = true;
+            this.tabCoordinator.Controls.Add(this.grpCoordinatorConfig);
+            this.tabCoordinator.Location = new System.Drawing.Point(4, 26);
+            this.tabCoordinator.Name = "tabCoordinator";
+            this.tabCoordinator.Size = new System.Drawing.Size(634, 363);
+            this.tabCoordinator.TabIndex = 3;
+            this.tabCoordinator.Text = "Coordinator";
+            this.tabCoordinator.UseVisualStyleBackColor = true;
             // 
-            // grpMultiAgentConfig
+            // grpCoordinatorConfig
             // 
-            this.grpMultiAgentConfig.Controls.Add(this.lblPlannerPrompt);
-            this.grpMultiAgentConfig.Controls.Add(this.txtPlannerSystemPrompt);
-            this.grpMultiAgentConfig.Controls.Add(this.lblExecutorPrompt);
-            this.grpMultiAgentConfig.Controls.Add(this.txtExecutorSystemPrompt);
-            this.grpMultiAgentConfig.Controls.Add(this.chkUseCustomPlannerConfig);
-            this.grpMultiAgentConfig.Controls.Add(this.comboPlannerConfig);
-            this.grpMultiAgentConfig.Controls.Add(this.btnConfigurePlanner);
-            this.grpMultiAgentConfig.Controls.Add(this.chkUseCustomExecutorConfig);
-            this.grpMultiAgentConfig.Controls.Add(this.comboExecutorConfig);
-            this.grpMultiAgentConfig.Controls.Add(this.btnConfigureExecutor);
-            this.grpMultiAgentConfig.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.grpMultiAgentConfig.Location = new System.Drawing.Point(6, 6);
-            this.grpMultiAgentConfig.Name = "grpMultiAgentConfig";
-            this.grpMultiAgentConfig.Size = new System.Drawing.Size(577, 381);
-            this.grpMultiAgentConfig.TabIndex = 15;
-            this.grpMultiAgentConfig.TabStop = false;
-            this.grpMultiAgentConfig.Text = "System Prompts Configuration";
+            this.grpCoordinatorConfig.Controls.Add(this.lblCoordinatorPrompt);
+            this.grpCoordinatorConfig.Controls.Add(this.txtCoordinatorSystemPrompt);
+            this.grpCoordinatorConfig.Controls.Add(this.chkUseCustomCoordinatorConfig);
+            this.grpCoordinatorConfig.Controls.Add(this.comboCoordinatorConfig);
+            this.grpCoordinatorConfig.Controls.Add(this.btnConfigureCoordinator);
+            this.grpCoordinatorConfig.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.grpCoordinatorConfig.Location = new System.Drawing.Point(6, 6);
+            this.grpCoordinatorConfig.Name = "grpCoordinatorConfig";
+            this.grpCoordinatorConfig.Size = new System.Drawing.Size(577, 351);
+            this.grpCoordinatorConfig.TabIndex = 15;
+            this.grpCoordinatorConfig.TabStop = false;
+            this.grpCoordinatorConfig.Text = "Coordinator Configuration";
+            // 
+            // lblCoordinatorPrompt
+            // 
+            this.lblCoordinatorPrompt.AutoSize = true;
+            this.lblCoordinatorPrompt.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblCoordinatorPrompt.Location = new System.Drawing.Point(8, 24);
+            this.lblCoordinatorPrompt.Name = "lblCoordinatorPrompt";
+            this.lblCoordinatorPrompt.Size = new System.Drawing.Size(177, 19);
+            this.lblCoordinatorPrompt.TabIndex = 16;
+            this.lblCoordinatorPrompt.Text = "Coordinator System Prompt:";
+            // 
+            // txtCoordinatorSystemPrompt
+            // 
+            this.txtCoordinatorSystemPrompt.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtCoordinatorSystemPrompt.Location = new System.Drawing.Point(8, 46);
+            this.txtCoordinatorSystemPrompt.Multiline = true;
+            this.txtCoordinatorSystemPrompt.Name = "txtCoordinatorSystemPrompt";
+            this.txtCoordinatorSystemPrompt.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtCoordinatorSystemPrompt.Size = new System.Drawing.Size(555, 200);
+            this.txtCoordinatorSystemPrompt.TabIndex = 17;
+            // 
+            // chkUseCustomCoordinatorConfig
+            // 
+            this.chkUseCustomCoordinatorConfig.AutoSize = true;
+            this.chkUseCustomCoordinatorConfig.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkUseCustomCoordinatorConfig.Location = new System.Drawing.Point(8, 284);
+            this.chkUseCustomCoordinatorConfig.Name = "chkUseCustomCoordinatorConfig";
+            this.chkUseCustomCoordinatorConfig.Size = new System.Drawing.Size(261, 23);
+            this.chkUseCustomCoordinatorConfig.TabIndex = 20;
+            this.chkUseCustomCoordinatorConfig.Text = "Use Custom Coordinator Model Config";
+            this.chkUseCustomCoordinatorConfig.UseVisualStyleBackColor = true;
+            // 
+            // comboCoordinatorConfig
+            // 
+            this.comboCoordinatorConfig.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboCoordinatorConfig.Enabled = false;
+            this.comboCoordinatorConfig.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.comboCoordinatorConfig.FormattingEnabled = true;
+            this.comboCoordinatorConfig.Location = new System.Drawing.Point(275, 284);
+            this.comboCoordinatorConfig.Name = "comboCoordinatorConfig";
+            this.comboCoordinatorConfig.Size = new System.Drawing.Size(181, 25);
+            this.comboCoordinatorConfig.TabIndex = 21;
+            // 
+            // btnConfigureCoordinator
+            // 
+            this.btnConfigureCoordinator.Enabled = false;
+            this.btnConfigureCoordinator.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnConfigureCoordinator.Location = new System.Drawing.Point(463, 284);
+            this.btnConfigureCoordinator.Name = "btnConfigureCoordinator";
+            this.btnConfigureCoordinator.Size = new System.Drawing.Size(100, 30);
+            this.btnConfigureCoordinator.TabIndex = 22;
+            this.btnConfigureCoordinator.Text = "Configure";
+            this.btnConfigureCoordinator.UseVisualStyleBackColor = true;
+            // 
+            // tabPlanner
+            // 
+            this.tabPlanner.Controls.Add(this.grpPlannerConfig);
+            this.tabPlanner.Location = new System.Drawing.Point(4, 26);
+            this.tabPlanner.Name = "tabPlanner";
+            this.tabPlanner.Size = new System.Drawing.Size(634, 363);
+            this.tabPlanner.TabIndex = 6;
+            this.tabPlanner.Text = "Planner";
+            this.tabPlanner.UseVisualStyleBackColor = true;
+            // 
+            // grpPlannerConfig
+            // 
+            this.grpPlannerConfig.Controls.Add(this.lblPlannerPrompt);
+            this.grpPlannerConfig.Controls.Add(this.txtPlannerSystemPrompt);
+            this.grpPlannerConfig.Controls.Add(this.chkUseCustomPlannerConfig);
+            this.grpPlannerConfig.Controls.Add(this.comboPlannerConfig);
+            this.grpPlannerConfig.Controls.Add(this.btnConfigurePlanner);
+            this.grpPlannerConfig.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.grpPlannerConfig.Location = new System.Drawing.Point(6, 6);
+            this.grpPlannerConfig.Name = "grpPlannerConfig";
+            this.grpPlannerConfig.Size = new System.Drawing.Size(577, 351);
+            this.grpPlannerConfig.TabIndex = 15;
+            this.grpPlannerConfig.TabStop = false;
+            this.grpPlannerConfig.Text = "Planner Configuration";
             // 
             // lblPlannerPrompt
             // 
@@ -643,32 +731,12 @@
             // txtPlannerSystemPrompt
             // 
             this.txtPlannerSystemPrompt.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtPlannerSystemPrompt.Location = new System.Drawing.Point(8, 40);
+            this.txtPlannerSystemPrompt.Location = new System.Drawing.Point(8, 46);
             this.txtPlannerSystemPrompt.Multiline = true;
             this.txtPlannerSystemPrompt.Name = "txtPlannerSystemPrompt";
             this.txtPlannerSystemPrompt.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtPlannerSystemPrompt.Size = new System.Drawing.Size(555, 100);
+            this.txtPlannerSystemPrompt.Size = new System.Drawing.Size(555, 200);
             this.txtPlannerSystemPrompt.TabIndex = 17;
-            // 
-            // lblExecutorPrompt
-            // 
-            this.lblExecutorPrompt.AutoSize = true;
-            this.lblExecutorPrompt.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblExecutorPrompt.Location = new System.Drawing.Point(8, 150);
-            this.lblExecutorPrompt.Name = "lblExecutorPrompt";
-            this.lblExecutorPrompt.Size = new System.Drawing.Size(477, 19);
-            this.lblExecutorPrompt.TabIndex = 18;
-            this.lblExecutorPrompt.Text = "Executor System Prompt (also used as system prompt in single agent mode):";
-            // 
-            // txtExecutorSystemPrompt
-            // 
-            this.txtExecutorSystemPrompt.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtExecutorSystemPrompt.Location = new System.Drawing.Point(8, 166);
-            this.txtExecutorSystemPrompt.Multiline = true;
-            this.txtExecutorSystemPrompt.Name = "txtExecutorSystemPrompt";
-            this.txtExecutorSystemPrompt.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtExecutorSystemPrompt.Size = new System.Drawing.Size(555, 100);
-            this.txtExecutorSystemPrompt.TabIndex = 19;
             // 
             // chkUseCustomPlannerConfig
             // 
@@ -688,16 +756,16 @@
             this.comboPlannerConfig.Enabled = false;
             this.comboPlannerConfig.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.comboPlannerConfig.FormattingEnabled = true;
-            this.comboPlannerConfig.Location = new System.Drawing.Point(256, 280);
+            this.comboPlannerConfig.Location = new System.Drawing.Point(275, 284);
             this.comboPlannerConfig.Name = "comboPlannerConfig";
-            this.comboPlannerConfig.Size = new System.Drawing.Size(200, 25);
+            this.comboPlannerConfig.Size = new System.Drawing.Size(181, 25);
             this.comboPlannerConfig.TabIndex = 21;
             // 
             // btnConfigurePlanner
             // 
             this.btnConfigurePlanner.Enabled = false;
             this.btnConfigurePlanner.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnConfigurePlanner.Location = new System.Drawing.Point(463, 277);
+            this.btnConfigurePlanner.Location = new System.Drawing.Point(463, 284);
             this.btnConfigurePlanner.Name = "btnConfigurePlanner";
             this.btnConfigurePlanner.Size = new System.Drawing.Size(100, 30);
             this.btnConfigurePlanner.TabIndex = 22;
@@ -705,11 +773,56 @@
             this.btnConfigurePlanner.UseVisualStyleBackColor = true;
             this.btnConfigurePlanner.Click += new System.EventHandler(this.btnConfigurePlanner_Click);
             // 
+            // tabExecutioner
+            // 
+            this.tabExecutioner.Controls.Add(this.grpExecutionerConfig);
+            this.tabExecutioner.Location = new System.Drawing.Point(4, 26);
+            this.tabExecutioner.Name = "tabExecutioner";
+            this.tabExecutioner.Size = new System.Drawing.Size(634, 363);
+            this.tabExecutioner.TabIndex = 7;
+            this.tabExecutioner.Text = "Executioner";
+            this.tabExecutioner.UseVisualStyleBackColor = true;
+            // 
+            // grpExecutionerConfig
+            // 
+            this.grpExecutionerConfig.Controls.Add(this.lblExecutorPrompt);
+            this.grpExecutionerConfig.Controls.Add(this.txtExecutorSystemPrompt);
+            this.grpExecutionerConfig.Controls.Add(this.chkUseCustomExecutorConfig);
+            this.grpExecutionerConfig.Controls.Add(this.comboExecutorConfig);
+            this.grpExecutionerConfig.Controls.Add(this.btnConfigureExecutor);
+            this.grpExecutionerConfig.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.grpExecutionerConfig.Location = new System.Drawing.Point(6, 6);
+            this.grpExecutionerConfig.Name = "grpExecutionerConfig";
+            this.grpExecutionerConfig.Size = new System.Drawing.Size(577, 351);
+            this.grpExecutionerConfig.TabIndex = 15;
+            this.grpExecutionerConfig.TabStop = false;
+            this.grpExecutionerConfig.Text = "Executioner Configuration";
+            // 
+            // lblExecutorPrompt
+            // 
+            this.lblExecutorPrompt.AutoSize = true;
+            this.lblExecutorPrompt.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblExecutorPrompt.Location = new System.Drawing.Point(8, 24);
+            this.lblExecutorPrompt.Name = "lblExecutorPrompt";
+            this.lblExecutorPrompt.Size = new System.Drawing.Size(477, 19);
+            this.lblExecutorPrompt.TabIndex = 18;
+            this.lblExecutorPrompt.Text = "Executor System Prompt (also used as system prompt in single agent mode):";
+            // 
+            // txtExecutorSystemPrompt
+            // 
+            this.txtExecutorSystemPrompt.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtExecutorSystemPrompt.Location = new System.Drawing.Point(8, 46);
+            this.txtExecutorSystemPrompt.Multiline = true;
+            this.txtExecutorSystemPrompt.Name = "txtExecutorSystemPrompt";
+            this.txtExecutorSystemPrompt.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtExecutorSystemPrompt.Size = new System.Drawing.Size(555, 200);
+            this.txtExecutorSystemPrompt.TabIndex = 19;
+            // 
             // chkUseCustomExecutorConfig
             // 
             this.chkUseCustomExecutorConfig.AutoSize = true;
             this.chkUseCustomExecutorConfig.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkUseCustomExecutorConfig.Location = new System.Drawing.Point(6, 315);
+            this.chkUseCustomExecutorConfig.Location = new System.Drawing.Point(8, 284);
             this.chkUseCustomExecutorConfig.Name = "chkUseCustomExecutorConfig";
             this.chkUseCustomExecutorConfig.Size = new System.Drawing.Size(246, 23);
             this.chkUseCustomExecutorConfig.TabIndex = 23;
@@ -723,16 +836,16 @@
             this.comboExecutorConfig.Enabled = false;
             this.comboExecutorConfig.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.comboExecutorConfig.FormattingEnabled = true;
-            this.comboExecutorConfig.Location = new System.Drawing.Point(257, 315);
+            this.comboExecutorConfig.Location = new System.Drawing.Point(275, 284);
             this.comboExecutorConfig.Name = "comboExecutorConfig";
-            this.comboExecutorConfig.Size = new System.Drawing.Size(200, 25);
+            this.comboExecutorConfig.Size = new System.Drawing.Size(181, 25);
             this.comboExecutorConfig.TabIndex = 24;
             // 
             // btnConfigureExecutor
             // 
             this.btnConfigureExecutor.Enabled = false;
             this.btnConfigureExecutor.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnConfigureExecutor.Location = new System.Drawing.Point(463, 313);
+            this.btnConfigureExecutor.Location = new System.Drawing.Point(463, 284);
             this.btnConfigureExecutor.Name = "btnConfigureExecutor";
             this.btnConfigureExecutor.Size = new System.Drawing.Size(100, 30);
             this.btnConfigureExecutor.TabIndex = 25;
@@ -978,9 +1091,15 @@
             this.tabPlugins.PerformLayout();
             this.tabAISettings.ResumeLayout(false);
             this.tabVoice.ResumeLayout(false);
-            this.tabMultiAgent.ResumeLayout(false);
-            this.grpMultiAgentConfig.ResumeLayout(false);
-            this.grpMultiAgentConfig.PerformLayout();
+            this.tabCoordinator.ResumeLayout(false);
+            this.grpCoordinatorConfig.ResumeLayout(false);
+            this.grpCoordinatorConfig.PerformLayout();
+            this.tabPlanner.ResumeLayout(false);
+            this.grpPlannerConfig.ResumeLayout(false);
+            this.grpPlannerConfig.PerformLayout();
+            this.tabExecutioner.ResumeLayout(false);
+            this.grpExecutionerConfig.ResumeLayout(false);
+            this.grpExecutionerConfig.PerformLayout();
             this.tabAppearance.ResumeLayout(false);
             this.groupBoxTheme.ResumeLayout(false);
             this.groupBoxTheme.PerformLayout();
@@ -1034,15 +1153,24 @@
         private System.Windows.Forms.TabPage tabPlugins;
         private System.Windows.Forms.TabPage tabAISettings;
         private System.Windows.Forms.TabPage tabVoice;
-        private System.Windows.Forms.TabPage tabMultiAgent;
-        private System.Windows.Forms.GroupBox grpMultiAgentConfig;
+        private System.Windows.Forms.TabPage tabCoordinator;
+        private System.Windows.Forms.GroupBox grpCoordinatorConfig;
+        private System.Windows.Forms.Label lblCoordinatorPrompt;
+        private System.Windows.Forms.TextBox txtCoordinatorSystemPrompt;
+        private System.Windows.Forms.CheckBox chkUseCustomCoordinatorConfig;
+        private System.Windows.Forms.ComboBox comboCoordinatorConfig;
+        private System.Windows.Forms.Button btnConfigureCoordinator;
+        private System.Windows.Forms.TabPage tabPlanner;
+        private System.Windows.Forms.GroupBox grpPlannerConfig;
         private System.Windows.Forms.Label lblPlannerPrompt;
         private System.Windows.Forms.TextBox txtPlannerSystemPrompt;
-        private System.Windows.Forms.Label lblExecutorPrompt;
-        private System.Windows.Forms.TextBox txtExecutorSystemPrompt;
         private System.Windows.Forms.CheckBox chkUseCustomPlannerConfig;
         private System.Windows.Forms.ComboBox comboPlannerConfig;
         private System.Windows.Forms.Button btnConfigurePlanner;
+        private System.Windows.Forms.TabPage tabExecutioner;
+        private System.Windows.Forms.GroupBox grpExecutionerConfig;
+        private System.Windows.Forms.Label lblExecutorPrompt;
+        private System.Windows.Forms.TextBox txtExecutorSystemPrompt;
         private System.Windows.Forms.CheckBox chkUseCustomExecutorConfig;
         private System.Windows.Forms.ComboBox comboExecutorConfig;
         private System.Windows.Forms.Button btnConfigureExecutor;

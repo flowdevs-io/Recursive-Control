@@ -84,7 +84,7 @@ namespace FlowVision.lib.Classes
             try
             {
                 // Configure coordinator first
-                coordinatorHistory.Clear();
+                //coordinatorHistory.Clear();
                 coordinatorHistory.AddSystemMessage(toolConfig.CoordinatorSystemPrompt);
                 coordinatorHistory.AddUserMessage(actionPrompt);
                 
