@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace FlowVision.lib.Classes
 {
     public class ToolConfig
-    {
+    {t
         public bool EnableCMDPlugin { get; set; } = true;
         public bool EnablePowerShellPlugin { get; set; } = true;
         public bool EnableScreenCapturePlugin { get; set; } = false; // Changed default to false
