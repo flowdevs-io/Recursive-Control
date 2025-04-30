@@ -57,7 +57,7 @@ namespace FlowVision
             ApplyTheme(_themeManager.CurrentTheme);
 
             // Make sure the executor prompt is always editable by forcing the tab to be enabled
-            tabMultiAgent.Enabled = true;
+            tabExecutioner.Enabled = true;
             txtExecutorSystemPrompt.Enabled = true;
             lblExecutorPrompt.Enabled = true;
 
@@ -212,14 +212,17 @@ namespace FlowVision
                 if (!configNames.Contains("actioner")) configNames.Add("actioner");
                 if (!configNames.Contains("planner")) configNames.Add("planner");
                 if (!configNames.Contains("executor")) configNames.Add("executor");
+                if (!configNames.Contains("coordinator")) configNames.Add("coordinator");
 
                 comboPlannerConfig.Items.Clear();
                 comboExecutorConfig.Items.Clear();
+                comboCoordinatorConfig.Items.Clear();
 
                 foreach (var name in configNames)
                 {
                     comboPlannerConfig.Items.Add(name);
                     comboExecutorConfig.Items.Add(name);
+                    comboCoordinatorConfig.Items.Add(name);
                 }
 
                 if (comboPlannerConfig.Items.Count > 0)
@@ -232,6 +235,12 @@ namespace FlowVision
                 {
                     comboExecutorConfig.SelectedItem = comboExecutorConfig.Items.Contains("executor") ? 
                         "executor" : comboExecutorConfig.Items[0];
+                }
+
+                if (comboCoordinatorConfig.Items.Count > 0)
+                {
+                    comboCoordinatorConfig.SelectedItem = comboCoordinatorConfig.Items.Contains("coordinator") ? 
+                        "coordinator" : comboCoordinatorConfig.Items[0];
                 }
             }
             catch (Exception ex)
@@ -314,8 +323,10 @@ namespace FlowVision
 
                 txtPlannerSystemPrompt.Text = _toolConfig.PlannerSystemPrompt;
                 txtExecutorSystemPrompt.Text = _toolConfig.ExecutorSystemPrompt;
+                txtCoordinatorSystemPrompt.Text = _toolConfig.CoordinatorSystemPrompt;
                 chkUseCustomPlannerConfig.Checked = _toolConfig.UseCustomPlannerConfig;
                 chkUseCustomExecutorConfig.Checked = _toolConfig.UseCustomExecutorConfig;
+                chkUseCustomCoordinatorConfig.Checked = _toolConfig.UseCustomCoordinatorConfig;
 
                 // Check if the item exists in the combo box before setting it
                 if (comboPlannerConfig.Items.Contains(_toolConfig.PlannerConfigName))
@@ -336,6 +347,15 @@ namespace FlowVision
                     comboExecutorConfig.SelectedIndex = 0;
                 }
 
+                if (comboCoordinatorConfig.Items.Contains(_toolConfig.CoordinatorConfigName))
+                {
+                    comboCoordinatorConfig.SelectedItem = _toolConfig.CoordinatorConfigName;
+                }
+                else if (comboCoordinatorConfig.Items.Count > 0)
+                {
+                    comboCoordinatorConfig.SelectedIndex = 0;
+                }
+
                 // Set the theme in the combo box
                 if (cbTheme.Items.Contains(_toolConfig.ThemeName))
                 {
@@ -349,6 +369,7 @@ namespace FlowVision
                 UpdateMultiAgentUIState();
                 UpdatePlannerConfigUIState();
                 UpdateExecutorConfigUIState();
+                UpdateCoordinatorConfigUIState();
                 UpdateStatusIndicators();
 
                 if (_isNewConfiguration && !configExists)
@@ -408,7 +429,9 @@ namespace FlowVision
         {
             // Instead of disabling the entire tab, only disable planner-specific controls
             // while keeping executor-related controls enabled
-            tabMultiAgent.Enabled = true; // Always enable the tab
+            tabPlanner.Enabled = true;
+            tabExecutioner.Enabled = true;
+            tabCoordinator.Enabled = true;
 
             // Only enable planner-specific controls when multi-agent mode is checked
             txtPlannerSystemPrompt.Enabled = chkMultiAgentMode.Checked;
@@ -416,6 +439,13 @@ namespace FlowVision
             chkUseCustomPlannerConfig.Enabled = chkMultiAgentMode.Checked;
             comboPlannerConfig.Enabled = chkMultiAgentMode.Checked && chkUseCustomPlannerConfig.Checked;
             btnConfigurePlanner.Enabled = chkMultiAgentMode.Checked && chkUseCustomPlannerConfig.Checked;
+
+            // Enable coordinator-specific controls when multi-agent mode is checked
+            txtCoordinatorSystemPrompt.Enabled = chkMultiAgentMode.Checked;
+            lblCoordinatorPrompt.Enabled = chkMultiAgentMode.Checked;
+            chkUseCustomCoordinatorConfig.Enabled = chkMultiAgentMode.Checked;
+            comboCoordinatorConfig.Enabled = chkMultiAgentMode.Checked && chkUseCustomCoordinatorConfig.Checked;
+            btnConfigureCoordinator.Enabled = chkMultiAgentMode.Checked && chkUseCustomCoordinatorConfig.Checked;
 
             // Executor controls remain enabled regardless of multi-agent mode
 
@@ -434,6 +464,13 @@ namespace FlowVision
             // Enable or disable the executor config dropdown based on checkbox
             comboExecutorConfig.Enabled = chkUseCustomExecutorConfig.Checked;
             btnConfigureExecutor.Enabled = chkUseCustomExecutorConfig.Checked;
+        }
+
+        private void UpdateCoordinatorConfigUIState()
+        {
+            // Enable or disable the coordinator config dropdown based on checkbox
+            comboCoordinatorConfig.Enabled = chkUseCustomCoordinatorConfig.Checked;
+            btnConfigureCoordinator.Enabled = chkUseCustomCoordinatorConfig.Checked;
         }
 
         private void saveButton_Click(object sender, EventArgs e)
@@ -465,13 +502,15 @@ namespace FlowVision
             _toolConfig.EnableVoiceCommands = chkEnableVoiceCommands.Checked;
             _toolConfig.VoiceCommandPhrase = txtVoiceCommandPhrase.Text;
 
-            // Save planner and executor settings
+            // Save planner, executor, and coordinator settings
             _toolConfig.PlannerSystemPrompt = txtPlannerSystemPrompt.Text;
             _toolConfig.ExecutorSystemPrompt = txtExecutorSystemPrompt.Text;
+            _toolConfig.CoordinatorSystemPrompt = txtCoordinatorSystemPrompt.Text;
 
             // Save custom model configuration options
             _toolConfig.UseCustomPlannerConfig = chkUseCustomPlannerConfig.Checked;
             _toolConfig.UseCustomExecutorConfig = chkUseCustomExecutorConfig.Checked;
+            _toolConfig.UseCustomCoordinatorConfig = chkUseCustomCoordinatorConfig.Checked;
 
             if (comboPlannerConfig.SelectedItem != null)
             {
@@ -481,6 +520,11 @@ namespace FlowVision
             if (comboExecutorConfig.SelectedItem != null)
             {
                 _toolConfig.ExecutorConfigName = comboExecutorConfig.SelectedItem.ToString();
+            }
+
+            if (comboCoordinatorConfig.SelectedItem != null)
+            {
+                _toolConfig.CoordinatorConfigName = comboCoordinatorConfig.SelectedItem.ToString();
             }
 
             // Save theme configuration
@@ -557,6 +601,11 @@ namespace FlowVision
             UpdateExecutorConfigUIState();
         }
 
+        private void chkUseCustomCoordinatorConfig_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateCoordinatorConfigUIState();
+        }
+
         // Event handlers for config buttons
         private void btnConfigurePlanner_Click(object sender, EventArgs e)
         {
@@ -572,6 +621,15 @@ namespace FlowVision
             if (comboExecutorConfig.SelectedItem != null)
             {
                 string configName = comboExecutorConfig.SelectedItem.ToString();
+                OpenAPIConfigForm(configName);
+            }
+        }
+
+        private void btnConfigureCoordinator_Click(object sender, EventArgs e)
+        {
+            if (comboCoordinatorConfig.SelectedItem != null)
+            {
+                string configName = comboCoordinatorConfig.SelectedItem.ToString();
                 OpenAPIConfigForm(configName);
             }
         }

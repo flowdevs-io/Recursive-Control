@@ -355,6 +355,7 @@ namespace FlowVision
         private async void SendButton_Click(object sender, EventArgs e)
         {
             allowUserInput(false);
+            var toolConfig = ToolConfig.LoadConfig("toolsconfig");
 
             // Check if the user input is empty
             string userInput = userInputTextBox.Text;
@@ -367,16 +368,16 @@ namespace FlowVision
 
             // Add user message to UI
             AddMessage("You", userInput, false);
-
             try
             {
                 string aiResponse = await GetAIResponseAsync(userInput);
                 AddMessage("AI", aiResponse, true);
 
                 // Check if we should retain chat history
-                var toolConfig = ToolConfig.LoadConfig("toolsconfig");
+                
                 if (!toolConfig.RetainChatHistory)
                 {
+                    
                     // Keep only the latest exchange in chat history
                     if (chatHistory.Count > 2)
                     {
