@@ -13,16 +13,20 @@ using Microsoft.SemanticKernel.Connectors.OpenAI;
 namespace FlowVision.lib.Classes
 {
     /// <summary>
-    /// Multi-agent actioner that coordinates between a planner agent and an execution agent
+    /// Multi-agent actioner that coordinates between a coordinator, planner agent and an execution agent
     /// </summary>
     public class MultiAgentActioner
     {
+        private IChatCompletionService coordinatorChat;
         private IChatCompletionService plannerChat;
         private IChatCompletionService executorChat;
+        private ChatHistory coordinatorHistory;
         private ChatHistory plannerHistory;
         private ChatHistory executorHistory;
+        private Kernel coordinatorKernel;
         private Kernel plannerKernel;
         private Kernel executorKernel;
+        private AgentCoordinator agentCoordinator;
         
         // Configuration constants
         private const string TOOL_CONFIG = "toolsconfig";
@@ -33,8 +37,10 @@ namespace FlowVision.lib.Classes
         
         public MultiAgentActioner(Form1.PluginOutputHandler outputHandler)
         {
+            coordinatorHistory = new ChatHistory();
             plannerHistory = new ChatHistory();
             executorHistory = new ChatHistory();
+            agentCoordinator = new AgentCoordinator();
             
             // Load tool configuration when the MultiAgentActioner is initialized
             toolConfig = ToolConfig.LoadConfig(TOOL_CONFIG);
@@ -73,20 +79,33 @@ namespace FlowVision.lib.Classes
             toolConfig = ToolConfig.LoadConfig(TOOL_CONFIG);
             
             PluginLogger.NotifyTaskStart("Multi-Agent Action", "Planning and executing your request");
-            PluginLogger.StartLoadingIndicator("planning");
+            PluginLogger.StartLoadingIndicator("coordination");
             
             try
             {
-                // Configure planner first
+                // Configure coordinator first
+                coordinatorHistory.Clear();
+                coordinatorHistory.AddSystemMessage(toolConfig.CoordinatorSystemPrompt);
+                coordinatorHistory.AddUserMessage(actionPrompt);
+                
+                // Configure planner for later use
                 plannerHistory.Clear();
                 plannerHistory.AddSystemMessage(toolConfig.PlannerSystemPrompt);
-                plannerHistory.AddUserMessage(actionPrompt);
-
+                
                 // Configure executor for later use
                 executorHistory.Clear();
                 executorHistory.AddSystemMessage(toolConfig.ExecutorSystemPrompt);
 
+                // Clear agent coordinator message history
+                agentCoordinator.Clear();
+                agentCoordinator.AddMessage(AgentRole.User, AgentRole.Coordinator, 
+                    "USER_REQUEST", actionPrompt);
+
                 // Load model configurations - use either custom configs or default
+                APIConfig coordinatorConfig = toolConfig.UseCustomCoordinatorConfig 
+                    ? APIConfig.LoadConfig(toolConfig.CoordinatorConfigName)
+                    : APIConfig.LoadConfig(ACTIONER_CONFIG);
+                
                 APIConfig plannerConfig = toolConfig.UseCustomPlannerConfig 
                     ? APIConfig.LoadConfig(toolConfig.PlannerConfigName)
                     : APIConfig.LoadConfig(ACTIONER_CONFIG);
@@ -94,6 +113,15 @@ namespace FlowVision.lib.Classes
                 APIConfig executorConfig = toolConfig.UseCustomExecutorConfig
                     ? APIConfig.LoadConfig(toolConfig.ExecutorConfigName)
                     : APIConfig.LoadConfig(ACTIONER_CONFIG);
+
+                // Verify coordinator config
+                if (string.IsNullOrWhiteSpace(coordinatorConfig.DeploymentName) ||
+                    string.IsNullOrWhiteSpace(coordinatorConfig.EndpointURL) ||
+                    string.IsNullOrWhiteSpace(coordinatorConfig.APIKey))
+                {
+                    PluginLogger.NotifyTaskComplete("Multi-Agent Action", false);
+                    return "Error: Coordinator model not configured";
+                }
 
                 // Verify planner config
                 if (string.IsNullOrWhiteSpace(plannerConfig.DeploymentName) ||
@@ -112,6 +140,16 @@ namespace FlowVision.lib.Classes
                     PluginLogger.NotifyTaskComplete("Multi-Agent Action", false);
                     return "Error: Executor model not configured";
                 }
+
+                // Setup the kernel for coordinator (no tools, only coordination capabilities)
+                var coordinatorBuilder = Kernel.CreateBuilder();
+                coordinatorBuilder.AddAzureOpenAIChatCompletion(
+                    coordinatorConfig.DeploymentName,
+                    coordinatorConfig.EndpointURL,
+                    coordinatorConfig.APIKey);
+
+                coordinatorKernel = coordinatorBuilder.Build();
+                coordinatorChat = coordinatorKernel.GetRequiredService<IChatCompletionService>();
 
                 // Setup the kernel for planner (no tools, only planning capabilities)
                 var plannerBuilder = Kernel.CreateBuilder();
@@ -164,12 +202,18 @@ namespace FlowVision.lib.Classes
                 executorKernel = executorBuilder.Build();
                 executorChat = executorKernel.GetRequiredService<IChatCompletionService>();
 
-                // Get initial plan from planner agent
+                // Get initial coordination from coordinator agent
                 PluginLogger.StopLoadingIndicator();
-                PluginLogger.LogPluginUsage("🧠 Planning approach...");
-                PluginLogger.StartLoadingIndicator("planning");
+                PluginLogger.LogPluginUsage("🗣️ Coordinating request...");
+                PluginLogger.StartLoadingIndicator("coordination");
                 
-                var planSettings = new OpenAIPromptExecutionSettings
+                var coordinatorSettings = new OpenAIPromptExecutionSettings
+                {
+                    Temperature = 0.2,
+                    // No tools for coordinator
+                };
+
+                var plannerSettings = new OpenAIPromptExecutionSettings
                 {
                     Temperature = 0.2,
                     // No tools for planner
@@ -183,15 +227,34 @@ namespace FlowVision.lib.Classes
                         : ToolCallBehavior.EnableKernelFunctions
                 };
 
+                // Get the initial coordination
+                string coordinatorResponse = await GetAgentResponseAsync(coordinatorChat, coordinatorHistory, coordinatorSettings, coordinatorKernel);
+                PluginLogger.LogPluginUsage("🎯 Coordinator Assessment:\n" + coordinatorResponse);
+                
+                agentCoordinator.AddMessage(AgentRole.Coordinator, AgentRole.Planner, 
+                    "COORDINATION_RESPONSE", coordinatorResponse);
+
+                // Send the task to the planner
+                plannerHistory.AddUserMessage(coordinatorResponse);
+                
+                PluginLogger.StopLoadingIndicator();
+                PluginLogger.LogPluginUsage("🧠 Planning approach...");
+                PluginLogger.StartLoadingIndicator("planning");
+                
                 // Get the initial plan
-                string plan = await GetAgentResponseAsync(plannerChat, plannerHistory, planSettings, plannerKernel);
+                string plan = await GetAgentResponseAsync(plannerChat, plannerHistory, plannerSettings, plannerKernel);
                 PluginLogger.LogPluginUsage("📝 Initial Plan:\n" + plan);
+                
+                agentCoordinator.AddMessage(AgentRole.Planner, AgentRole.Executor, 
+                    "PLAN_RESPONSE", plan);
                 
                 // Now execute the plan step by step
                 bool isComplete = false;
                 int maxIterations = 10; // Safety limit
                 int currentIteration = 0;
                 string finalResult = "";
+                // Store all execution results for final response
+                List<string> executionResults = new List<string>();
                 
                 while (!isComplete && currentIteration < maxIterations)
                 {
@@ -201,6 +264,9 @@ namespace FlowVision.lib.Classes
                     // Ask executor to perform the current step
                     executorHistory.AddUserMessage($"Please execute the following step of our plan: {plan}");
                     
+                    agentCoordinator.AddMessage(AgentRole.Planner, AgentRole.Executor, 
+                        "EXECUTION_REQUEST", plan);
+                    
                     PluginLogger.StopLoadingIndicator();
                     PluginLogger.LogPluginUsage("🔧 Executing step...");
                     PluginLogger.StartLoadingIndicator("executing");
@@ -208,7 +274,13 @@ namespace FlowVision.lib.Classes
                     // Get executor response with tools
                     string executionResult = await GetAgentResponseAsync(executorChat, executorHistory, executorSettings, executorKernel);
                     
+                    // Store the execution result for the final response
+                    executionResults.Add(executionResult);
+                    
                     PluginLogger.LogPluginUsage("📊 Execution result:\n" + executionResult);
+                    
+                    agentCoordinator.AddMessage(AgentRole.Executor, AgentRole.Planner, 
+                        "EXECUTION_RESPONSE", executionResult);
                     
                     // Add the execution result to the planner's history
                     plannerHistory.AddUserMessage($"The executor agent performed the requested step. Here is the result:\n\n{executionResult}\n\nIs the task fully completed, or do we need additional steps? If additional steps are needed, provide just the next step to execute. If the task is complete, respond with 'TASK COMPLETED' followed by a summary of what was accomplished.");
@@ -218,16 +290,39 @@ namespace FlowVision.lib.Classes
                     PluginLogger.StartLoadingIndicator("planning");
                     
                     // Get planner's evaluation of the result
-                    plan = await GetAgentResponseAsync(plannerChat, plannerHistory, planSettings, plannerKernel);
+                    plan = await GetAgentResponseAsync(plannerChat, plannerHistory, plannerSettings, plannerKernel);
+                    
+                    agentCoordinator.AddMessage(AgentRole.Planner, AgentRole.Coordinator, 
+                        "STATUS_UPDATE", plan);
                     
                     // Check if the task is complete
                     if (plan.Contains("TASK COMPLETED"))
                     {
                         isComplete = true;
-                        finalResult = plan;
+                        
+                        // Extract the summary from the "TASK COMPLETED" message
+                        string taskSummary = plan.Replace("TASK COMPLETED", "").Trim();
+                        
+                        // Send all execution results to the coordinator for final formatting
+                        string executionSummary = string.Join("\n\n", executionResults);
+                        
+                        coordinatorHistory.AddUserMessage($"The task has been completed. Here are the detailed results from execution:\n\n{executionSummary}\n\nPlease provide a comprehensive response for the user that includes the actual results and information obtained during execution. Do not include phrases like 'TASK_COMPLETE' or similar tags.");
+                        
+                        PluginLogger.StopLoadingIndicator();
+                        PluginLogger.LogPluginUsage("✅ Task completed, generating detailed response...");
+                        PluginLogger.StartLoadingIndicator("coordination");
+                        
+                        // Get coordinator's final response with detailed results
+                        finalResult = await GetAgentResponseAsync(coordinatorChat, coordinatorHistory, coordinatorSettings, coordinatorKernel);
+                        
+                        // Store this as a completed response but without the TASK_COMPLETE tag
+                        agentCoordinator.AddMessage(AgentRole.Coordinator, AgentRole.User, 
+                            "USER_RESPONSE", finalResult);
                     }
-                    
-                    PluginLogger.LogPluginUsage("🔍 Progress evaluation:\n" + plan);
+                    else
+                    {
+                        PluginLogger.LogPluginUsage("🔍 Progress evaluation:\n" + plan);
+                    }
                 }
 
                 PluginLogger.StopLoadingIndicator();
@@ -239,8 +334,24 @@ namespace FlowVision.lib.Classes
                 }
                 else
                 {
+                    // Compile all execution results into a comprehensive response
+                    string allResults = string.Join("\n\n", executionResults);
+                    
+                    // Get coordinator to explain the incomplete task status with the results
+                    coordinatorHistory.AddUserMessage($"The task could not be completed within {maxIterations} iterations, but here are the execution results so far:\n\n{allResults}\n\nPlease provide a detailed response for the user that contains all the information gathered, even though the task wasn't fully completed.");
+                    
+                    PluginLogger.LogPluginUsage("⚠️ Maximum iterations reached, generating explanation with results...");
+                    PluginLogger.StartLoadingIndicator("coordination");
+                    
+                    // Get coordinator's explanation with detailed results
+                    string resultWithExplanation = await GetAgentResponseAsync(coordinatorChat, coordinatorHistory, coordinatorSettings, coordinatorKernel);
+                    
+                    agentCoordinator.AddMessage(AgentRole.Coordinator, AgentRole.User, 
+                        "STATUS_UPDATE", resultWithExplanation);
+                    
+                    PluginLogger.StopLoadingIndicator();
                     PluginLogger.NotifyTaskComplete("Multi-Agent Action", false);
-                    return $"Task execution reached maximum iterations ({maxIterations}) without completion. Last status: {plan}";
+                    return resultWithExplanation;
                 }
             }
             catch (Exception ex)
@@ -283,6 +394,11 @@ namespace FlowVision.lib.Classes
 
         internal void SetChatHistory(List<LocalChatMessage> chatHistory)
         {
+            // Set up coordinator history with system prompt
+            coordinatorHistory.Clear();
+            coordinatorHistory.AddSystemMessage(toolConfig.CoordinatorSystemPrompt);
+            
+            // Set up planner history with system prompt
             plannerHistory.Clear();
             plannerHistory.AddSystemMessage(toolConfig.PlannerSystemPrompt);
             
@@ -290,11 +406,11 @@ namespace FlowVision.lib.Classes
             {
                 if (message.Author == "You")
                 {
-                    plannerHistory.AddUserMessage(message.Content);
+                    coordinatorHistory.AddUserMessage(message.Content);
                 }
                 else if (message.Author == "AI")
                 {
-                    plannerHistory.AddAssistantMessage(message.Content);
+                    coordinatorHistory.AddAssistantMessage(message.Content);
                 }
             }
         }
