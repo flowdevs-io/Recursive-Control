@@ -241,7 +241,7 @@ namespace FlowVision
                                         SendButton_Click(this, EventArgs.Empty);
                                     }
                                 }));
-                            }
+                            }   
                             else
                             {
                                 if (!string.IsNullOrWhiteSpace(userInputTextBox.Text))
