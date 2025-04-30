@@ -2,7 +2,7 @@
 
 If you believe you have ran into a security concern with the release of Recursive Control, please report it through coordinated disclosure.
 
-** Please do not make a report through any other method other than what is outlined below **
+**Please do not make a report through any other method other than what is outlined below**
 
 Open a new [Github security advisory](https://github.com/flowdevs-io/recursive-control/security/advisories/new).
 
