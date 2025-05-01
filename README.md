@@ -31,7 +31,8 @@ Download the latest release from the [Releases](https://github.com/flowdevs-io/R
 1. Run recursivecontrol.exe
 2. Setup your LLM 
 ![image](https://github.com/user-attachments/assets/5dc4f034-794c-46c8-bf96-a4c95db05886)
-3. Start asking questions
+3. Input your commands directly into the UI, and watch as AI automate your tasks.
+
 
 ### Development
 
@@ -50,15 +51,6 @@ Download the latest release from the [Releases](https://github.com/flowdevs-io/R
    dotnet restore
    dotnet build
    ```
-
-### Usage
-
-Run the application:
-```bash
-dotnet run
-```
-
-Input your commands directly into the console, and watch as AI automates your tasks.
 
 ## Plugin System
 
@@ -86,8 +78,7 @@ FlowVision/                   # Main application source
 content/                      # Images and assets
 ```
 
-## Example Use Cases
-- Automate daily report generation and emailing
+## Example Use Cases=
 - Control applications via natural language (e.g., "Open Excel and create a new spreadsheet")
 - Capture and process screenshots for documentation
 - Batch rename files or organize folders
@@ -95,7 +86,7 @@ content/                      # Images and assets
 ## Troubleshooting
 - Ensure you have .NET 4.8+ installed
 - Check your API key and network connection for LLM access
-- For plugin errors, review the application logs in the output window
+- For plugin errors, review the application logs in %appdata%\FlowVision\plugin_usage.log
 
 ## Contributing
 
@@ -112,5 +103,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-For any questions, feedback, or collaboration inquiries, please connect with us through our GitHub repository or via LinkedIn.
+For any questions, feedback, or collaboration inquiries, please connect with us through our GitHub repository,  or via LinkedIn.
 
+## Citation
+
+If you use Browser Use in your research or project, please cite:
+
+```bibtex
+@software{browser_use2024,
+  author = {Trantham, Justin},
+  title = {Recursive Control: AI Control for Windows Computers },
+  year = {2025},
+  publisher = {GitHub},
+  url = {https://github.com/flowdevs-io/Recursive-Contro}
+}
+```
+<div align="center">
+Made and owned by Engineers
+</div>
