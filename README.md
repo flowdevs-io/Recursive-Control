@@ -1,58 +1,140 @@
-# FlowVision
+<picture>  
+   <img alt="Shows the logo of recursive control" src="./content/recursive-control-banner-dark-1280x640.jpeg"  width="full">
+</picture>
 
-**Vision:** Making computing so easy, anyone can do it.
+<h1 align="center">📎 AI Control for Windows Computers 📎</h1>
 
-FlowVision aims to revolutionize how users interact with their computers by leveraging the power of Large Language Models (LLMs) and a suite of integrated tools. It provides a conversational AI interface that can understand natural language requests and translate them into actions on the user's machine, bridging the gap between human intent and computer execution.
+[![Join us on Discord](https://img.shields.io/badge/Join_our_Discord-7289DA?logo=discord&logoColor=white&labelColor=5865F2)](https://discord.gg/mQWsWeHsVU)
 
-## Core Features
+Recursive Control is an innovative project designed to enable artificial intelligence (AI) to interact seamlessly with your computer, automating tasks, performing complex workflows, and enhancing productivity.
 
-*   **Conversational AI Interface:** Interact with your computer using natural language through a chat window ([`Form1`](../../t:/Human-Use/FlowVision/Form1.cs)). The AI assistant interprets your requests and utilizes available tools to fulfill them.
-*   **LLM Integration:** Powered by advanced LLMs like Azure OpenAI ([`Actioner`](../../t:/Human-Use/FlowVision/lib/Classes/ai/Actioner.cs)) or potentially others like GitHub Models ([`Github_Actioner`](../../t:/Human-Use/FlowVision/lib/Classes/ai/Github_Actioner.cs)), enabling sophisticated understanding and task execution.
-*   **Extensible Tool System:** Integrates with Microsoft Semantic Kernel to manage and invoke various plugins (tools) that extend the AI's capabilities beyond simple chat.
+## Project Goal
 
-## Available Tools (Plugins)
+Our mission is to create an AI-driven interface that can autonomously control your computer, intelligently perform tasks, open applications, execute commands, and streamline workflows, effectively turning natural language into actionable operations.
 
-FlowVision comes equipped with a powerful set of tools (plugins) that the AI can use to interact with your system. These tools are the key to making complex tasks simple. You can enable or disable these tools via the Tools configuration menu (`File -> Tools`).
+## Features
 
-*   **CMD Plugin ([`CMDPlugin`](../../t:/Human-Use/FlowVision/lib/Plugins/CMDPlugin.cs)):** Allows the AI to execute commands directly in the Windows Command Prompt. Useful for running scripts, managing files, or performing system tasks.
-*   **PowerShell Plugin ([`PowershellPlugin`](../../t:/Human-Use/FlowVision/lib/Plugins/PowershellPlugin.cs)):** Enables the execution of PowerShell scripts, offering more advanced system administration and automation capabilities compared to CMD.
-*   **Screen Capture & OmniParser Plugin ([`ScreenCaptureOmniParserPlugin`](../../t:/Human-Use/FlowVision/lib/Plugins/ScreenCaptureOmniParserPlugin.cs)):** This is a cornerstone of FlowVision's "vision" capabilities.
-    *   It captures screenshots of the entire screen or specific application windows.
-    *   It sends the captured image to an **OmniParser** service ([`OmniParserClient`](../../t:/Human-Use/FlowVision/lib/Classes/OmniParserClient.cs)). OmniParser analyzes the image, identifies UI elements (buttons, text fields, etc.), and returns structured data about the content and layout.
-    *   This allows the AI to "see" and understand the visual interface of applications, enabling interaction with GUI elements even without direct API access. Configure the OmniParser URL via the Vision menu (`Vision -> OmniParser`).
-*   **Keyboard Plugin ([`KeyboardPlugin`](../../t:/Human-Use/FlowVision/lib/Plugins/KeyboardPlugin.cs)):** Simulates keyboard input, allowing the AI to type text, press keys, and use keyboard shortcuts in applications.
-*   **Mouse Plugin ([`MousePlugin`](../../t:/Human-Use/FlowVision/lib/Plugins/MousePlugin.cs)):** Simulates mouse movements and clicks (left, right, double-click) at specific screen coordinates or relative positions. Essential for interacting with graphical interfaces based on visual understanding from OmniParser.
-*   **Window Selection Plugin ([`WindowSelectionPlugin`](../../t:/Human-Use/FlowVision/lib/Plugins/WindowSelectionPlugin.cs)):** Manages application windows. It can list open windows, find specific windows by title, bring windows to the foreground, and provide window handles necessary for targeted screen captures or interactions.
-
-## Configuration
-
-FlowVision requires some initial setup for optimal functionality:
-
-1.  **LLM Configuration:** Set up your LLM provider (e.g., Azure OpenAI) credentials via the LLM menu (`LLM -> Setup -> Azure OpenAI` or `Github`). Enter the required endpoint, API key, and deployment/model name ([`ConfigForm`](../../t:/Human-Use/FlowVision/ConfigForm.cs)).
-2.  **Tool Configuration:** Access the tool settings via `File -> Tools` ([`ToolConfigForm`](../../t:/Human-Use/FlowVision/ToolConfigForm.cs)). Here you can:
-    *   Enable/disable specific plugins.
-    *   Configure AI behavior (e.g., `Temperature`, `Auto-Invoke Functions`).
-    *   Toggle chat history retention.
-    *   Customize the AI's system prompt.
-    *   Enable/disable plugin usage logging.
-3.  **OmniParser Configuration:** Configure the URL for your OmniParser service instance via `Vision -> OmniParser` ([`OmniParserForm`](Human-Use/FlowVision/OmniParserForm.cs)). This is crucial for enabling the screen analysis features.
+- **AI-Powered Interaction**: Utilize AI models (such as GPT-based models) to interpret user input and intelligently execute actions.
+- **Automated Workflow Execution**: Automate repetitive or complex sequences of computer actions.
+- **Natural Language Commands**: Simply describe tasks in plain language, and let the AI handle execution.
 
 ## Getting Started
 
-1.  Clone the repository.
-2.  Open the solution (`FlowVision.sln`) in Visual Studio.
-3.  Build the solution. This will restore necessary NuGet packages ([`packages.config`](../../t:/Human-Use/FlowVision/packages.config)).
-4.  Run the application (`FlowVision.exe`).
-5.  Configure the LLM, Tools, and OmniParser settings through the application menus as described above.
-6.  Start chatting with the AI!
+### Prerequisites
 
-## Dependencies
+- .NET 4.8 or later
+- Windows Operating System
+- Azure OpenAI API Key (More models will be supported in the future)
 
-FlowVision relies on several key libraries:
+### Local Setup
 
-*   **Microsoft Semantic Kernel:** For AI orchestration, planning, and plugin management.
-*   **Azure OpenAI / OpenAI SDKs:** For communicating with the LLM services.
-*   **Newtonsoft.Json:** For JSON serialization/deserialization.
-*   **Windows Forms:** For the user interface.
+Download the latest release from the [Releases](https://github.com/flowdevs-io/Recursive-Control/releases) page and follow three easy steps.
 
-By combining a powerful LLM with a versatile set of tools, especially the vision capabilities provided by OmniParser, FlowVision takes a significant step towards making computer interaction intuitive and accessible for everyone.
+1. Run recursivecontrol.exe
+2. Setup your LLM 
+![image](https://github.com/user-attachments/assets/5dc4f034-794c-46c8-bf96-a4c95db05886)
+3. Input your commands directly into the UI, and watch as AI automate your tasks.
+
+
+### Development
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/flowdevs-io/Recursive-Control.git
+   ```
+
+2. Navigate to the cloned directory:
+   ```bash
+   cd Recursive-Control
+   ```
+
+3. Restore dependencies and build the project:
+   ```bash
+   dotnet restore
+   dotnet build
+   ```
+
+## Plugin System
+
+Recursive Control supports a modular plugin system, allowing you to extend its capabilities. Plugins can automate keyboard, mouse, window management, screen capture, command line, and more. You can find plugin implementations in the `FlowVision/lib/Plugins/` directory. To add your own plugin, implement the required interface and register it in the application.
+
+### Built-in Plugins
+- **CMDPlugin**: Execute Windows command line instructions.
+- **PowershellPlugin**: Run PowerShell scripts and commands.
+- **KeyboardPlugin**: Automate keyboard input.
+- **MousePlugin**: Automate mouse actions.
+- **ScreenCapturePlugin**: Capture screenshots.
+- **WindowSelectionPlugin**: Select and interact with application windows.
+
+## Folder Structure
+
+```
+FlowVision.sln                # Solution file
+FlowVision/                   # Main application source
+  lib/                        # Core libraries and plugins
+    Classes/                  # Helper and service classes
+    Plugins/                  # Built-in plugins
+    UI/                       # UI theming
+  Models/                     # Data models
+  Properties/                 # .NET project properties
+content/                      # Images and assets
+```
+
+## Example Use Cases
+- Control applications via natural language (e.g., "Open Excel and create a new spreadsheet")
+- Capture and process screenshots for documentation
+- Batch rename files or organize folders
+
+## Roadmap
+
+### Near-Term Goals
+- [ ] **Content warning logging**: Implement logging for content warnings to improve safety and transparency.
+- [ ] **Model Support**: Add support for Gemini, OLLAMA, OpenAI, Bedrock, Phi4, and Phi Silica models.
+- [ ] **Improved Speech Recognition**: Move away from System.Speech.Recognition (which is slow and inaccurate for voice commands) and adopt real-time audio models from OpenAI or similar providers.
+
+### Farther Out
+- [ ] **Local Bbox Search**: Reduce token usage by integrating Bbox search locally (using OLLAMA, Phi Silica, or other novel SLMs).
+- [ ] **Managed LLM Integration**: Develop Recursive Control managed LLM for non-user configurable integration, enabling billing for usage or subscription plans.
+- [ ] **YOLO Bbox Parser Integration**: Integrate Yolo Bbox parser using ONNX for advanced vision capabilities.
+
+### End Goal
+Recursive Control running on every Windows computer, leveraging local SLMs, Recursive Control hosted LLMs, and embedded YOLO vision models. The ultimate aim is to make the integration so seamless that new PC users will no longer need a keyboard or mouse—just interact with the latest LLM, and it will turn words into commands. So easy our elders will even use it.
+
+## Troubleshooting
+- Ensure you have .NET 4.8+ installed
+- Check your API key and network connection for LLM access
+- For plugin errors, review the application logs in %appdata%\FlowVision\plugin_usage.log
+
+## Contributing
+
+We welcome contributions! Please feel free to submit issues, suggestions, or pull requests. Your collaboration is essential for making Recursive Control powerful and versatile.
+
+## Community & Support
+- [GitHub Issues](https://github.com/flowdevs-io/Recursive-Control/issues) for bug reports and feature requests
+- [Discussions](https://github.com/flowdevs-io/Recursive-Control/discussions) for Q&A and ideas
+- [LinkedIn](https://www.linkedin.com/company/flowdevs) for updates and networking
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+For any questions, feedback, or collaboration inquiries, please connect with us through our GitHub repository,  or via LinkedIn.
+
+## Citation
+
+If you use Browser Use in your research or project, please cite:
+
+```bibtex
+@software{recursive-control2025,
+  author = {Trantham, Justin},
+  title = {Recursive Control: AI Control for Windows Computers },
+  year = {2025},
+  publisher = {GitHub},
+  url = {https://github.com/flowdevs-io/Recursive-Contro}
+}
+```
+<div align="center">
+Made and owned by Engineers
+</div>
