@@ -4,6 +4,8 @@
 
 <h1 align="center">📎 AI Control for Windows Computers 📎</h1>
 
+[![Join us on Discord](https://img.shields.io/badge/Join_our_Discord-7289DA?logo=discord&logoColor=white&labelColor=5865F2)](https://discord.gg/mQWsWeHsVU)
+
 Recursive Control is an innovative project designed to enable artificial intelligence (AI) to interact seamlessly with your computer, automating tasks, performing complex workflows, and enhancing productivity.
 
 ## Project Goal
@@ -110,7 +112,7 @@ For any questions, feedback, or collaboration inquiries, please connect with us 
 If you use Browser Use in your research or project, please cite:
 
 ```bibtex
-@software{browser_use2024,
+@software{recursive-control2025,
   author = {Trantham, Justin},
   title = {Recursive Control: AI Control for Windows Computers },
   year = {2025},
