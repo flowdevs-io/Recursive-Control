@@ -80,10 +80,25 @@ FlowVision/                   # Main application source
 content/                      # Images and assets
 ```
 
-## Example Use Cases=
+## Example Use Cases
 - Control applications via natural language (e.g., "Open Excel and create a new spreadsheet")
 - Capture and process screenshots for documentation
 - Batch rename files or organize folders
+
+## Roadmap
+
+### Near-Term Goals
+- [ ] **Content warning logging**: Implement logging for content warnings to improve safety and transparency.
+- [ ] **Model Support**: Add support for Gemini, OLLAMA, OpenAI, Bedrock, Phi4, and Phi Silica models.
+- [ ] **Improved Speech Recognition**: Move away from System.Speech.Recognition (which is slow and inaccurate for voice commands) and adopt real-time audio models from OpenAI or similar providers.
+
+### Farther Out
+- [ ] **Local Bbox Search**: Reduce token usage by integrating Bbox search locally (using OLLAMA, Phi Silica, or other novel SLMs).
+- [ ] **Managed LLM Integration**: Develop Recursive Control managed LLM for non-user configurable integration, enabling billing for usage or subscription plans.
+- [ ] **YOLO Bbox Parser Integration**: Integrate Yolo Bbox parser using ONNX for advanced vision capabilities.
+
+### End Goal
+Recursive Control running on every Windows computer, leveraging local SLMs, Recursive Control hosted LLMs, and embedded YOLO vision models. The ultimate aim is to make the integration so seamless that new PC users will no longer need a keyboard or mouse—just interact with the latest LLM, and it will turn words into commands. So easy our elders will even use it.
 
 ## Troubleshooting
 - Ensure you have .NET 4.8+ installed
