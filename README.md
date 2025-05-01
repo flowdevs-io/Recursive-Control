@@ -60,9 +60,51 @@ dotnet run
 
 Input your commands directly into the console, and watch as AI automates your tasks.
 
+## Plugin System
+
+Recursive Control supports a modular plugin system, allowing you to extend its capabilities. Plugins can automate keyboard, mouse, window management, screen capture, command line, and more. You can find plugin implementations in the `FlowVision/lib/Plugins/` directory. To add your own plugin, implement the required interface and register it in the application.
+
+### Built-in Plugins
+- **CMDPlugin**: Execute Windows command line instructions.
+- **PowershellPlugin**: Run PowerShell scripts and commands.
+- **KeyboardPlugin**: Automate keyboard input.
+- **MousePlugin**: Automate mouse actions.
+- **ScreenCapturePlugin**: Capture screenshots.
+- **WindowSelectionPlugin**: Select and interact with application windows.
+
+## Folder Structure
+
+```
+FlowVision.sln                # Solution file
+FlowVision/                   # Main application source
+  lib/                        # Core libraries and plugins
+    Classes/                  # Helper and service classes
+    Plugins/                  # Built-in plugins
+    UI/                       # UI theming
+  Models/                     # Data models
+  Properties/                 # .NET project properties
+content/                      # Images and assets
+```
+
+## Example Use Cases
+- Automate daily report generation and emailing
+- Control applications via natural language (e.g., "Open Excel and create a new spreadsheet")
+- Capture and process screenshots for documentation
+- Batch rename files or organize folders
+
+## Troubleshooting
+- Ensure you have .NET 4.8+ installed
+- Check your API key and network connection for LLM access
+- For plugin errors, review the application logs in the output window
+
 ## Contributing
 
 We welcome contributions! Please feel free to submit issues, suggestions, or pull requests. Your collaboration is essential for making Recursive Control powerful and versatile.
+
+## Community & Support
+- [GitHub Issues](https://github.com/flowdevs-io/Recursive-Control/issues) for bug reports and feature requests
+- [Discussions](https://github.com/flowdevs-io/Recursive-Control/discussions) for Q&A and ideas
+- [LinkedIn](https://www.linkedin.com/company/flowdevs) for updates and networking
 
 ## License
 
