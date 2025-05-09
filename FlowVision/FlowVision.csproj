@@ -90,6 +90,9 @@
     <Reference Include="Microsoft.Extensions.VectorData.Abstractions, Version=9.0.0.0, Culture=neutral, PublicKeyToken=f300afd708cefcd3, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.VectorData.Abstractions.9.0.0-preview.1.25161.1\lib\net462\Microsoft.Extensions.VectorData.Abstractions.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Playwright, Version=1.52.0.0, Culture=neutral, PublicKeyToken=db12f80f85d8ba23, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Playwright.1.52.0\lib\netstandard2.0\Microsoft.Playwright.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.SemanticKernel, Version=1.47.0.0, Culture=neutral, PublicKeyToken=f300afd708cefcd3, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.SemanticKernel.1.47.0\lib\netstandard2.0\Microsoft.SemanticKernel.dll</HintPath>
     </Reference>
@@ -121,6 +124,10 @@
     <Reference Include="System.ClientModel, Version=1.4.0.0, Culture=neutral, PublicKeyToken=92742159e12e44c8, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ClientModel.1.4.0-beta.4\lib\netstandard2.0\System.ClientModel.dll</HintPath>
     </Reference>
+    <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ComponentModel.Annotations.5.0.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=10.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Diagnostics.DiagnosticSource.10.0.0-preview.3.25171.5\lib\net462\System.Diagnostics.DiagnosticSource.dll</HintPath>
@@ -191,6 +198,12 @@
     <Compile Include="lib\Classes\UI\ThemeManager.cs" />
     <Compile Include="lib\Plugins\ScreenCaptureOmniParserPlugin.cs" />
     <Compile Include="lib\Plugins\WindowSelectionPlugin.cs" />
+    <Compile Include="T:/Human-Use/FlowVision/lib/Classes/\PlaywrightSessionManager.cs">
+      <Link>PlaywrightSessionManager.cs</Link>
+    </Compile>
+    <Compile Include="T:/Human-Use/FlowVision/lib/Plugins/\PlaywrightPlugin.cs">
+      <Link>PlaywrightPlugin.cs</Link>
+    </Compile>
     <Compile Include="ToolConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -250,6 +263,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="T:/Human-Use/FlowVision/\README.md">
+      <Link>README.md</Link>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="recursive-control-icon.ico" />
@@ -263,8 +279,10 @@
     <Error Condition="!Exists('..\packages\Fody.6.9.2\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.6.9.2\build\Fody.targets'))" />
     <Error Condition="!Exists('..\packages\Costura.Fody.6.0.0\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.6.0.0\build\Costura.Fody.props'))" />
     <Error Condition="!Exists('..\packages\Costura.Fody.6.0.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.6.0.0\build\Costura.Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Playwright.1.52.0\build\Microsoft.Playwright.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Playwright.1.52.0\build\Microsoft.Playwright.targets'))" />
   </Target>
   <Import Project="..\packages\CefSharp.Common.135.0.170\build\CefSharp.Common.targets" Condition="Exists('..\packages\CefSharp.Common.135.0.170\build\CefSharp.Common.targets')" />
   <Import Project="..\packages\Fody.6.9.2\build\Fody.targets" Condition="Exists('..\packages\Fody.6.9.2\build\Fody.targets')" />
   <Import Project="..\packages\Costura.Fody.6.0.0\build\Costura.Fody.targets" Condition="Exists('..\packages\Costura.Fody.6.0.0\build\Costura.Fody.targets')" />
+  <Import Project="..\packages\Microsoft.Playwright.1.52.0\build\Microsoft.Playwright.targets" Condition="Exists('..\packages\Microsoft.Playwright.1.52.0\build\Microsoft.Playwright.targets')" />
 </Project>

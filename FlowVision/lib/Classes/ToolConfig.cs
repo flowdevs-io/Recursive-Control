@@ -23,7 +23,7 @@ namespace FlowVision.lib.Classes
         public bool EnableMultiAgentMode { get; set; } = false; // Changed default to false
         public string ThemeName { get; set; } = "Light"; // Added theme property
 
-        // New properties for planner and executor configuration
+        // New properties for planner and actioner configuration
         public string PlannerSystemPrompt { get; set; } = @"You are a planning agent responsible for breaking down complex tasks into clear steps. 
 Your job is to:
 1. Analyze the user's request
@@ -37,7 +37,7 @@ Your job is to:
 YOU CANNOT EXECUTE TOOLS DIRECTLY. Only the execution agent can use tools.
 You must work with the execution agent to accomplish the goals.";
 
-        public string ExecutorSystemPrompt { get; set; } = @"You are an execution agent with access to various tools.
+        public string ActionerSystemPrompt { get; set; } = @"You are an execution agent with access to various tools.
 Your job is to:
 1. Execute the specific step provided by the planner agent
 2. Use available tools to accomplish the requested action
@@ -60,11 +60,13 @@ You are the main interface between the human user and the AI system including th
 Focus on providing clear, helpful responses that address the user's needs completely.";
 
         public bool UseCustomPlannerConfig { get; set; } = false;
-        public bool UseCustomExecutorConfig { get; set; } = false;
+        public bool UseCustomActionerConfig { get; set; } = false;
         public bool UseCustomCoordinatorConfig { get; set; } = false;
         public string PlannerConfigName { get; set; } = "planner";
-        public string ExecutorConfigName { get; set; } = "executor";
+        public string ActionerConfigName { get; set; } = "actioner";
         public string CoordinatorConfigName { get; set; } = "coordinator";
+
+        public bool EnablePlaywrightPlugin { get; set; } = false; // Default to false for security
 
         public static string ConfigFilePath(string configName)
         {

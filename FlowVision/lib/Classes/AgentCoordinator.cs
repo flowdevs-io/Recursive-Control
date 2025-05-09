@@ -116,7 +116,7 @@ namespace FlowVision.lib.Classes
         User,
         Coordinator,
         Planner,
-        Executor,
+        Actioner,
         All
     }
     

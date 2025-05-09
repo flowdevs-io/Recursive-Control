@@ -19,13 +19,13 @@ namespace FlowVision.lib.Classes
     {
         private IChatCompletionService coordinatorChat;
         private IChatCompletionService plannerChat;
-        private IChatCompletionService executorChat;
+        private IChatCompletionService actionerChat;
         private ChatHistory coordinatorHistory;
         private ChatHistory plannerHistory;
-        private ChatHistory executorHistory;
+        private ChatHistory actionerHistory;
         private Kernel coordinatorKernel;
         private Kernel plannerKernel;
-        private Kernel executorKernel;
+        private Kernel actionerKernel;
         private AgentCoordinator agentCoordinator;
         
         // Configuration constants
@@ -39,7 +39,7 @@ namespace FlowVision.lib.Classes
         {
             coordinatorHistory = new ChatHistory();
             plannerHistory = new ChatHistory();
-            executorHistory = new ChatHistory();
+            actionerHistory = new ChatHistory();
             agentCoordinator = new AgentCoordinator();
             
             // Load tool configuration when the MultiAgentActioner is initialized
@@ -92,9 +92,9 @@ namespace FlowVision.lib.Classes
                 plannerHistory.Clear();
                 plannerHistory.AddSystemMessage(toolConfig.PlannerSystemPrompt);
                 
-                // Configure executor for later use
-                executorHistory.Clear();
-                executorHistory.AddSystemMessage(toolConfig.ExecutorSystemPrompt);
+                // Configure actioner for later use
+                actionerHistory.Clear();
+                actionerHistory.AddSystemMessage(toolConfig.ActionerSystemPrompt);
 
                 // Clear agent coordinator message history
                 agentCoordinator.Clear();
@@ -110,8 +110,8 @@ namespace FlowVision.lib.Classes
                     ? APIConfig.LoadConfig(toolConfig.PlannerConfigName)
                     : APIConfig.LoadConfig(ACTIONER_CONFIG);
 
-                APIConfig executorConfig = toolConfig.UseCustomExecutorConfig
-                    ? APIConfig.LoadConfig(toolConfig.ExecutorConfigName)
+                APIConfig actionerConfig = toolConfig.UseCustomActionerConfig
+                    ? APIConfig.LoadConfig(toolConfig.ActionerConfigName)
                     : APIConfig.LoadConfig(ACTIONER_CONFIG);
 
                 // Verify coordinator config
@@ -132,13 +132,13 @@ namespace FlowVision.lib.Classes
                     return "Error: Planner model not configured";
                 }
 
-                // Verify executor config
-                if (string.IsNullOrWhiteSpace(executorConfig.DeploymentName) ||
-                    string.IsNullOrWhiteSpace(executorConfig.EndpointURL) ||
-                    string.IsNullOrWhiteSpace(executorConfig.APIKey))
+                // Verify actioner config
+                if (string.IsNullOrWhiteSpace(actionerConfig.DeploymentName) ||
+                    string.IsNullOrWhiteSpace(actionerConfig.EndpointURL) ||
+                    string.IsNullOrWhiteSpace(actionerConfig.APIKey))
                 {
                     PluginLogger.NotifyTaskComplete("Multi-Agent Action", false);
-                    return "Error: Executor model not configured";
+                    return "Error: Actioner model not configured";
                 }
 
                 // Setup the kernel for coordinator (no tools, only coordination capabilities)
@@ -161,46 +161,51 @@ namespace FlowVision.lib.Classes
                 plannerKernel = plannerBuilder.Build();
                 plannerChat = plannerKernel.GetRequiredService<IChatCompletionService>();
 
-                // Setup the kernel for executor with all tools
-                var executorBuilder = Kernel.CreateBuilder();
-                executorBuilder.AddAzureOpenAIChatCompletion(
-                    executorConfig.DeploymentName,
-                    executorConfig.EndpointURL,
-                    executorConfig.APIKey);
+                // Setup the kernel for actioner with all tools
+                var actionerBuilder = Kernel.CreateBuilder();
+                actionerBuilder.AddAzureOpenAIChatCompletion(
+                    actionerConfig.DeploymentName,
+                    actionerConfig.EndpointURL,
+                    actionerConfig.APIKey);
 
                 // Add plugins dynamically based on tool configuration
                 if (toolConfig.EnableCMDPlugin)
                 {
-                    executorBuilder.Plugins.AddFromType<CMDPlugin>();
+                    actionerBuilder.Plugins.AddFromType<CMDPlugin>();
                 }
                     
                 if (toolConfig.EnablePowerShellPlugin)
                 {
-                    executorBuilder.Plugins.AddFromType<PowerShellPlugin>();
+                    actionerBuilder.Plugins.AddFromType<PowerShellPlugin>();
                 }
                     
                 if (toolConfig.EnableScreenCapturePlugin)
                 {
-                    executorBuilder.Plugins.AddFromType<ScreenCaptureOmniParserPlugin>();
+                    actionerBuilder.Plugins.AddFromType<ScreenCaptureOmniParserPlugin>();
                 }
                     
                 if (toolConfig.EnableKeyboardPlugin)
                 {
-                    executorBuilder.Plugins.AddFromType<KeyboardPlugin>();
+                    actionerBuilder.Plugins.AddFromType<KeyboardPlugin>();
                 }
                     
                 if (toolConfig.EnableMousePlugin)
                 {
-                    executorBuilder.Plugins.AddFromType<MousePlugin>();
+                    actionerBuilder.Plugins.AddFromType<MousePlugin>();
                 }
                     
                 if (toolConfig.EnableWindowSelectionPlugin)
                 {
-                    executorBuilder.Plugins.AddFromType<WindowSelectionPlugin>();
+                    actionerBuilder.Plugins.AddFromType<WindowSelectionPlugin>();
                 }
 
-                executorKernel = executorBuilder.Build();
-                executorChat = executorKernel.GetRequiredService<IChatCompletionService>();
+                if (toolConfig.EnablePlaywrightPlugin)
+                {
+                    actionerBuilder.Plugins.AddFromType<PlaywrightPlugin>();
+                }
+
+                actionerKernel = actionerBuilder.Build();
+                actionerChat = actionerKernel.GetRequiredService<IChatCompletionService>();
 
                 // Get initial coordination from coordinator agent
                 PluginLogger.StopLoadingIndicator();
@@ -219,7 +224,7 @@ namespace FlowVision.lib.Classes
                     // No tools for planner
                 };
 
-                var executorSettings = new OpenAIPromptExecutionSettings
+                var actionerSettings = new OpenAIPromptExecutionSettings
                 {
                     Temperature = toolConfig.Temperature,
                     ToolCallBehavior = toolConfig.AutoInvokeKernelFunctions
@@ -245,7 +250,7 @@ namespace FlowVision.lib.Classes
                 string plan = await GetAgentResponseAsync(plannerChat, plannerHistory, plannerSettings, plannerKernel);
                 PluginLogger.LogPluginUsage("📝 Initial Plan:\n" + plan);
                 
-                agentCoordinator.AddMessage(AgentRole.Planner, AgentRole.Executor, 
+                agentCoordinator.AddMessage(AgentRole.Planner, AgentRole.Actioner, 
                     "PLAN_RESPONSE", plan);
                 
                 // Now execute the plan step by step
@@ -261,29 +266,29 @@ namespace FlowVision.lib.Classes
                     currentIteration++;
                     PluginLogger.LogPluginUsage($"⚙️ Iteration {currentIteration} of {maxIterations}");
                     
-                    // Ask executor to perform the current step
-                    executorHistory.AddUserMessage($"Please execute the following step of our plan: {plan}");
+                    // Ask actioner to perform the current step
+                    actionerHistory.AddUserMessage($"Please execute the following step of our plan: {plan}");
                     
-                    agentCoordinator.AddMessage(AgentRole.Planner, AgentRole.Executor, 
+                    agentCoordinator.AddMessage(AgentRole.Planner, AgentRole.Actioner, 
                         "EXECUTION_REQUEST", plan);
                     
                     PluginLogger.StopLoadingIndicator();
                     PluginLogger.LogPluginUsage("🔧 Executing step...");
                     PluginLogger.StartLoadingIndicator("executing");
                     
-                    // Get executor response with tools
-                    string executionResult = await GetAgentResponseAsync(executorChat, executorHistory, executorSettings, executorKernel);
+                    // Get actioner response with tools
+                    string executionResult = await GetAgentResponseAsync(actionerChat, actionerHistory, actionerSettings, actionerKernel);
                     
                     // Store the execution result for the final response
                     executionResults.Add(executionResult);
                     
                     PluginLogger.LogPluginUsage("📊 Execution result:\n" + executionResult);
                     
-                    agentCoordinator.AddMessage(AgentRole.Executor, AgentRole.Planner, 
+                    agentCoordinator.AddMessage(AgentRole.Actioner, AgentRole.Planner, 
                         "EXECUTION_RESPONSE", executionResult);
                     
                     // Add the execution result to the planner's history
-                    plannerHistory.AddUserMessage($"The executor agent performed the requested step. Here is the result:\n\n{executionResult}\n\nIs the task fully completed, or do we need additional steps? If additional steps are needed, provide just the next step to execute. If the task is complete, respond with 'TASK COMPLETED' followed by a summary of what was accomplished.");
+                    plannerHistory.AddUserMessage($"The actioner agent performed the requested step. Here is the result:\n\n{executionResult}\n\nIs the task fully completed, or do we need additional steps? If additional steps are needed, provide just the next step to execute. If the task is complete, respond with 'TASK COMPLETED' followed by a summary of what was accomplished.");
                     
                     PluginLogger.StopLoadingIndicator();
                     PluginLogger.LogPluginUsage("🔄 Evaluating progress...");
