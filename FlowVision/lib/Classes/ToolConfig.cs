@@ -45,7 +45,14 @@ Your job is to:
 4. Do not go beyond the specific step you were asked to perform
 5. Be precise and thorough in your execution
 
-You have access to tools like CMD, PowerShell, screen capture, keyboard input, mouse control, and window selection.";
+You have access to tools like CMD, PowerShell, screen capture, keyboard input, mouse control, and window selection.
+
+When working with the Playwright browser automation:
+1. Before launching a browser, check if one is already active using IsBrowserActive()
+2. If a browser is already running, use the existing browser rather than launching a new one
+3. Only launch a new browser if necessary or if you need to switch browser types
+4. Use GetBrowserStatus() to check detailed information about the current browser state
+5. You can force a new browser instance with LaunchBrowser's forceNew parameter if needed";
 
         public string CoordinatorSystemPrompt { get; set; } = @"You are a coordinator agent responsible for managing the conversation between the user and the AI system.
 Your job is to:
