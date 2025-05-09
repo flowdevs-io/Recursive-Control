@@ -89,7 +89,7 @@ namespace FlowVision.lib.Classes
             try
             {
                 // Add system message to actioner history
-                actionerHistory.AddSystemMessage(toolConfig.ExecutorSystemPrompt);
+                actionerHistory.AddSystemMessage(toolConfig.ActionerSystemPrompt);
 
                 // Add action prompt to actioner history
                 actionerHistory.AddUserMessage(actionPrompt);
@@ -151,6 +151,11 @@ namespace FlowVision.lib.Classes
                 {
                     builder.Plugins.AddFromType<WindowSelectionPlugin>();
                 }
+
+                if (toolConfig.EnablePlaywrightPlugin)
+                {
+                    builder.Plugins.AddFromType<PlaywrightPlugin>();
+                }   
 
                 actionerKernel = builder.Build();
                 actionerChat = actionerKernel.GetRequiredService<IChatCompletionService>();

@@ -103,7 +103,8 @@ namespace FlowVision
                 { chkEnableVoiceCommands, "Enable voice command activation" },
                 { txtVoiceCommandPhrase, "Phrase to activate voice commands (e.g. 'Hey Assistant')" },
                 { cbTheme, "Choose light or dark theme for the interface" },
-                { cmbProfiles, "Load or save different configuration profiles" }
+                { cmbProfiles, "Load or save different configuration profiles" },
+                { chkPlaywrightPlugin, "Allow the AI assistant to automate browser interactions" }
             };
 
             foreach (var kvp in tooltips)
@@ -302,6 +303,7 @@ namespace FlowVision
                 chkMousePlugin.Checked = _toolConfig.EnableMousePlugin;
                 chkWindowSelectionPlugin.Checked = _toolConfig.EnableWindowSelectionPlugin;
                 enablePluginLoggingCheckBox.Checked = _toolConfig.EnablePluginLogging;
+                chkPlaywrightPlugin.Checked = _toolConfig.EnablePlaywrightPlugin;
 
                 numTemperature.Value = (decimal)_toolConfig.Temperature;
                 chkAutoInvoke.Checked = _toolConfig.AutoInvokeKernelFunctions;
@@ -322,10 +324,10 @@ namespace FlowVision
                 }
 
                 txtPlannerSystemPrompt.Text = _toolConfig.PlannerSystemPrompt;
-                txtExecutorSystemPrompt.Text = _toolConfig.ExecutorSystemPrompt;
+                txtExecutorSystemPrompt.Text = _toolConfig.ActionerSystemPrompt;
                 txtCoordinatorSystemPrompt.Text = _toolConfig.CoordinatorSystemPrompt;
                 chkUseCustomPlannerConfig.Checked = _toolConfig.UseCustomPlannerConfig;
-                chkUseCustomExecutorConfig.Checked = _toolConfig.UseCustomExecutorConfig;
+                chkUseCustomExecutorConfig.Checked = _toolConfig.UseCustomActionerConfig;
                 chkUseCustomCoordinatorConfig.Checked = _toolConfig.UseCustomCoordinatorConfig;
 
                 // Check if the item exists in the combo box before setting it
@@ -338,9 +340,9 @@ namespace FlowVision
                     comboPlannerConfig.SelectedIndex = 0;
                 }
 
-                if (comboExecutorConfig.Items.Contains(_toolConfig.ExecutorConfigName))
+                if (comboExecutorConfig.Items.Contains(_toolConfig.ActionerConfigName))
                 {
-                    comboExecutorConfig.SelectedItem = _toolConfig.ExecutorConfigName;
+                    comboExecutorConfig.SelectedItem = _toolConfig.ActionerConfigName;
                 }
                 else if (comboExecutorConfig.Items.Count > 0)
                 {
@@ -396,7 +398,8 @@ namespace FlowVision
                 { chkMultiAgentMode, indicatorMultiAgent },
                 { chkEnableSpeechRecognition, indicatorSpeech },
                 { chkEnableVoiceCommands, indicatorVoiceCmd },
-                { chkAutoInvoke, indicatorAutoInvoke }
+                { chkAutoInvoke, indicatorAutoInvoke },
+                { chkPlaywrightPlugin, indicatorPlaywright }
             };
 
             foreach (var mapping in statusMappings)
@@ -483,6 +486,7 @@ namespace FlowVision
             _toolConfig.EnableMousePlugin = chkMousePlugin.Checked;
             _toolConfig.EnableWindowSelectionPlugin = chkWindowSelectionPlugin.Checked;
             _toolConfig.EnablePluginLogging = enablePluginLoggingCheckBox.Checked;
+            _toolConfig.EnablePlaywrightPlugin = chkPlaywrightPlugin.Checked;
 
             _toolConfig.Temperature = (double)numTemperature.Value;
             _toolConfig.AutoInvokeKernelFunctions = chkAutoInvoke.Checked;
@@ -504,12 +508,12 @@ namespace FlowVision
 
             // Save planner, executor, and coordinator settings
             _toolConfig.PlannerSystemPrompt = txtPlannerSystemPrompt.Text;
-            _toolConfig.ExecutorSystemPrompt = txtExecutorSystemPrompt.Text;
+            _toolConfig.ActionerSystemPrompt = txtExecutorSystemPrompt.Text;
             _toolConfig.CoordinatorSystemPrompt = txtCoordinatorSystemPrompt.Text;
 
             // Save custom model configuration options
             _toolConfig.UseCustomPlannerConfig = chkUseCustomPlannerConfig.Checked;
-            _toolConfig.UseCustomExecutorConfig = chkUseCustomExecutorConfig.Checked;
+            _toolConfig.UseCustomActionerConfig = chkUseCustomExecutorConfig.Checked;
             _toolConfig.UseCustomCoordinatorConfig = chkUseCustomCoordinatorConfig.Checked;
 
             if (comboPlannerConfig.SelectedItem != null)
@@ -519,7 +523,7 @@ namespace FlowVision
 
             if (comboExecutorConfig.SelectedItem != null)
             {
-                _toolConfig.ExecutorConfigName = comboExecutorConfig.SelectedItem.ToString();
+                _toolConfig.ActionerConfigName = comboExecutorConfig.SelectedItem.ToString();
             }
 
             if (comboCoordinatorConfig.SelectedItem != null)

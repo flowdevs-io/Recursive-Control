@@ -36,12 +36,14 @@
             this.indicatorScreenCapture = new System.Windows.Forms.PictureBox();
             this.indicatorPowerShell = new System.Windows.Forms.PictureBox();
             this.indicatorCMD = new System.Windows.Forms.PictureBox();
+            this.indicatorPlaywright = new System.Windows.Forms.PictureBox();
             this.chkMousePlugin = new System.Windows.Forms.CheckBox();
             this.chkKeyboardPlugin = new System.Windows.Forms.CheckBox();
             this.chkScreenCapturePlugin = new System.Windows.Forms.CheckBox();
             this.chkPowerShellPlugin = new System.Windows.Forms.CheckBox();
             this.chkCMDPlugin = new System.Windows.Forms.CheckBox();
             this.chkWindowSelectionPlugin = new System.Windows.Forms.CheckBox();
+            this.chkPlaywrightPlugin = new System.Windows.Forms.CheckBox();
             this.enablePluginLoggingCheckBox = new System.Windows.Forms.CheckBox();
             this.groupBoxSettings = new System.Windows.Forms.GroupBox();
             this.indicatorAutoInvoke = new System.Windows.Forms.PictureBox();
@@ -114,6 +116,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.indicatorScreenCapture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.indicatorPowerShell)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.indicatorCMD)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.indicatorPlaywright)).BeginInit();
             this.groupBoxSettings.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.indicatorAutoInvoke)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.indicatorMultiAgent)).BeginInit();
@@ -148,16 +151,18 @@
             this.groupBoxPlugins.Controls.Add(this.indicatorScreenCapture);
             this.groupBoxPlugins.Controls.Add(this.indicatorPowerShell);
             this.groupBoxPlugins.Controls.Add(this.indicatorCMD);
+            this.groupBoxPlugins.Controls.Add(this.indicatorPlaywright);
             this.groupBoxPlugins.Controls.Add(this.chkMousePlugin);
             this.groupBoxPlugins.Controls.Add(this.chkKeyboardPlugin);
             this.groupBoxPlugins.Controls.Add(this.chkScreenCapturePlugin);
             this.groupBoxPlugins.Controls.Add(this.chkPowerShellPlugin);
             this.groupBoxPlugins.Controls.Add(this.chkCMDPlugin);
             this.groupBoxPlugins.Controls.Add(this.chkWindowSelectionPlugin);
+            this.groupBoxPlugins.Controls.Add(this.chkPlaywrightPlugin);
             this.groupBoxPlugins.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBoxPlugins.Location = new System.Drawing.Point(6, 6);
             this.groupBoxPlugins.Name = "groupBoxPlugins";
-            this.groupBoxPlugins.Size = new System.Drawing.Size(436, 200);
+            this.groupBoxPlugins.Size = new System.Drawing.Size(436, 240);
             this.groupBoxPlugins.TabIndex = 0;
             this.groupBoxPlugins.TabStop = false;
             this.groupBoxPlugins.Text = "Available Plugins";
@@ -227,6 +232,17 @@
             this.indicatorCMD.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.indicatorCMD.TabIndex = 6;
             this.indicatorCMD.TabStop = false;
+            // 
+            // indicatorPlaywright
+            // 
+            this.indicatorPlaywright.BackColor = System.Drawing.Color.Transparent;
+            this.indicatorPlaywright.Font = new System.Drawing.Font("Segoe UI Symbol", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.indicatorPlaywright.Location = new System.Drawing.Point(390, 200);
+            this.indicatorPlaywright.Name = "indicatorPlaywright";
+            this.indicatorPlaywright.Size = new System.Drawing.Size(24, 24);
+            this.indicatorPlaywright.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.indicatorPlaywright.TabIndex = 12;
+            this.indicatorPlaywright.TabStop = false;
             // 
             // chkMousePlugin
             // 
@@ -300,14 +316,26 @@
             this.chkWindowSelectionPlugin.UseVisualStyleBackColor = true;
             this.chkWindowSelectionPlugin.CheckedChanged += new System.EventHandler(this.chkPluginStatus_CheckedChanged);
             // 
+            // chkPlaywrightPlugin
+            // 
+            this.chkPlaywrightPlugin.AutoSize = true;
+            this.chkPlaywrightPlugin.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkPlaywrightPlugin.Location = new System.Drawing.Point(17, 200);
+            this.chkPlaywrightPlugin.Name = "chkPlaywrightPlugin";
+            this.chkPlaywrightPlugin.Size = new System.Drawing.Size(196, 23);
+            this.chkPlaywrightPlugin.TabIndex = 6;
+            this.chkPlaywrightPlugin.Text = "Playwright Browser Plugin";
+            this.chkPlaywrightPlugin.UseVisualStyleBackColor = true;
+            this.chkPlaywrightPlugin.CheckedChanged += new System.EventHandler(this.chkPluginStatus_CheckedChanged);
+            // 
             // enablePluginLoggingCheckBox
             // 
             this.enablePluginLoggingCheckBox.AutoSize = true;
             this.enablePluginLoggingCheckBox.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.enablePluginLoggingCheckBox.Location = new System.Drawing.Point(23, 212);
+            this.enablePluginLoggingCheckBox.Location = new System.Drawing.Point(23, 252);
             this.enablePluginLoggingCheckBox.Name = "enablePluginLoggingCheckBox";
             this.enablePluginLoggingCheckBox.Size = new System.Drawing.Size(135, 23);
-            this.enablePluginLoggingCheckBox.TabIndex = 6;
+            this.enablePluginLoggingCheckBox.TabIndex = 7;
             this.enablePluginLoggingCheckBox.Text = "Log Plugin Usage";
             this.enablePluginLoggingCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -1075,6 +1103,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.indicatorScreenCapture)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.indicatorPowerShell)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.indicatorCMD)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.indicatorPlaywright)).EndInit();
             this.groupBoxSettings.ResumeLayout(false);
             this.groupBoxSettings.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.indicatorAutoInvoke)).EndInit();
@@ -1122,12 +1151,14 @@
         private System.Windows.Forms.PictureBox indicatorScreenCapture;
         private System.Windows.Forms.PictureBox indicatorPowerShell;
         private System.Windows.Forms.PictureBox indicatorCMD;
+        private System.Windows.Forms.PictureBox indicatorPlaywright;
         private System.Windows.Forms.CheckBox chkMousePlugin;
         private System.Windows.Forms.CheckBox chkKeyboardPlugin;
         private System.Windows.Forms.CheckBox chkScreenCapturePlugin;
         private System.Windows.Forms.CheckBox chkPowerShellPlugin;
         private System.Windows.Forms.CheckBox chkCMDPlugin;
         private System.Windows.Forms.CheckBox chkWindowSelectionPlugin;
+        private System.Windows.Forms.CheckBox chkPlaywrightPlugin;
         private System.Windows.Forms.CheckBox enablePluginLoggingCheckBox;
         private System.Windows.Forms.GroupBox groupBoxSettings;
         private System.Windows.Forms.PictureBox indicatorAutoInvoke;
