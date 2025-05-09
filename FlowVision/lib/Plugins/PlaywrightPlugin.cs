@@ -14,7 +14,7 @@ namespace FlowVision.lib.Plugins
     /// <summary>
     /// Playwright plugin for browser automation within FlowVision.
     /// </summary>
-    internal class PlaywrightPlugin : IAsyncDisposable
+    internal class PlaywrightPlugin
     {
         private IPlaywright _playwright;
         private IBrowser _browser;
@@ -764,30 +764,6 @@ namespace FlowVision.lib.Plugins
                 PluginLogger.NotifyTaskComplete("Browser cleanup", false);
                 return $"Error closing browser: {ex.Message}";
             }
-        }
-        
-        /// <summary>
-        /// Disposes of all resources used by the plugin.
-        /// </summary>
-        public async ValueTask DisposeAsync()
-        {
-            if (_browser != null)
-            {
-                await _browser.CloseAsync();
-                await _browser.DisposeAsync();
-                _browser = null;
-            }
-            
-            if (_playwright != null)
-            {
-                _playwright.Dispose();
-                _playwright = null;
-            }
-            
-            _page = null;
-            _context = null;
-            _initialized = false;
-            _semaphore.Dispose();
         }
     }
 }
