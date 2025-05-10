@@ -70,6 +70,9 @@ namespace FlowVision
             {
                 ApplyLightTheme();
             }
+
+            // Apply theme to all dynamically created controls
+            _themeManager.ApplyThemeToControls(this);
         }
 
         private void ApplyLightTheme()
@@ -109,12 +112,20 @@ namespace FlowVision
         {
             // Check if tools are configured, if not, create default configuration
             string toolConfigName = "toolsconfig";
-            if (!ToolConfig.IsConfigured(toolConfigName))
+            try
             {
-                // Create and save default configuration with mouse and screen capture disabled
-                var defaultConfig = new ToolConfig();
-                defaultConfig.SaveConfig(toolConfigName);
+                if (!ToolConfig.IsConfigured(toolConfigName))
+                {
+                    // Create and save default configuration with mouse and screen capture disabled
+                    var defaultConfig = new ToolConfig();
+                    defaultConfig.SaveConfig(toolConfigName);
+                }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error configuring tools: {ex.Message}", "Configuration Error");
+            }
+
             // Add this call after initializing UI components
             ApplyTheme();
 
@@ -241,7 +252,7 @@ namespace FlowVision
                                         SendButton_Click(this, EventArgs.Empty);
                                     }
                                 }));
-                            }   
+                            }
                             else
                             {
                                 if (!string.IsNullOrWhiteSpace(userInputTextBox.Text))
@@ -289,6 +300,9 @@ namespace FlowVision
             }
         }
 
+        /// <summary>
+        /// Starts listening for voice input and updates UI accordingly.
+        /// </summary>
         private void StartListening()
         {
             try
@@ -374,10 +388,8 @@ namespace FlowVision
                 AddMessage("AI", aiResponse, true);
 
                 // Check if we should retain chat history
-                
                 if (!toolConfig.RetainChatHistory)
                 {
-                    
                     // Keep only the latest exchange in chat history
                     if (chatHistory.Count > 2)
                     {
@@ -388,13 +400,13 @@ namespace FlowVision
             catch (Exception ex)
             {
                 MessageBox.Show($"Error communicating with AI: {ex.Message}", "Error");
-
+            }
+            finally
+            {
+                userInputTextBox.Clear();
+                RemoveMessagesByAuthor("System");
                 allowUserInput(true);
             }
-
-            userInputTextBox.Clear();
-            RemoveMessagesByAuthor("System");
-            allowUserInput(true);
         }
 
         private async Task<string> GetAIResponseAsync(string userInput)
@@ -649,23 +661,7 @@ namespace FlowVision
             // Force layout update
             messagesPanel.PerformLayout();
         }
-        /*
-        private void githubToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // Check if the config form is already open
-            if (Application.OpenForms.OfType<ConfigForm>().Count() == 1)
-            {
-                // If it is, bring it to the front
-                Application.OpenForms.OfType<ConfigForm>().First().BringToFront();
-            }
-            else
-            {
-                // If it isn't, create a new instance of the form
-                ConfigForm configForm = new ConfigForm("github");
-                configForm.Show();
-            }
-        }
-        */
+
         private void omniParserToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Check if the config form is already open
@@ -747,6 +743,15 @@ namespace FlowVision
             userInputTextBox.Clear();
             userInputTextBox.Enabled = true;
             sendButton.Enabled = true;
+        }
+
+        // Ensure proper disposal of SpeechRecognitionService
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            base.OnFormClosing(e);
+
+            // Dispose of speech recognition service if initialized
+            speechRecognition?.Dispose();
         }
     }
 
