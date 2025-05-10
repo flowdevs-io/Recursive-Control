@@ -89,7 +89,7 @@ namespace FlowVision.lib.Classes
             try
             {
                 // Add system message to actioner history
-                actionerHistory.AddSystemMessage(toolConfig.ExecutorSystemPrompt);
+                actionerHistory.AddSystemMessage(toolConfig.ActionerSystemPrompt);
 
                 // Add action prompt to actioner history
                 actionerHistory.AddUserMessage(actionPrompt);
