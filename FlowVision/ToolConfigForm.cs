@@ -56,10 +56,10 @@ namespace FlowVision
             // Apply current theme
             ApplyTheme(_themeManager.CurrentTheme);
 
-            // Make sure the executor prompt is always editable by forcing the tab to be enabled
-            tabExecutioner.Enabled = true;
-            txtExecutorSystemPrompt.Enabled = true;
-            lblExecutorPrompt.Enabled = true;
+            // Make sure the actioner prompt is always editable by forcing the tab to be enabled
+            tabActioner.Enabled = true;
+            txtActionerSystemPrompt.Enabled = true;
+            lblActionerPrompt.Enabled = true;
 
             // If this is a new configuration being opened automatically,
             // show a helpful message to the user
@@ -74,6 +74,12 @@ namespace FlowVision
             }
         }
 
+        private void ToolConfigForm_Load(object sender, EventArgs e)
+        {
+            // Custom initialization logic can be added here.
+            // For example: Load tool configuration settings.
+        }
+
         private void InitializeToolTips()
         {
             _formToolTip = new ToolTip
@@ -86,25 +92,26 @@ namespace FlowVision
 
             // Define tooltips in a dictionary for easier management
             var tooltips = new Dictionary<Control, string>
-            {
-                { chkCMDPlugin, "Enable command prompt access for the AI assistant" },
-                { chkPowerShellPlugin, "Enable PowerShell script execution for the AI assistant" },
-                { chkScreenCapturePlugin, "Allow the AI assistant to capture screenshots" },
-                { chkKeyboardPlugin, "Allow the AI assistant to control keyboard input" },
-                { chkMousePlugin, "Allow the AI assistant to control mouse movements" },
-                { chkWindowSelectionPlugin, "Allow the AI assistant to interact with specific windows" },
-                { enablePluginLoggingCheckBox, "Record all plugin activities for troubleshooting" },
-                { numTemperature, "Controls AI randomness: Higher values = more creative, lower values = more deterministic" },
-                { chkMultiAgentMode, "Enable planner and executor agent mode for complex tasks" },
-                { chkAutoInvoke, "Allow AI to automatically execute tools without confirmation" },
-                { chkRetainChatHistory, "Save conversation history between sessions" },
-                { chkEnableSpeechRecognition, "Enable voice input recognition" },
-                { comboSpeechLanguage, "Select language for speech recognition" },
-                { chkEnableVoiceCommands, "Enable voice command activation" },
-                { txtVoiceCommandPhrase, "Phrase to activate voice commands (e.g. 'Hey Assistant')" },
-                { cbTheme, "Choose light or dark theme for the interface" },
-                { cmbProfiles, "Load or save different configuration profiles" }
-            };
+                {
+                    { chkCMDPlugin, "Enable command prompt access for the AI assistant" },
+                    { chkPowerShellPlugin, "Enable PowerShell script execution for the AI assistant" },
+                    { chkScreenCapturePlugin, "Allow the AI assistant to capture screenshots" },
+                    { chkKeyboardPlugin, "Allow the AI assistant to control keyboard input" },
+                    { chkMousePlugin, "Allow the AI assistant to control mouse movements" },
+                    { chkWindowSelectionPlugin, "Allow the AI assistant to interact with specific windows" },
+                    { enablePluginLoggingCheckBox, "Record all plugin activities for troubleshooting" },
+                    { numTemperature, "Controls AI randomness: Higher values = more creative, lower values = more deterministic" },
+                    { chkMultiAgentMode, "Enable planner and actioner agent mode for complex tasks" },
+                    { chkAutoInvoke, "Allow AI to automatically execute tools without confirmation" },
+                    { chkRetainChatHistory, "Save conversation history between sessions" },
+                    { chkEnableSpeechRecognition, "Enable voice input recognition" },
+                    { comboSpeechLanguage, "Select language for speech recognition" },
+                    { chkEnableVoiceCommands, "Enable voice command activation" },
+                    { txtVoiceCommandPhrase, "Phrase to activate voice commands (e.g. 'Hey Assistant')" },
+                    { cbTheme, "Choose light or dark theme for the interface" },
+                    { cmbProfiles, "Load or save different configuration profiles" },
+                    { chkDynamicToolPrompts, "Include detailed descriptions of available tools in the system prompt" }
+                };
 
             foreach (var kvp in tooltips)
             {
@@ -211,35 +218,35 @@ namespace FlowVision
 
                 if (!configNames.Contains("actioner")) configNames.Add("actioner");
                 if (!configNames.Contains("planner")) configNames.Add("planner");
-                if (!configNames.Contains("executor")) configNames.Add("executor");
+                if (!configNames.Contains("executor")) configNames.Add("actioner");
                 if (!configNames.Contains("coordinator")) configNames.Add("coordinator");
 
                 comboPlannerConfig.Items.Clear();
-                comboExecutorConfig.Items.Clear();
+                comboActionerConfig.Items.Clear();
                 comboCoordinatorConfig.Items.Clear();
 
                 foreach (var name in configNames)
                 {
                     comboPlannerConfig.Items.Add(name);
-                    comboExecutorConfig.Items.Add(name);
+                    comboActionerConfig.Items.Add(name);
                     comboCoordinatorConfig.Items.Add(name);
                 }
 
                 if (comboPlannerConfig.Items.Count > 0)
                 {
-                    comboPlannerConfig.SelectedItem = comboPlannerConfig.Items.Contains("planner") ? 
+                    comboPlannerConfig.SelectedItem = comboPlannerConfig.Items.Contains("planner") ?
                         "planner" : comboPlannerConfig.Items[0];
                 }
-                
-                if (comboExecutorConfig.Items.Count > 0)
+
+                if (comboActionerConfig.Items.Count > 0)
                 {
-                    comboExecutorConfig.SelectedItem = comboExecutorConfig.Items.Contains("executor") ? 
-                        "executor" : comboExecutorConfig.Items[0];
+                    comboActionerConfig.SelectedItem = comboActionerConfig.Items.Contains("actioner") ?
+                        "actioner" : comboActionerConfig.Items[0];
                 }
 
                 if (comboCoordinatorConfig.Items.Count > 0)
                 {
-                    comboCoordinatorConfig.SelectedItem = comboCoordinatorConfig.Items.Contains("coordinator") ? 
+                    comboCoordinatorConfig.SelectedItem = comboCoordinatorConfig.Items.Contains("coordinator") ?
                         "coordinator" : comboCoordinatorConfig.Items[0];
                 }
             }
@@ -252,7 +259,7 @@ namespace FlowVision
         private void PopulateSpeechLanguages()
         {
             comboSpeechLanguage.Items.Clear();
-            
+
             try
             {
                 foreach (var recognizerInfo in SpeechRecognitionEngine.InstalledRecognizers())
@@ -269,15 +276,15 @@ namespace FlowVision
             if (comboSpeechLanguage.Items.Count == 0)
             {
                 comboSpeechLanguage.Items.AddRange(new object[] {
-                    "en-US",
-                    "en-GB",
-                    "en-AU",
-                    "fr-FR",
-                    "es-ES",
-                    "de-DE"
-                });
+                        "en-US",
+                        "en-GB",
+                        "en-AU",
+                        "fr-FR",
+                        "es-ES",
+                        "de-DE"
+                    });
             }
-            
+
             // Select the first item if none is selected
             if (comboSpeechLanguage.SelectedIndex == -1 && comboSpeechLanguage.Items.Count > 0)
             {
@@ -322,7 +329,7 @@ namespace FlowVision
                 }
 
                 txtPlannerSystemPrompt.Text = _toolConfig.PlannerSystemPrompt;
-                txtExecutorSystemPrompt.Text = _toolConfig.ExecutorSystemPrompt;
+                txtActionerSystemPrompt.Text = _toolConfig.ActionerSystemPrompt;
                 txtCoordinatorSystemPrompt.Text = _toolConfig.CoordinatorSystemPrompt;
                 chkUseCustomPlannerConfig.Checked = _toolConfig.UseCustomPlannerConfig;
                 chkUseCustomExecutorConfig.Checked = _toolConfig.UseCustomExecutorConfig;
@@ -338,13 +345,13 @@ namespace FlowVision
                     comboPlannerConfig.SelectedIndex = 0;
                 }
 
-                if (comboExecutorConfig.Items.Contains(_toolConfig.ExecutorConfigName))
+                if (comboActionerConfig.Items.Contains(_toolConfig.ExecutorConfigName))
                 {
-                    comboExecutorConfig.SelectedItem = _toolConfig.ExecutorConfigName;
+                    comboActionerConfig.SelectedItem = _toolConfig.ExecutorConfigName;
                 }
-                else if (comboExecutorConfig.Items.Count > 0)
+                else if (comboActionerConfig.Items.Count > 0)
                 {
-                    comboExecutorConfig.SelectedIndex = 0;
+                    comboActionerConfig.SelectedIndex = 0;
                 }
 
                 if (comboCoordinatorConfig.Items.Contains(_toolConfig.CoordinatorConfigName))
@@ -366,9 +373,11 @@ namespace FlowVision
                     cbTheme.SelectedIndex = 0; // Default to the first item
                 }
 
+                chkDynamicToolPrompts.Checked = _toolConfig.DynamicToolPrompts;
+
                 UpdateMultiAgentUIState();
                 UpdatePlannerConfigUIState();
-                UpdateExecutorConfigUIState();
+                UpdateActionerConfigUIState();
                 UpdateCoordinatorConfigUIState();
                 UpdateStatusIndicators();
 
@@ -386,18 +395,18 @@ namespace FlowVision
         private void UpdateStatusIndicators()
         {
             var statusMappings = new Dictionary<CheckBox, PictureBox>
-            {
-                { chkCMDPlugin, indicatorCMD },
-                { chkPowerShellPlugin, indicatorPowerShell },
-                { chkScreenCapturePlugin, indicatorScreenCapture },
-                { chkKeyboardPlugin, indicatorKeyboard },
-                { chkMousePlugin, indicatorMouse },
-                { chkWindowSelectionPlugin, indicatorWindow },
-                { chkMultiAgentMode, indicatorMultiAgent },
-                { chkEnableSpeechRecognition, indicatorSpeech },
-                { chkEnableVoiceCommands, indicatorVoiceCmd },
-                { chkAutoInvoke, indicatorAutoInvoke }
-            };
+                {
+                    { chkCMDPlugin, indicatorCMD },
+                    { chkPowerShellPlugin, indicatorPowerShell },
+                    { chkScreenCapturePlugin, indicatorScreenCapture },
+                    { chkKeyboardPlugin, indicatorKeyboard },
+                    { chkMousePlugin, indicatorMouse },
+                    { chkWindowSelectionPlugin, indicatorWindow },
+                    { chkMultiAgentMode, indicatorMultiAgent },
+                    { chkEnableSpeechRecognition, indicatorSpeech },
+                    { chkEnableVoiceCommands, indicatorVoiceCmd },
+                    { chkAutoInvoke, indicatorAutoInvoke }
+                };
 
             foreach (var mapping in statusMappings)
             {
@@ -428,9 +437,9 @@ namespace FlowVision
         private void UpdateMultiAgentUIState()
         {
             // Instead of disabling the entire tab, only disable planner-specific controls
-            // while keeping executor-related controls enabled
+            // while keeping actioner-related controls enabled
             tabPlanner.Enabled = true;
-            tabExecutioner.Enabled = true;
+            tabActioner.Enabled = true;
             tabCoordinator.Enabled = true;
 
             // Only enable planner-specific controls when multi-agent mode is checked
@@ -447,7 +456,7 @@ namespace FlowVision
             comboCoordinatorConfig.Enabled = chkMultiAgentMode.Checked && chkUseCustomCoordinatorConfig.Checked;
             btnConfigureCoordinator.Enabled = chkMultiAgentMode.Checked && chkUseCustomCoordinatorConfig.Checked;
 
-            // Executor controls remain enabled regardless of multi-agent mode
+            // Actioner controls remain enabled regardless of multi-agent mode
 
             UpdateStatusIndicator(chkMultiAgentMode, indicatorMultiAgent);
         }
@@ -459,11 +468,11 @@ namespace FlowVision
             btnConfigurePlanner.Enabled = chkUseCustomPlannerConfig.Checked;
         }
 
-        private void UpdateExecutorConfigUIState()
+        private void UpdateActionerConfigUIState()
         {
-            // Enable or disable the executor config dropdown based on checkbox
-            comboExecutorConfig.Enabled = chkUseCustomExecutorConfig.Checked;
-            btnConfigureExecutor.Enabled = chkUseCustomExecutorConfig.Checked;
+            // Enable or disable the actioner config dropdown based on checkbox
+            comboActionerConfig.Enabled = chkUseCustomExecutorConfig.Checked;
+            btnConfigureActioner.Enabled = chkUseCustomExecutorConfig.Checked;
         }
 
         private void UpdateCoordinatorConfigUIState()
@@ -502,9 +511,9 @@ namespace FlowVision
             _toolConfig.EnableVoiceCommands = chkEnableVoiceCommands.Checked;
             _toolConfig.VoiceCommandPhrase = txtVoiceCommandPhrase.Text;
 
-            // Save planner, executor, and coordinator settings
+            // Save planner, actioner, and coordinator settings
             _toolConfig.PlannerSystemPrompt = txtPlannerSystemPrompt.Text;
-            _toolConfig.ExecutorSystemPrompt = txtExecutorSystemPrompt.Text;
+            _toolConfig.ActionerSystemPrompt = txtActionerSystemPrompt.Text;
             _toolConfig.CoordinatorSystemPrompt = txtCoordinatorSystemPrompt.Text;
 
             // Save custom model configuration options
@@ -517,9 +526,9 @@ namespace FlowVision
                 _toolConfig.PlannerConfigName = comboPlannerConfig.SelectedItem.ToString();
             }
 
-            if (comboExecutorConfig.SelectedItem != null)
+            if (comboActionerConfig.SelectedItem != null)
             {
-                _toolConfig.ExecutorConfigName = comboExecutorConfig.SelectedItem.ToString();
+                _toolConfig.ExecutorConfigName = comboActionerConfig.SelectedItem.ToString();
             }
 
             if (comboCoordinatorConfig.SelectedItem != null)
@@ -534,10 +543,14 @@ namespace FlowVision
                 _themeManager.CurrentTheme = cbTheme.SelectedItem.ToString();
             }
 
+            // Save dynamic tool prompts setting
+            _toolConfig.DynamicToolPrompts = chkDynamicToolPrompts.Checked;
+
             _toolConfig.SaveConfig(toolFileName);
 
             // Update any active speech recognition services with the new command phrase
-            try {
+            try
+            {
                 foreach (Form form in Application.OpenForms)
                 {
                     if (form is Form1 mainForm)
@@ -598,7 +611,7 @@ namespace FlowVision
 
         private void chkUseCustomExecutorConfig_CheckedChanged(object sender, EventArgs e)
         {
-            UpdateExecutorConfigUIState();
+            UpdateActionerConfigUIState();
         }
 
         private void chkUseCustomCoordinatorConfig_CheckedChanged(object sender, EventArgs e)
@@ -616,11 +629,11 @@ namespace FlowVision
             }
         }
 
-        private void btnConfigureExecutor_Click(object sender, EventArgs e)
+        private void btnConfigureActioner_Click(object sender, EventArgs e)
         {
-            if (comboExecutorConfig.SelectedItem != null)
+            if (comboActionerConfig.SelectedItem != null)
             {
-                string configName = comboExecutorConfig.SelectedItem.ToString();
+                string configName = comboActionerConfig.SelectedItem.ToString();
                 OpenAPIConfigForm(configName);
             }
         }
