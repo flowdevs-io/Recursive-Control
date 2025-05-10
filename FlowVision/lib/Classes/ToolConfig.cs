@@ -22,101 +22,94 @@ namespace FlowVision.lib.Classes
         public bool RetainChatHistory { get; set; } = true;
         public bool EnableMultiAgentMode { get; set; } = false; // Changed default to false
         public string ThemeName { get; set; } = "Light"; // Added theme property
+        public bool DynamicToolPrompts { get; set; } = true; // New property to control dynamic tool prompts
 
-        // New properties for planner and executor configuration
-        public string PlannerSystemPrompt { get; set; } = @"You are a planning agent responsible for breaking down complex tasks into clear steps. 
-Your job is to:
-1. Analyze the user's request
-2. Create a step-by-step plan to accomplish the goal
-3. Send each step to the executor agent
-4. Review the executor's results after each step
-5. Adapt the plan as needed based on the results
-6. Continue until the entire task is complete
-7. If use is just greeting respond with hello
+        // Optionally, add configurable prompt prefix/suffix for safe phrasing
+        public string SafePromptPrefix { get; set; } = "Next, please consider the following step in the process: ";
+        public string SafePromptSuffix { get; set; } = "";
 
-YOU CANNOT EXECUTE TOOLS DIRECTLY. Only the execution agent can use tools.
-You must work with the execution agent to accomplish the goals.";
+        // New properties for planner and actioner configuration
+        public string PlannerSystemPrompt { get; set; } = @"You are the Planner Agent.
+Your job is to break down the user's request into a sequence of clear, numbered, tool-specific steps.
+Instructions:
+- For each step, output only ONE actionable instruction, in imperative form, referencing the exact tool or plugin to use (e.g., 'Use WindowSelectionPlugin to list all windows').
+- When the user requests to close or stop an application, always use the safest available method (e.g., 'Use WindowSelectionPlugin to close the Microsoft Edge window'), and avoid using words like 'terminate', 'kill', or 'force close'.
+- Do NOT output greetings, conceptual statements, or summaries unless the user is only greeting.
+- After each step, review the Actioner Agent's result and adapt the next step as needed.
+- If the user is only greeting, respond with a simple greeting and nothing else.
+- If a step fails, re-plan and output a new, actionable step.
+- Never output more than one step at a time.
+- Never output a step that is not directly actionable by the Actioner Agent.";
 
-        public string ExecutorSystemPrompt { get; set; } = @"You are an execution agent with access to various tools.
-Your job is to:
-1. Execute the specific step provided by the planner agent
-2. Use available tools to accomplish the requested action
-3. Report back the results and any observations
-4. Do not go beyond the specific step you were asked to perform
-5. Be precise and thorough in your execution
+        public string ActionerSystemPrompt { get; set; } = @"You are the Actioner Agent.
+Your job is to receive a single, clear, tool-specific instruction from the Planner Agent and execute it using the appropriate tool or plugin.
+Instructions:
+- Only act on instructions that specify a tool or plugin and a concrete action.
+- When asked to close or stop an application, always use the safest available method (such as a standard window close command), and avoid using words or actions like 'terminate', 'kill', or 'force close' unless explicitly confirmed as safe.
+- If the instruction is not actionable (e.g., is a greeting, summary, or conceptual), respond: 'The provided step is not actionable. Please provide a specific tool-based instruction.'
+- After executing the step, report the result, including any output, errors, or observations.
+- Do NOT perform extra steps or go beyond the given instruction.
+- If you are unsure which tool to use, or the instruction is ambiguous, request clarification from the Planner Agent.";
 
-You have access to tools like CMD, PowerShell, screen capture, keyboard input, mouse control, and window selection.";
+        public string CoordinatorSystemPrompt { get; set; } = @"You are the Coordinator Agent.
+Your job is to analyze the user's request, determine if it requires multiple steps, and ensure the Planner Agent produces a sequence of concrete, tool-specific steps for the Actioner Agent.
+Instructions:
+- Clearly communicate the overall goal and any constraints to the Planner Agent.
+- If the user requests to close or stop an application, instruct the Planner Agent to use the safest available method and avoid forceful or destructive actions.
+- Oversee the process, ensuring the Planner and Actioner Agents collaborate effectively.
+- The process must always result in a concrete, tool-specific plan for the Actioner Agent.
+- Review the final results to ensure they meet the user's needs.
+- Summarize and present the outcome to the user in a clear, user-friendly way.
+- Do NOT execute actions or tools yourself; only delegate.";
 
-        public string CoordinatorSystemPrompt { get; set; } = @"You are a coordinator agent responsible for managing the conversation between the user and the AI system.
-Your job is to:
-1. Understand the user's request
-2. Send appropriate tasks to the planning agent
-3. Receive and evaluate the final results from the planner
-4. Format responses back to the user in a helpful, conversational way
-5. Handle any follow-up questions from the user
-6. Maintain context throughout the conversation
-
-You are the main interface between the human user and the AI system including the planning and execution agents.
-Focus on providing clear, helpful responses that address the user's needs completely.";
-
+        // Adding missing properties for custom model configurations
         public bool UseCustomPlannerConfig { get; set; } = false;
         public bool UseCustomExecutorConfig { get; set; } = false;
         public bool UseCustomCoordinatorConfig { get; set; } = false;
         public string PlannerConfigName { get; set; } = "planner";
-        public string ExecutorConfigName { get; set; } = "executor";
+        public string ExecutorConfigName { get; set; } = "actioner";
         public string CoordinatorConfigName { get; set; } = "coordinator";
 
-        public static string ConfigFilePath(string configName)
+        // Config file methods
+        public static string ConfigFilePath(string fileName)
         {
-            return Path.Combine(
+            string configDir = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "FlowVision",
-                $"{configName}.json");
+                "FlowVision", "Config");
+
+            if (!Directory.Exists(configDir))
+            {
+                Directory.CreateDirectory(configDir);
+            }
+
+            return Path.Combine(configDir, $"{fileName}.json");
         }
 
-        public static bool IsConfigured(string configName)
+        public void SaveConfig(string fileName)
         {
-            return File.Exists(ConfigFilePath(configName));
+            string configPath = ConfigFilePath(fileName);
+            string jsonString = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(configPath, jsonString);
         }
 
-        public static ToolConfig LoadConfig(string configName)
+        public static ToolConfig LoadConfig(string fileName)
         {
-            try
+            string configPath = ConfigFilePath(fileName);
+            if (!File.Exists(configPath))
             {
-                // Ensure the directory exists.
-                Directory.CreateDirectory(Path.GetDirectoryName(ConfigFilePath(configName)));
+                var config = new ToolConfig();
+                config.SaveConfig(fileName);
+                return config;
+            }
 
-                if (File.Exists(ConfigFilePath(configName)))
-                {
-                    string jsonContent = File.ReadAllText(ConfigFilePath(configName));
-                    if (!string.IsNullOrWhiteSpace(jsonContent))
-                    {
-                        return JsonSerializer.Deserialize<ToolConfig>(jsonContent) ?? new ToolConfig();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading tool config: {ex.Message}");
-            }
-            return new ToolConfig();
+            string jsonString = File.ReadAllText(configPath);
+            return JsonSerializer.Deserialize<ToolConfig>(jsonString);
         }
 
-        public void SaveConfig(string configName)
+        public static bool IsConfigured(string fileName)
         {
-            try
-            {
-                // Ensure the directory exists.
-                Directory.CreateDirectory(Path.GetDirectoryName(ConfigFilePath(configName)));
-
-                var options = new JsonSerializerOptions { WriteIndented = true };
-                string jsonContent = JsonSerializer.Serialize(this, options);
-                File.WriteAllText(ConfigFilePath(configName), jsonContent);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error saving tool config: {ex.Message}");
-            }
+            string configPath = ConfigFilePath(fileName);
+            return File.Exists(configPath);
         }
     }
 }
