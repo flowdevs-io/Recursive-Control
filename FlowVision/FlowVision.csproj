@@ -188,6 +188,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="lib\Classes\AgentCoordinator.cs" />
+    <Compile Include="lib\Classes\ai\AgentRole.cs" />
     <Compile Include="lib\Classes\ai\MultiAgentActioner.cs" />
     <Compile Include="lib\Classes\MarkdownHelper.cs" />
     <Compile Include="lib\Classes\PlaywrightSessionManager.cs" />
