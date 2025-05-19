@@ -218,7 +218,7 @@ namespace FlowVision
 
                 if (!configNames.Contains("actioner")) configNames.Add("actioner");
                 if (!configNames.Contains("planner")) configNames.Add("planner");
-                if (!configNames.Contains("executor")) configNames.Add("actioner");
+                if (!configNames.Contains("executor")) configNames.Add("executor");
                 if (!configNames.Contains("coordinator")) configNames.Add("coordinator");
 
                 comboPlannerConfig.Items.Clear();
