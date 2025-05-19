@@ -5,6 +5,8 @@ VisualStudioVersion = 17.13.35828.75 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowVision", "FlowVision\FlowVision.csproj", "{D0C80BFC-F9E8-4B7D-B3F0-C1A17C0DAB4C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowVision.Tests", "FlowVision.Tests\FlowVision.Tests.csproj", "{5B7C3BAC-8534-42DC-A2B3-A5E4FEF49F1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{D0C80BFC-F9E8-4B7D-B3F0-C1A17C0DAB4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0C80BFC-F9E8-4B7D-B3F0-C1A17C0DAB4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0C80BFC-F9E8-4B7D-B3F0-C1A17C0DAB4C}.Release|Any CPU.Build.0 = Release|Any CPU
+                {5B7C3BAC-8534-42DC-A2B3-A5E4FEF49F1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+                {5B7C3BAC-8534-42DC-A2B3-A5E4FEF49F1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+                {5B7C3BAC-8534-42DC-A2B3-A5E4FEF49F1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+                {5B7C3BAC-8534-42DC-A2B3-A5E4FEF49F1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
