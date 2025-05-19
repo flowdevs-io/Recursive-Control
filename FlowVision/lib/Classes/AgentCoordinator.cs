@@ -1,116 +1,72 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace FlowVision.lib.Classes
 {
     /// <summary>
-    /// Coordinates communication between the user, planner and executor agents
+    /// Coordinates and tracks messages between different agents in a multi-agent system.
+    /// Maintains a record of interactions between different agent roles.
     /// </summary>
     public class AgentCoordinator
     {
-        // Message templates for structured communication between agents
-        private const string PLAN_REQUEST = "PLAN_REQUEST: {0}";
-        private const string PLAN_RESPONSE = "PLAN_RESPONSE: {0}";
-        private const string EXECUTION_REQUEST = "EXECUTION_REQUEST: {0}";
-        private const string EXECUTION_RESPONSE = "EXECUTION_RESPONSE: {0}";
-        private const string STATUS_UPDATE = "STATUS_UPDATE: {0}";
-        private const string TASK_COMPLETE = "TASK_COMPLETE: {0}";
-        private const string USER_REQUEST = "USER_REQUEST: {0}";
-        private const string USER_RESPONSE = "USER_RESPONSE: {0}";
-        private const string COORDINATION_REQUEST = "COORDINATION_REQUEST: {0}";
-        private const string COORDINATION_RESPONSE = "COORDINATION_RESPONSE: {0}";
-        
-        private List<AgentMessage> messageHistory;
-        
+        private List<AgentMessage> _messageHistory;
+
+        /// <summary>
+        /// A read-only view of the message history for debugging and tracking
+        /// </summary>
+        public IReadOnlyList<AgentMessage> MessageHistory => _messageHistory.AsReadOnly();
+
         public AgentCoordinator()
         {
-            messageHistory = new List<AgentMessage>();
+            _messageHistory = new List<AgentMessage>();
         }
-        
-        public void AddMessage(AgentRole sender, AgentRole recipient, string messageType, string content)
+
+        /// <summary>
+        /// Add a message to the coordination history
+        /// </summary>
+        /// <param name="fromRole">The agent role that sent the message</param>
+        /// <param name="toRole">The agent role that received the message</param>
+        /// <param name="messageType">The type/purpose of the message</param>
+        /// <param name="content">The actual message content</param>
+        public void AddMessage(AgentRole fromRole, AgentRole toRole, string messageType, string content)
         {
             var message = new AgentMessage
             {
-                Sender = sender,
-                Recipient = recipient,
+                Timestamp = DateTime.Now,
+                FromRole = fromRole,
+                ToRole = toRole,
                 MessageType = messageType,
-                Content = content,
-                Timestamp = DateTime.Now
+                Content = content
             };
-            
-            messageHistory.Add(message);
+
+            _messageHistory.Add(message);
         }
-        
-        public List<AgentMessage> GetMessageHistory()
+
+        /// <summary>
+        /// Get the most recent message of a specific type
+        /// </summary>
+        /// <param name="messageType">Type of message to retrieve</param>
+        /// <returns>The most recent message of that type, or null if none exists</returns>
+        public AgentMessage GetLatestMessageOfType(string messageType)
         {
-            return messageHistory;
+            return _messageHistory
+                .Where(m => m.MessageType == messageType)
+                .OrderByDescending(m => m.Timestamp)
+                .FirstOrDefault();
         }
-        
-        public List<AgentMessage> GetMessagesForAgent(AgentRole agentRole)
-        {
-            return messageHistory.FindAll(m => m.Recipient == agentRole || m.Recipient == AgentRole.All);
-        }
-        
-        public string FormatPlanRequest(string userRequest)
-        {
-            return string.Format(PLAN_REQUEST, userRequest);
-        }
-        
-        public string FormatPlanResponse(string plan)
-        {
-            return string.Format(PLAN_RESPONSE, plan);
-        }
-        
-        public string FormatExecutionRequest(string step)
-        {
-            return string.Format(EXECUTION_REQUEST, step);
-        }
-        
-        public string FormatExecutionResponse(string result)
-        {
-            return string.Format(EXECUTION_RESPONSE, result);
-        }
-        
-        public string FormatStatusUpdate(string status)
-        {
-            return string.Format(STATUS_UPDATE, status);
-        }
-        
-        public string FormatTaskComplete(string summary)
-        {
-            return string.Format(TASK_COMPLETE, summary);
-        }
-        
-        public string FormatUserRequest(string request)
-        {
-            return string.Format(USER_REQUEST, request);
-        }
-        
-        public string FormatUserResponse(string response)
-        {
-            return string.Format(USER_RESPONSE, response);
-        }
-        
-        public string FormatCoordinationRequest(string request)
-        {
-            return string.Format(COORDINATION_REQUEST, request);
-        }
-        
-        public string FormatCoordinationResponse(string response)
-        {
-            return string.Format(COORDINATION_RESPONSE, response);
-        }
-        
+
+        /// <summary>
+        /// Clears the message history
+        /// </summary>
         public void Clear()
         {
-            messageHistory.Clear();
+            _messageHistory.Clear();
         }
     }
-    
+
     public enum AgentRole
     {
         User,
@@ -120,12 +76,13 @@ namespace FlowVision.lib.Classes
         All
     }
     
+
     public class AgentMessage
     {
-        public AgentRole Sender { get; set; }
-        public AgentRole Recipient { get; set; }
+        public DateTime Timestamp { get; set; }
+        public AgentRole FromRole { get; set; }
+        public AgentRole ToRole { get; set; }
         public string MessageType { get; set; }
         public string Content { get; set; }
-        public DateTime Timestamp { get; set; }
     }
 }

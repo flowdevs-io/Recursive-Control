@@ -22,6 +22,8 @@ namespace FlowVision.lib.Classes
         public bool RetainChatHistory { get; set; } = true;
         public bool EnableMultiAgentMode { get; set; } = false; // Changed default to false
         public string ThemeName { get; set; } = "Light"; // Added theme property
+        public bool DynamicToolPrompts { get; set; } = true; // New property to control dynamic tool prompts
+
 
         // New properties for planner and actioner configuration
         public string PlannerSystemPrompt { get; set; } = @"You are a planning agent responsible for breaking down complex tasks into clear steps. 
@@ -33,9 +35,18 @@ Your job is to:
 5. Adapt the plan as needed based on the results
 6. Continue until the entire task is complete
 7. If use is just greeting respond with hello
-
-YOU CANNOT EXECUTE TOOLS DIRECTLY. Only the execution agent can use tools.
-You must work with the execution agent to accomplish the goals.";
+        // New properties for planner and actioner configuration
+        public string PlannerSystemPrompt { get; set; } = @"You are the Planner Agent.
+Your job is to break down the user's request into a sequence of clear, numbered, tool-specific steps.
+Instructions:
+- For each step, output only ONE actionable instruction, in imperative form, referencing the exact tool or plugin to use (e.g., 'Use WindowSelectionPlugin to list all windows').
+- When the user requests to close or stop an application, always use the safest available method (e.g., 'Use WindowSelectionPlugin to close the Microsoft Edge window'), and avoid using words like 'terminate', 'kill', or 'force close'.
+- Do NOT output greetings, conceptual statements, or summaries unless the user is only greeting.
+- After each step, review the Actioner Agent's result and adapt the next step as needed.
+- If the user is only greeting, respond with a simple greeting and nothing else.
+- If a step fails, re-plan and output a new, actionable step.
+- Never output more than one step at a time.
+- Never output a step that is not directly actionable by the Actioner Agent.";
 
         public string ActionerSystemPrompt { get; set; } = @"You are an execution agent with access to various tools.
 Your job is to:
@@ -66,6 +77,8 @@ Your job is to:
 You are the main interface between the human user and the AI system including the planning and execution agents.
 Focus on providing clear, helpful responses that address the user's needs completely.";
 
+
+        // Adding missing properties for custom model configurations
         public bool UseCustomPlannerConfig { get; set; } = false;
         public bool UseCustomActionerConfig { get; set; } = false;
         public bool UseCustomCoordinatorConfig { get; set; } = false;
@@ -77,55 +90,43 @@ Focus on providing clear, helpful responses that address the user's needs comple
 
         public static string ConfigFilePath(string configName)
         {
-            return Path.Combine(
+            string configDir = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "FlowVision",
-                $"{configName}.json");
+                "FlowVision", "Config");
+
+            if (!Directory.Exists(configDir))
+            {
+                Directory.CreateDirectory(configDir);
+            }
+
+            return Path.Combine(configDir, $"{fileName}.json");
         }
 
-        public static bool IsConfigured(string configName)
+        public void SaveConfig(string fileName)
         {
-            return File.Exists(ConfigFilePath(configName));
+            string configPath = ConfigFilePath(fileName);
+            string jsonString = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(configPath, jsonString);
         }
 
-        public static ToolConfig LoadConfig(string configName)
+        public static ToolConfig LoadConfig(string fileName)
         {
-            try
+            string configPath = ConfigFilePath(fileName);
+            if (!File.Exists(configPath))
             {
-                // Ensure the directory exists.
-                Directory.CreateDirectory(Path.GetDirectoryName(ConfigFilePath(configName)));
+                var config = new ToolConfig();
+                config.SaveConfig(fileName);
+                return config;
+            }
 
-                if (File.Exists(ConfigFilePath(configName)))
-                {
-                    string jsonContent = File.ReadAllText(ConfigFilePath(configName));
-                    if (!string.IsNullOrWhiteSpace(jsonContent))
-                    {
-                        return JsonSerializer.Deserialize<ToolConfig>(jsonContent) ?? new ToolConfig();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading tool config: {ex.Message}");
-            }
-            return new ToolConfig();
+            string jsonString = File.ReadAllText(configPath);
+            return JsonSerializer.Deserialize<ToolConfig>(jsonString);
         }
 
-        public void SaveConfig(string configName)
+        public static bool IsConfigured(string fileName)
         {
-            try
-            {
-                // Ensure the directory exists.
-                Directory.CreateDirectory(Path.GetDirectoryName(ConfigFilePath(configName)));
-
-                var options = new JsonSerializerOptions { WriteIndented = true };
-                string jsonContent = JsonSerializer.Serialize(this, options);
-                File.WriteAllText(ConfigFilePath(configName), jsonContent);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error saving tool config: {ex.Message}");
-            }
+            string configPath = ConfigFilePath(fileName);
+            return File.Exists(configPath);
         }
     }
 }
