@@ -152,6 +152,11 @@ namespace FlowVision.lib.Classes
                     builder.Plugins.AddFromType<WindowSelectionPlugin>();
                 }
 
+                if (toolConfig.EnablePlaywrightPlugin)
+                {
+                    builder.Plugins.AddFromType<PlaywrightPlugin>();
+                }   
+
                 actionerKernel = builder.Build();
                 actionerChat = actionerKernel.GetRequiredService<IChatCompletionService>();
 

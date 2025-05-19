@@ -283,5 +283,21 @@ namespace FlowVision.lib.Classes
                 }
             }
         }
+
+        internal static void LogError(string v1, string v2, string v3)
+        {
+            //log error
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            string logMessage = $"[{timestamp}] Error: {v1}, {v2}, {v3}";
+            WriteToLogFile(logMessage);
+        }
+
+        internal static void LogInfo(string v1, string v2, string v3)
+        {
+            //log info
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            string logMessage = $"[{timestamp}] Info: {v1}, {v2}, {v3}";
+            WriteToLogFile(logMessage);
+        }
     }
 }

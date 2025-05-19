@@ -67,9 +67,16 @@ namespace FlowVision.lib.Classes
         }
     }
 
-    /// <summary>
-    /// Represents a message passed between agents in the multi-agent system
-    /// </summary>
+    public enum AgentRole
+    {
+        User,
+        Coordinator,
+        Planner,
+        Actioner,
+        All
+    }
+    
+
     public class AgentMessage
     {
         public DateTime Timestamp { get; set; }
