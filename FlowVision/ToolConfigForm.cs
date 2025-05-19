@@ -92,26 +92,26 @@ namespace FlowVision
 
             // Define tooltips in a dictionary for easier management
             var tooltips = new Dictionary<Control, string>
-                {
-                    { chkCMDPlugin, "Enable command prompt access for the AI assistant" },
-                    { chkPowerShellPlugin, "Enable PowerShell script execution for the AI assistant" },
-                    { chkScreenCapturePlugin, "Allow the AI assistant to capture screenshots" },
-                    { chkKeyboardPlugin, "Allow the AI assistant to control keyboard input" },
-                    { chkMousePlugin, "Allow the AI assistant to control mouse movements" },
-                    { chkWindowSelectionPlugin, "Allow the AI assistant to interact with specific windows" },
-                    { enablePluginLoggingCheckBox, "Record all plugin activities for troubleshooting" },
-                    { numTemperature, "Controls AI randomness: Higher values = more creative, lower values = more deterministic" },
-                    { chkMultiAgentMode, "Enable planner and actioner agent mode for complex tasks" },
-                    { chkAutoInvoke, "Allow AI to automatically execute tools without confirmation" },
-                    { chkRetainChatHistory, "Save conversation history between sessions" },
-                    { chkEnableSpeechRecognition, "Enable voice input recognition" },
-                    { comboSpeechLanguage, "Select language for speech recognition" },
-                    { chkEnableVoiceCommands, "Enable voice command activation" },
-                    { txtVoiceCommandPhrase, "Phrase to activate voice commands (e.g. 'Hey Assistant')" },
-                    { cbTheme, "Choose light or dark theme for the interface" },
-                    { cmbProfiles, "Load or save different configuration profiles" },
-                    { chkDynamicToolPrompts, "Include detailed descriptions of available tools in the system prompt" }
-                };
+            {
+                { chkCMDPlugin, "Enable command prompt access for the AI assistant" },
+                { chkPowerShellPlugin, "Enable PowerShell script execution for the AI assistant" },
+                { chkScreenCapturePlugin, "Allow the AI assistant to capture screenshots" },
+                { chkKeyboardPlugin, "Allow the AI assistant to control keyboard input" },
+                { chkMousePlugin, "Allow the AI assistant to control mouse movements" },
+                { chkWindowSelectionPlugin, "Allow the AI assistant to interact with specific windows" },
+                { enablePluginLoggingCheckBox, "Record all plugin activities for troubleshooting" },
+                { numTemperature, "Controls AI randomness: Higher values = more creative, lower values = more deterministic" },
+                { chkMultiAgentMode, "Enable planner and executor agent mode for complex tasks" },
+                { chkAutoInvoke, "Allow AI to automatically execute tools without confirmation" },
+                { chkRetainChatHistory, "Save conversation history between sessions" },
+                { chkEnableSpeechRecognition, "Enable voice input recognition" },
+                { comboSpeechLanguage, "Select language for speech recognition" },
+                { chkEnableVoiceCommands, "Enable voice command activation" },
+                { txtVoiceCommandPhrase, "Phrase to activate voice commands (e.g. 'Hey Assistant')" },
+                { cbTheme, "Choose light or dark theme for the interface" },
+                { cmbProfiles, "Load or save different configuration profiles" },
+                { chkPlaywrightPlugin, "Allow the AI assistant to automate browser interactions" }
+            };
 
             foreach (var kvp in tooltips)
             {
@@ -309,6 +309,7 @@ namespace FlowVision
                 chkMousePlugin.Checked = _toolConfig.EnableMousePlugin;
                 chkWindowSelectionPlugin.Checked = _toolConfig.EnableWindowSelectionPlugin;
                 enablePluginLoggingCheckBox.Checked = _toolConfig.EnablePluginLogging;
+                chkPlaywrightPlugin.Checked = _toolConfig.EnablePlaywrightPlugin;
 
                 numTemperature.Value = (decimal)_toolConfig.Temperature;
                 chkAutoInvoke.Checked = _toolConfig.AutoInvokeKernelFunctions;
@@ -329,10 +330,12 @@ namespace FlowVision
                 }
 
                 txtPlannerSystemPrompt.Text = _toolConfig.PlannerSystemPrompt;
-                txtActionerSystemPrompt.Text = _toolConfig.ActionerSystemPrompt;
+
+                txtExecutorSystemPrompt.Text = _toolConfig.ActionerSystemPrompt;
+
                 txtCoordinatorSystemPrompt.Text = _toolConfig.CoordinatorSystemPrompt;
                 chkUseCustomPlannerConfig.Checked = _toolConfig.UseCustomPlannerConfig;
-                chkUseCustomExecutorConfig.Checked = _toolConfig.UseCustomExecutorConfig;
+                chkUseCustomExecutorConfig.Checked = _toolConfig.UseCustomActionerConfig;
                 chkUseCustomCoordinatorConfig.Checked = _toolConfig.UseCustomCoordinatorConfig;
 
                 // Check if the item exists in the combo box before setting it
@@ -345,9 +348,11 @@ namespace FlowVision
                     comboPlannerConfig.SelectedIndex = 0;
                 }
 
-                if (comboActionerConfig.Items.Contains(_toolConfig.ExecutorConfigName))
+
+                if (comboExecutorConfig.Items.Contains(_toolConfig.ActionerConfigName))
                 {
-                    comboActionerConfig.SelectedItem = _toolConfig.ExecutorConfigName;
+                    comboExecutorConfig.SelectedItem = _toolConfig.ActionerConfigName;
+
                 }
                 else if (comboActionerConfig.Items.Count > 0)
                 {
@@ -395,18 +400,20 @@ namespace FlowVision
         private void UpdateStatusIndicators()
         {
             var statusMappings = new Dictionary<CheckBox, PictureBox>
-                {
-                    { chkCMDPlugin, indicatorCMD },
-                    { chkPowerShellPlugin, indicatorPowerShell },
-                    { chkScreenCapturePlugin, indicatorScreenCapture },
-                    { chkKeyboardPlugin, indicatorKeyboard },
-                    { chkMousePlugin, indicatorMouse },
-                    { chkWindowSelectionPlugin, indicatorWindow },
-                    { chkMultiAgentMode, indicatorMultiAgent },
-                    { chkEnableSpeechRecognition, indicatorSpeech },
-                    { chkEnableVoiceCommands, indicatorVoiceCmd },
-                    { chkAutoInvoke, indicatorAutoInvoke }
-                };
+
+            {
+                { chkCMDPlugin, indicatorCMD },
+                { chkPowerShellPlugin, indicatorPowerShell },
+                { chkScreenCapturePlugin, indicatorScreenCapture },
+                { chkKeyboardPlugin, indicatorKeyboard },
+                { chkMousePlugin, indicatorMouse },
+                { chkWindowSelectionPlugin, indicatorWindow },
+                { chkMultiAgentMode, indicatorMultiAgent },
+                { chkEnableSpeechRecognition, indicatorSpeech },
+                { chkEnableVoiceCommands, indicatorVoiceCmd },
+                { chkAutoInvoke, indicatorAutoInvoke },
+                { chkPlaywrightPlugin, indicatorPlaywright }
+            };
 
             foreach (var mapping in statusMappings)
             {
@@ -492,6 +499,7 @@ namespace FlowVision
             _toolConfig.EnableMousePlugin = chkMousePlugin.Checked;
             _toolConfig.EnableWindowSelectionPlugin = chkWindowSelectionPlugin.Checked;
             _toolConfig.EnablePluginLogging = enablePluginLoggingCheckBox.Checked;
+            _toolConfig.EnablePlaywrightPlugin = chkPlaywrightPlugin.Checked;
 
             _toolConfig.Temperature = (double)numTemperature.Value;
             _toolConfig.AutoInvokeKernelFunctions = chkAutoInvoke.Checked;
@@ -513,12 +521,14 @@ namespace FlowVision
 
             // Save planner, actioner, and coordinator settings
             _toolConfig.PlannerSystemPrompt = txtPlannerSystemPrompt.Text;
-            _toolConfig.ActionerSystemPrompt = txtActionerSystemPrompt.Text;
+
+            _toolConfig.ActionerSystemPrompt = txtExecutorSystemPrompt.Text;
+
             _toolConfig.CoordinatorSystemPrompt = txtCoordinatorSystemPrompt.Text;
 
             // Save custom model configuration options
             _toolConfig.UseCustomPlannerConfig = chkUseCustomPlannerConfig.Checked;
-            _toolConfig.UseCustomExecutorConfig = chkUseCustomExecutorConfig.Checked;
+            _toolConfig.UseCustomActionerConfig = chkUseCustomExecutorConfig.Checked;
             _toolConfig.UseCustomCoordinatorConfig = chkUseCustomCoordinatorConfig.Checked;
 
             if (comboPlannerConfig.SelectedItem != null)
@@ -528,7 +538,7 @@ namespace FlowVision
 
             if (comboActionerConfig.SelectedItem != null)
             {
-                _toolConfig.ExecutorConfigName = comboActionerConfig.SelectedItem.ToString();
+                _toolConfig.ActionerConfigName = comboExecutorConfig.SelectedItem.ToString();
             }
 
             if (comboCoordinatorConfig.SelectedItem != null)
