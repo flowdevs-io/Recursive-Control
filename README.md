@@ -124,7 +124,7 @@ For any questions, feedback, or collaboration inquiries, please connect with us 
 
 ## Citation
 
-If you use Browser Use in your research or project, please cite:
+If you use Recursive Control in your research or project, please cite:
 
 ```bibtex
 @software{recursive-control2025,
@@ -132,7 +132,7 @@ If you use Browser Use in your research or project, please cite:
   title = {Recursive Control: AI Control for Windows Computers },
   year = {2025},
   publisher = {GitHub},
-  url = {https://github.com/flowdevs-io/Recursive-Contro}
+  url = {https://github.com/flowdevs-io/Recursive-Control}
 }
 ```
 <div align="center">
