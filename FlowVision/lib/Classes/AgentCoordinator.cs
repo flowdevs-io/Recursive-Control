@@ -46,20 +46,6 @@ namespace FlowVision.lib.Classes
         }
 
         /// <summary>
-        /// Retrieve all messages between specific agent roles
-        /// </summary>
-        /// <param name="fromRole">Source role (or null for any source)</param>
-        /// <param name="toRole">Target role (or null for any target)</param>
-        /// <returns>List of messages matching the criteria</returns>
-        public List<AgentMessage> GetMessages(AgentRole? fromRole = null, AgentRole? toRole = null)
-        {
-            return _messageHistory.Where(m =>
-                (!fromRole.HasValue || m.FromRole == fromRole.Value) &&
-                (!toRole.HasValue || m.ToRole == toRole.Value)
-            ).ToList();
-        }
-
-        /// <summary>
         /// Get the most recent message of a specific type
         /// </summary>
         /// <param name="messageType">Type of message to retrieve</param>
