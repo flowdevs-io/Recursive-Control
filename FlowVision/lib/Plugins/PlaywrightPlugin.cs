@@ -14,7 +14,7 @@ namespace FlowVision.lib.Plugins
     /// <summary>
     /// Playwright plugin for browser automation within FlowVision.
     /// </summary>
-    internal class PlaywrightPlugin
+    internal class PlaywrightPlugin : IAsyncDisposable
     {
         private IPlaywright _playwright;
         private IBrowser _browser;
@@ -157,6 +157,18 @@ namespace FlowVision.lib.Plugins
                 // Close existing browser if one is open and we're forcing a new one
                 if (_browser != null)
                 {
+                    if (_page != null)
+                    {
+                        try { await _page.CloseAsync(); } catch { /* ignore */ }
+                        _page = null;
+                    }
+
+                    if (_context != null)
+                    {
+                        try { await _context.CloseAsync(); } catch { /* ignore */ }
+                        _context = null;
+                    }
+
                     await _browser.CloseAsync();
                     await _browser.DisposeAsync();
                     _browser = null;
@@ -752,9 +764,17 @@ namespace FlowVision.lib.Plugins
                 }
                 
                 await _browser.CloseAsync();
+                await _browser.DisposeAsync();
                 _browser = null;
                 _context = null;
                 _page = null;
+
+                if (_playwright != null)
+                {
+                    try { await _playwright.DisposeAsync(); } catch { /* ignore */ }
+                    _playwright = null;
+                    _initialized = false;
+                }
                 
                 PluginLogger.NotifyTaskComplete("Browser cleanup");
                 return "Browser successfully closed";
@@ -764,6 +784,29 @@ namespace FlowVision.lib.Plugins
                 PluginLogger.NotifyTaskComplete("Browser cleanup", false);
                 return $"Error closing browser: {ex.Message}";
             }
+        }
+
+        /// <summary>
+        /// Disposes all Playwright resources.
+        /// </summary>
+        public async ValueTask DisposeAsync()
+        {
+            if (_browser != null)
+            {
+                try { await _browser.CloseAsync(); await _browser.DisposeAsync(); } catch { /* ignore */ }
+                _browser = null;
+            }
+
+            if (_playwright != null)
+            {
+                try { await _playwright.DisposeAsync(); } catch { /* ignore */ }
+                _playwright = null;
+            }
+
+            _context = null;
+            _page = null;
+            _initialized = false;
+            _semaphore.Dispose();
         }
     }
 }
