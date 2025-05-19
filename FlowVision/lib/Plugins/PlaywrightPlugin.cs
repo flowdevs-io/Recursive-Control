@@ -14,7 +14,7 @@ namespace FlowVision.lib.Plugins
     /// <summary>
     /// Playwright plugin for browser automation within FlowVision.
     /// </summary>
-    internal class PlaywrightPlugin : IAsyncDisposable
+    internal class PlaywrightPlugin 
     {
         private IPlaywright _playwright;
         private IBrowser _browser;
@@ -738,75 +738,6 @@ namespace FlowVision.lib.Plugins
             {
                 return $"Error deleting session: {ex.Message}";
             }
-        }
-        
-        /// <summary>
-        /// Closes the browser and releases all resources.
-        /// </summary>
-        [KernelFunction, Description("Closes the browser and releases resources")]
-        public async Task<string> CloseBrowser()
-        {
-            PluginLogger.LogPluginUsage("PlaywrightPlugin", "CloseBrowser");
-            
-            try
-            {
-                if (_browser == null)
-                {
-                    return "Browser was not running";
-                }
-                
-                PluginLogger.NotifyTaskStart("Browser cleanup", "Closing browser and resources");
-                
-                // Save session state before closing if enabled
-                if (_useSession && _context != null)
-                {
-                    await SaveSession();
-                }
-                
-                await _browser.CloseAsync();
-                await _browser.DisposeAsync();
-                _browser = null;
-                _context = null;
-                _page = null;
-
-                if (_playwright != null)
-                {
-                    try { await _playwright.DisposeAsync(); } catch { /* ignore */ }
-                    _playwright = null;
-                    _initialized = false;
-                }
-                
-                PluginLogger.NotifyTaskComplete("Browser cleanup");
-                return "Browser successfully closed";
-            }
-            catch (Exception ex)
-            {
-                PluginLogger.NotifyTaskComplete("Browser cleanup", false);
-                return $"Error closing browser: {ex.Message}";
-            }
-        }
-
-        /// <summary>
-        /// Disposes all Playwright resources.
-        /// </summary>
-        public async ValueTask DisposeAsync()
-        {
-            if (_browser != null)
-            {
-                try { await _browser.CloseAsync(); await _browser.DisposeAsync(); } catch { /* ignore */ }
-                _browser = null;
-            }
-
-            if (_playwright != null)
-            {
-                try { await _playwright.DisposeAsync(); } catch { /* ignore */ }
-                _playwright = null;
-            }
-
-            _context = null;
-            _page = null;
-            _initialized = false;
-            _semaphore.Dispose();
         }
     }
 }
