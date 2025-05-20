@@ -88,6 +88,10 @@ Focus on providing clear, helpful responses that address the user's needs comple
 
         public bool EnablePlaywrightPlugin { get; set; } = false; // Default to false for security
 
+        // Remote control settings
+        public bool EnableRemoteControl { get; set; } = false;
+        public int RemoteControlPort { get; set; } = 8085;
+
         public static string ConfigFilePath(string configName)
         {
             string configDir = Path.Combine(

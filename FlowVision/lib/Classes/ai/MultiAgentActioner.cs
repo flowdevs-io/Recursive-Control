@@ -211,6 +211,11 @@ namespace FlowVision.lib.Classes
                     actionerBuilder.Plugins.AddFromType<PlaywrightPlugin>();
                 }
 
+                if (toolConfig.EnableRemoteControl)
+                {
+                    actionerBuilder.Plugins.AddFromType<RemoteControlPlugin>();
+                }
+
                 actionerKernel = actionerBuilder.Build();
                 actionerChat = actionerKernel.GetRequiredService<IChatCompletionService>();
 
