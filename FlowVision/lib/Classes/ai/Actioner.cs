@@ -157,9 +157,9 @@ namespace FlowVision.lib.Classes
                     builder.Plugins.AddFromType<WindowSelectionPlugin>();
                 }
 
-                if (toolConfig.EnablePlaywrightPlugin)
-                {
-                    // Expose browser automation utilities including CloseBrowser
+               if (toolConfig.EnablePlaywrightPlugin)
+               {
+                    // Expose browser automation utilities including ExecuteScript and CloseBrowser
                     builder.Plugins.AddFromType<PlaywrightPlugin>();
                 }
 
