@@ -40,6 +40,10 @@ namespace FlowVision.lib.Classes
                 
             if (toolConfig.EnableWindowSelectionPlugin) 
                 availableTools.Add(typeof(WindowSelectionPlugin));
+                
+            // Add Playwright plugin if enabled
+            if (toolConfig.EnablePlaywrightPlugin)
+                availableTools.Add(typeof(PlaywrightPlugin));
 
             if (availableTools.Count == 0)
                 return "No tools are currently available.";
@@ -143,6 +147,45 @@ namespace FlowVision.lib.Classes
                     return "get a list of all open windows";
                 if (methodName == "FocusWindow")
                     return "switch focus to a specific application window";
+            }
+            else if (toolType == typeof(PlaywrightPlugin))
+            {
+                // Playwright plugin method descriptions
+                switch (methodName)
+                {
+                    case "IsBrowserActive":
+                        return "check if a browser instance is already running";
+                    case "GetBrowserStatus":
+                        return "get detailed information about the current browser status";
+                    case "LaunchBrowser":
+                        return "launch a new browser instance or use the existing one";
+                    case "NavigateTo":
+                        return "navigate to a specified URL in the browser";
+                    case "SetSessionId":
+                        return "set the active session ID for browser operations";
+                    case "EnableSessionPersistence":
+                        return "enable or disable browser session persistence";
+                    case "SaveSession":
+                        return "save the current browser session for future use";
+                    case "TakeScreenshot":
+                        return "take a screenshot of the current browser page";
+                    case "ClickElement":
+                        return "click on an element identified by a CSS selector";
+                    case "TypeText":
+                        return "type text into an input field identified by a CSS selector";
+                    case "ListSessions":
+                        return "list all available saved browser sessions";
+                    case "DeleteSession":
+                        return "delete a saved browser session";
+                    case "CloseBrowser":
+                        return "close the active browser and release all resources";
+                    case "GetPageContent":
+                        return "get the full HTML content of the current page";
+                    case "GetElementText":
+                        return "get the text content of an element by CSS selector";
+                    case "ExecuteScript":
+                        return "execute a JavaScript snippet in the current browser page";
+                }
             }
 
             // Generic fallback based on method name
