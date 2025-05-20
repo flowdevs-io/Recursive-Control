@@ -63,6 +63,14 @@ namespace FlowVision.lib.Classes
 
             // Initialize the multi-agent actioner with the same output handler
             multiAgentActioner = new MultiAgentActioner(outputHandler);
+
+            // Start remote control server if enabled
+            ToolConfig toolConfigInit = ToolConfig.LoadConfig(TOOL_CONFIG);
+            if (toolConfigInit.EnableRemoteControl)
+            {
+                RemoteControlPlugin.SetCommandHandler(async cmd => await ExecuteAction(cmd));
+                RemoteControlPlugin.StartServer(toolConfigInit.RemoteControlPort);
+            }
         }
 
         // Add method to toggle multi-agent mode
@@ -157,10 +165,15 @@ namespace FlowVision.lib.Classes
                     builder.Plugins.AddFromType<WindowSelectionPlugin>();
                 }
 
-               if (toolConfig.EnablePlaywrightPlugin)
-               {
+                if (toolConfig.EnablePlaywrightPlugin)
+                {
                     // Expose browser automation utilities including ExecuteScript and CloseBrowser
                     builder.Plugins.AddFromType<PlaywrightPlugin>();
+                }
+
+                if (toolConfig.EnableRemoteControl)
+                {
+                    builder.Plugins.AddFromType<RemoteControlPlugin>();
                 }
 
                 actionerKernel = builder.Build();

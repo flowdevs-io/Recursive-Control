@@ -66,6 +66,8 @@ Recursive Control supports a modular plugin system, allowing you to extend its c
 - **ScreenCapturePlugin**: Capture screenshots.
 - **WindowSelectionPlugin**: Select and interact with application windows.
 - **PlaywrightPlugin**: Automate web browsers using Playwright. Use `LaunchBrowser` to start, `ExecuteScript` to run JavaScript, and `CloseBrowser` when finished.
+- **RemoteControlPlugin**: Listen for HTTP JSON commands and forward them to the AI executor.
+  Start the server by enabling it in the ToolConfig. Send POST requests with `{ "command": "your text" }` to the configured port.
 
 
 ## Folder Structure
