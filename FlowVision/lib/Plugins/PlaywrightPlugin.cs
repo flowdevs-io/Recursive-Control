@@ -739,5 +739,44 @@ namespace FlowVision.lib.Plugins
                 return $"Error deleting session: {ex.Message}";
             }
         }
+
+        /// <summary>
+        /// Closes the current browser instance and disposes all related resources.
+        /// </summary>
+        [KernelFunction, Description("Closes the active browser and releases resources")]
+        public async Task<string> CloseBrowser()
+        {
+            PluginLogger.LogPluginUsage("PlaywrightPlugin", "CloseBrowser");
+
+            try
+            {
+                if (_page != null)
+                {
+                    try { await _page.CloseAsync(); } catch { /* ignore */ }
+                    _page = null;
+                }
+
+                if (_context != null)
+                {
+                    try { await _context.CloseAsync(); } catch { /* ignore */ }
+                    _context = null;
+                }
+
+                if (_browser != null)
+                {
+                    try { await _browser.CloseAsync(); } catch { /* ignore */ }
+                    await _browser.DisposeAsync();
+                    _browser = null;
+                }
+
+                _initialized = false;
+
+                return "Browser closed successfully.";
+            }
+            catch (Exception ex)
+            {
+                return $"Error closing browser: {ex.Message}";
+            }
+        }
     }
 }

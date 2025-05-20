@@ -154,8 +154,9 @@ namespace FlowVision.lib.Classes
 
                 if (toolConfig.EnablePlaywrightPlugin)
                 {
+                    // Expose browser automation utilities including CloseBrowser
                     builder.Plugins.AddFromType<PlaywrightPlugin>();
-                }   
+                }
 
                 actionerKernel = builder.Build();
                 actionerChat = actionerKernel.GetRequiredService<IChatCompletionService>();
