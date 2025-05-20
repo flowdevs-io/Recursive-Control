@@ -134,7 +134,8 @@ namespace FlowVision.lib.Classes
         {
             return "## PlaywrightPlugin\n" +
                   "- **LaunchBrowser()**: Launches a new browser instance for web automation. " +
-                  "- **NavigateToUrl(string url)**: Navigates to the specified URL. " +
+                  "- **NavigateToUrl(string url, string waitUntil='load')**: " +
+                  "Navigates to the URL with optional wait strategy. " +
                   "- **ExecuteScript(string script)**: Runs JavaScript in the browser context. " +
                   "- **CaptureScreenshot()**: Takes a screenshot of the current page. " +
                   "- **GetPageContent()**: Gets the HTML content of the current page. " +
