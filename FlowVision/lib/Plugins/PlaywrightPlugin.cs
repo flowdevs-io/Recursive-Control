@@ -776,6 +776,55 @@ namespace FlowVision.lib.Plugins
             catch (Exception ex)
             {
                 return $"Error closing browser: {ex.Message}";
+
+        /// Gets the full HTML content of the current page.
+        /// </summary>
+        [KernelFunction, Description("Gets the current page HTML content")]
+        public async Task<string> GetPageContent()
+        {
+            PluginLogger.LogPluginUsage("PlaywrightPlugin", "GetPageContent");
+
+            if (_page == null)
+            {
+                return "Error: Browser not launched. Call LaunchBrowser first.";
+            }
+
+            return await _page.ContentAsync();
+        }
+
+        /// <summary>
+        /// Retrieves text content from an element identified by a CSS selector.
+        /// </summary>
+        [KernelFunction, Description("Gets the text content of an element by CSS selector")]
+        public async Task<string> GetElementText(
+            [Description("CSS selector of the element")] string selector)
+        {
+            PluginLogger.LogPluginUsage("PlaywrightPlugin", "GetElementText", $"Selector: {selector}");
+
+            if (_page == null)
+            {
+                return "Error: Browser not launched. Call LaunchBrowser first.";
+            }
+
+            if (string.IsNullOrEmpty(selector))
+            {
+                return "Error: Selector cannot be empty";
+            }
+
+            try
+            {
+                var element = await _page.QuerySelectorAsync(selector);
+                if (element == null)
+                {
+                    return $"Error: Could not find element with selector: {selector}";
+                }
+
+                string text = await element.TextContentAsync();
+                return text ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return $"Error getting element text: {ex.Message}";
             }
         }
     }
