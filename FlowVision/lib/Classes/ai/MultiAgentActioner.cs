@@ -207,7 +207,7 @@ namespace FlowVision.lib.Classes
 
                 if (toolConfig.EnablePlaywrightPlugin)
                 {
-                    // Register Playwright plugin so the execution agent can call CloseBrowser
+                    // Register Playwright plugin so the execution agent can call ExecuteScript and CloseBrowser
                     actionerBuilder.Plugins.AddFromType<PlaywrightPlugin>();
                 }
 
