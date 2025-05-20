@@ -273,7 +273,9 @@ namespace FlowVision.lib.Plugins
         /// </summary>
         [KernelFunction, Description("Navigates to a specified URL")]
         public async Task<string> NavigateTo(
-            [Description("URL to navigate to")] string url)
+            [Description("URL to navigate to")] string url,
+            [Description("Navigation wait strategy: load, domcontentloaded, networkidle")]
+            string waitUntil = "load")
         {
             PluginLogger.LogPluginUsage("PlaywrightPlugin", "NavigateTo", $"URL: {url}");
             
@@ -292,8 +294,33 @@ namespace FlowVision.lib.Plugins
                     url = "https://" + url;
                 }
                 
-                // Navigate to the URL and wait for network to be idle
-                var response = await _page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+                // Determine wait strategy
+                WaitUntilState waitState = WaitUntilState.Load;
+                if (!string.IsNullOrEmpty(waitUntil))
+                {
+                    switch (waitUntil.ToLower())
+                    {
+                        case "domcontentloaded":
+                            waitState = WaitUntilState.DOMContentLoaded;
+                            break;
+                        case "networkidle":
+                            waitState = WaitUntilState.NetworkIdle;
+                            break;
+                        case "commit":
+                            waitState = WaitUntilState.Commit;
+                            break;
+                        default:
+                            waitState = WaitUntilState.Load;
+                            break;
+                    }
+                }
+
+                // Navigate to the URL using the chosen strategy with a timeout
+                var response = await _page.GotoAsync(url, new PageGotoOptions
+                {
+                    WaitUntil = waitState,
+                    Timeout = 30000
+                });
                 
                 // Save session state after navigation if enabled
                 if (_useSession)

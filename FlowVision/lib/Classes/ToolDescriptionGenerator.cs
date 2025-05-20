@@ -160,7 +160,8 @@ namespace FlowVision.lib.Classes
                     case "LaunchBrowser":
                         return "launch a new browser instance or use the existing one";
                     case "NavigateTo":
-                        return "navigate to a specified URL in the browser";
+                        return "navigate to a specified URL in the browser" +
+                               " with an optional wait strategy";
                     case "SetSessionId":
                         return "set the active session ID for browser operations";
                     case "EnableSessionPersistence":
