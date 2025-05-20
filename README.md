@@ -65,6 +65,9 @@ Recursive Control supports a modular plugin system, allowing you to extend its c
 - **MousePlugin**: Automate mouse actions.
 - **ScreenCapturePlugin**: Capture screenshots.
 - **WindowSelectionPlugin**: Select and interact with application windows.
+- **PlaywrightPlugin**: Automate web pages. Example:
+  1. `LaunchBrowser()` to open a page
+  2. `ExecuteScript("return document.title")` to run JavaScript
 
 ## Folder Structure
 

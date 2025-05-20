@@ -739,5 +739,35 @@ namespace FlowVision.lib.Plugins
                 return $"Error deleting session: {ex.Message}";
             }
         }
+
+        /// <summary>
+        /// Executes custom JavaScript in the active page and returns the result.
+        /// </summary>
+        [KernelFunction, Description("Execute arbitrary JavaScript in the current page")]
+        public async Task<string> ExecuteScript(
+            [Description("JavaScript code to run")] string script)
+        {
+            PluginLogger.LogPluginUsage("PlaywrightPlugin", "ExecuteScript");
+
+            if (_page == null)
+            {
+                return "Error: Browser not launched. Call LaunchBrowser first.";
+            }
+
+            if (string.IsNullOrWhiteSpace(script))
+            {
+                return "Error: Script cannot be empty.";
+            }
+
+            try
+            {
+                var result = await _page.EvaluateAsync<string>(script);
+                return result ?? "";
+            }
+            catch (Exception ex)
+            {
+                return $"Error executing script: {ex.Message}";
+            }
+        }
     }
 }

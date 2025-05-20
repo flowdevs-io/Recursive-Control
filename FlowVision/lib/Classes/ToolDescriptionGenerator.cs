@@ -38,8 +38,11 @@ namespace FlowVision.lib.Classes
             if (toolConfig.EnableMousePlugin) 
                 availableTools.Add(typeof(MousePlugin));
                 
-            if (toolConfig.EnableWindowSelectionPlugin) 
+            if (toolConfig.EnableWindowSelectionPlugin)
                 availableTools.Add(typeof(WindowSelectionPlugin));
+
+            if (toolConfig.EnablePlaywrightPlugin)
+                availableTools.Add(typeof(PlaywrightPlugin));
 
             if (availableTools.Count == 0)
                 return "No tools are currently available.";
@@ -143,6 +146,11 @@ namespace FlowVision.lib.Classes
                     return "get a list of all open windows";
                 if (methodName == "FocusWindow")
                     return "switch focus to a specific application window";
+            }
+            else if (toolType == typeof(PlaywrightPlugin))
+            {
+                if (methodName == "ExecuteScript")
+                    return "run JavaScript in the active browser page";
             }
 
             // Generic fallback based on method name
