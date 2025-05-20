@@ -334,9 +334,7 @@ namespace FlowVision
                 }
 
                 txtPlannerSystemPrompt.Text = _toolConfig.PlannerSystemPrompt;
-
-                txtExecutorSystemPrompt.Text = _toolConfig.ActionerSystemPrompt;
-
+                txtActionerSystemPrompt.Text = _toolConfig.ActionerSystemPrompt;
                 txtCoordinatorSystemPrompt.Text = _toolConfig.CoordinatorSystemPrompt;
                 chkUseCustomPlannerConfig.Checked = _toolConfig.UseCustomPlannerConfig;
                 chkUseCustomExecutorConfig.Checked = _toolConfig.UseCustomActionerConfig;
@@ -352,11 +350,9 @@ namespace FlowVision
                     comboPlannerConfig.SelectedIndex = 0;
                 }
 
-
-                if (comboExecutorConfig.Items.Contains(_toolConfig.ActionerConfigName))
+                if (comboActionerConfig.Items.Contains(_toolConfig.ActionerConfigName))
                 {
-                    comboExecutorConfig.SelectedItem = _toolConfig.ActionerConfigName;
-
+                    comboActionerConfig.SelectedItem = _toolConfig.ActionerConfigName;
                 }
                 else if (comboActionerConfig.Items.Count > 0)
                 {
@@ -527,9 +523,7 @@ namespace FlowVision
 
             // Save planner, actioner, and coordinator settings
             _toolConfig.PlannerSystemPrompt = txtPlannerSystemPrompt.Text;
-
-            _toolConfig.ActionerSystemPrompt = txtExecutorSystemPrompt.Text;
-
+            _toolConfig.ActionerSystemPrompt = txtActionerSystemPrompt.Text;
             _toolConfig.CoordinatorSystemPrompt = txtCoordinatorSystemPrompt.Text;
 
             // Save custom model configuration options
@@ -544,7 +538,7 @@ namespace FlowVision
 
             if (comboActionerConfig.SelectedItem != null)
             {
-                _toolConfig.ActionerConfigName = comboExecutorConfig.SelectedItem.ToString();
+                _toolConfig.ActionerConfigName = comboActionerConfig.SelectedItem.ToString();
             }
 
             if (comboCoordinatorConfig.SelectedItem != null)

@@ -776,7 +776,8 @@ namespace FlowVision.lib.Plugins
             catch (Exception ex)
             {
                 return $"Error closing browser: {ex.Message}";
-
+            }
+        }
         /// Gets the full HTML content of the current page.
         /// </summary>
         [KernelFunction, Description("Gets the current page HTML content")]

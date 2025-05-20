@@ -196,17 +196,13 @@
     <Compile Include="lib\Classes\SettingsProfileManager.cs" />
     <Compile Include="lib\Classes\SpeechRecognitionService.cs" />
     <Compile Include="lib\Classes\TaskNotifier.cs" />
+    <Compile Include="lib\Classes\ToolDescriptionGenerator.cs" />
     <Compile Include="lib\Classes\UI\ThemeColors.cs" />
     <Compile Include="lib\Classes\UI\ThemeManager.cs" />
     <Compile Include="lib\Plugins\PlaywrightPlugin.cs" />
+    <Compile Include="lib\Plugins\RemoteControlPlugin.cs" />
     <Compile Include="lib\Plugins\ScreenCaptureOmniParserPlugin.cs" />
     <Compile Include="lib\Plugins\WindowSelectionPlugin.cs" />
-    <Compile Include="T:/Human-Use/FlowVision/lib/Classes/\PlaywrightSessionManager.cs">
-      <Link>PlaywrightSessionManager.cs</Link>
-    </Compile>
-    <Compile Include="T:/Human-Use/FlowVision/lib/Plugins/\PlaywrightPlugin.cs">
-      <Link>PlaywrightPlugin.cs</Link>
-    </Compile>
     <Compile Include="ToolConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -266,9 +262,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="T:/Human-Use/FlowVision/\README.md">
-      <Link>README.md</Link>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="recursive-control-icon.ico" />
