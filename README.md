@@ -67,6 +67,7 @@ Recursive Control supports a modular plugin system, allowing you to extend its c
 - **WindowSelectionPlugin**: Select and interact with application windows.
 - **PlaywrightPlugin**: Automate web browsers using Playwright. Use `LaunchBrowser` to start and `CloseBrowser` when finished.
 
+
 ## Folder Structure
 
 ```
