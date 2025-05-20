@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Net.Http;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,8 +16,7 @@ namespace FlowVision.lib.Plugins
 {
     internal class ScreenCaptureOmniParserPlugin
     {
-        private readonly string capPath = "c:\\temp\\cap.png";
-        private readonly string prosPath = "c:\\temp\\pros.png";
+        private readonly string prosPath = Path.Combine(Path.GetTempPath(), "pros.png");
         private readonly WindowSelectionPlugin _windowSelector;
 
         [DllImport("user32.dll", SetLastError = true)]
