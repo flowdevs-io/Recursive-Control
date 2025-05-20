@@ -45,6 +45,9 @@
             this.chkWindowSelectionPlugin = new System.Windows.Forms.CheckBox();
             this.chkPlaywrightPlugin = new System.Windows.Forms.CheckBox();
             this.enablePluginLoggingCheckBox = new System.Windows.Forms.CheckBox();
+            this.chkEnableRemoteControl = new System.Windows.Forms.CheckBox();
+            this.numRemotePort = new System.Windows.Forms.NumericUpDown();
+            this.lblRemotePort = new System.Windows.Forms.Label();
             this.groupBoxSettings = new System.Windows.Forms.GroupBox();
             this.indicatorAutoInvoke = new System.Windows.Forms.PictureBox();
             this.indicatorMultiAgent = new System.Windows.Forms.PictureBox();
@@ -118,6 +121,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.indicatorPowerShell)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.indicatorCMD)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.indicatorPlaywright)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numRemotePort)).BeginInit();
             this.groupBoxSettings.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.indicatorAutoInvoke)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.indicatorMultiAgent)).BeginInit();
@@ -339,9 +343,53 @@
             this.enablePluginLoggingCheckBox.TabIndex = 7;
             this.enablePluginLoggingCheckBox.Text = "Log Plugin Usage";
             this.enablePluginLoggingCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
+            // chkEnableRemoteControl
+            //
+            this.chkEnableRemoteControl.AutoSize = true;
+            this.chkEnableRemoteControl.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkEnableRemoteControl.Location = new System.Drawing.Point(23, 281);
+            this.chkEnableRemoteControl.Name = "chkEnableRemoteControl";
+            this.chkEnableRemoteControl.Size = new System.Drawing.Size(171, 23);
+            this.chkEnableRemoteControl.TabIndex = 8;
+            this.chkEnableRemoteControl.Text = "Enable Remote Control";
+            this.chkEnableRemoteControl.UseVisualStyleBackColor = true;
+            //
+            // lblRemotePort
+            //
+            this.lblRemotePort.AutoSize = true;
+            this.lblRemotePort.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblRemotePort.Location = new System.Drawing.Point(40, 310);
+            this.lblRemotePort.Name = "lblRemotePort";
+            this.lblRemotePort.Size = new System.Drawing.Size(82, 19);
+            this.lblRemotePort.TabIndex = 9;
+            this.lblRemotePort.Text = "Listen Port:";
+            //
+            // numRemotePort
+            //
+            this.numRemotePort.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.numRemotePort.Location = new System.Drawing.Point(128, 308);
+            this.numRemotePort.Maximum = new decimal(new int[] {
+            65535,
+            0,
+            0,
+            0});
+            this.numRemotePort.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numRemotePort.Name = "numRemotePort";
+            this.numRemotePort.Size = new System.Drawing.Size(80, 25);
+            this.numRemotePort.TabIndex = 10;
+            this.numRemotePort.Value = new decimal(new int[] {
+            8085,
+            0,
+            0,
+            0});
+            //
             // groupBoxSettings
-            // 
+            //
             this.groupBoxSettings.Controls.Add(this.indicatorAutoInvoke);
             this.groupBoxSettings.Controls.Add(this.indicatorMultiAgent);
             this.groupBoxSettings.Controls.Add(this.chkMultiAgentMode);
@@ -626,6 +674,9 @@
             // 
             this.tabPlugins.Controls.Add(this.groupBoxPlugins);
             this.tabPlugins.Controls.Add(this.enablePluginLoggingCheckBox);
+            this.tabPlugins.Controls.Add(this.chkEnableRemoteControl);
+            this.tabPlugins.Controls.Add(this.lblRemotePort);
+            this.tabPlugins.Controls.Add(this.numRemotePort);
             this.tabPlugins.Location = new System.Drawing.Point(4, 26);
             this.tabPlugins.Name = "tabPlugins";
             this.tabPlugins.Padding = new System.Windows.Forms.Padding(3);
@@ -1118,6 +1169,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.indicatorPowerShell)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.indicatorCMD)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.indicatorPlaywright)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numRemotePort)).EndInit();
             this.groupBoxSettings.ResumeLayout(false);
             this.groupBoxSettings.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.indicatorAutoInvoke)).EndInit();
@@ -1174,6 +1226,9 @@
         private System.Windows.Forms.CheckBox chkWindowSelectionPlugin;
         private System.Windows.Forms.CheckBox chkPlaywrightPlugin;
         private System.Windows.Forms.CheckBox enablePluginLoggingCheckBox;
+        private System.Windows.Forms.CheckBox chkEnableRemoteControl;
+        private System.Windows.Forms.NumericUpDown numRemotePort;
+        private System.Windows.Forms.Label lblRemotePort;
         private System.Windows.Forms.GroupBox groupBoxSettings;
         private System.Windows.Forms.PictureBox indicatorAutoInvoke;
         private System.Windows.Forms.PictureBox indicatorMultiAgent;

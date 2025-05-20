@@ -110,7 +110,9 @@ namespace FlowVision
                 { txtVoiceCommandPhrase, "Phrase to activate voice commands (e.g. 'Hey Assistant')" },
                 { cbTheme, "Choose light or dark theme for the interface" },
                 { cmbProfiles, "Load or save different configuration profiles" },
-                { chkPlaywrightPlugin, "Allow the AI assistant to automate browser interactions" }
+                { chkPlaywrightPlugin, "Allow the AI assistant to automate browser interactions" },
+                { chkEnableRemoteControl, "Enable remote HTTP control" },
+                { numRemotePort, "Port for remote control server" }
             };
 
             foreach (var kvp in tooltips)
@@ -310,6 +312,8 @@ namespace FlowVision
                 chkWindowSelectionPlugin.Checked = _toolConfig.EnableWindowSelectionPlugin;
                 enablePluginLoggingCheckBox.Checked = _toolConfig.EnablePluginLogging;
                 chkPlaywrightPlugin.Checked = _toolConfig.EnablePlaywrightPlugin;
+                chkEnableRemoteControl.Checked = _toolConfig.EnableRemoteControl;
+                numRemotePort.Value = _toolConfig.RemoteControlPort;
 
                 numTemperature.Value = (decimal)_toolConfig.Temperature;
                 chkAutoInvoke.Checked = _toolConfig.AutoInvokeKernelFunctions;
@@ -500,6 +504,8 @@ namespace FlowVision
             _toolConfig.EnableWindowSelectionPlugin = chkWindowSelectionPlugin.Checked;
             _toolConfig.EnablePluginLogging = enablePluginLoggingCheckBox.Checked;
             _toolConfig.EnablePlaywrightPlugin = chkPlaywrightPlugin.Checked;
+            _toolConfig.EnableRemoteControl = chkEnableRemoteControl.Checked;
+            _toolConfig.RemoteControlPort = (int)numRemotePort.Value;
 
             _toolConfig.Temperature = (double)numTemperature.Value;
             _toolConfig.AutoInvokeKernelFunctions = chkAutoInvoke.Checked;
