@@ -82,6 +82,11 @@ namespace FlowVision.lib.Classes
             // Otherwise use the original implementation
             ToolConfig toolConfig = ToolConfig.LoadConfig(TOOL_CONFIG);
 
+            // Generate tool descriptions if dynamic prompts are enabled
+            string toolDescriptions = toolConfig.DynamicToolPrompts
+                ? "\n\n" + ToolDescriptionGenerator.GetToolDescriptions(toolConfig)
+                : string.Empty;
+
             // Notify that we're starting the action execution
             PluginLogger.NotifyTaskStart("Action Execution", "Processing your request");
             PluginLogger.StartLoadingIndicator("request");
@@ -89,7 +94,7 @@ namespace FlowVision.lib.Classes
             try
             {
                 // Add system message to actioner history
-                actionerHistory.AddSystemMessage(toolConfig.ActionerSystemPrompt);
+                actionerHistory.AddSystemMessage(toolConfig.ActionerSystemPrompt + toolDescriptions);
 
                 // Add action prompt to actioner history
                 actionerHistory.AddUserMessage(actionPrompt);
