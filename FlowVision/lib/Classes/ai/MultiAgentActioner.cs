@@ -78,24 +78,28 @@ namespace FlowVision.lib.Classes
             // Reload tool configuration to ensure we have the most recent settings
             toolConfig = ToolConfig.LoadConfig(TOOL_CONFIG);
 
+            // Build dynamic tool description segment if enabled
+            string toolDescriptions = toolConfig.DynamicToolPrompts
+                ? "\n\n" + ToolDescriptionGenerator.GetToolDescriptions(toolConfig)
+                : string.Empty;
+
             PluginLogger.NotifyTaskStart("Multi-Agent Action", "Planning and executing your request");
             PluginLogger.StartLoadingIndicator("coordination");
 
             try
             {
                 // Configure coordinator first
-                //coordinatorHistory.Clear();
-                coordinatorHistory.AddSystemMessage(toolConfig.CoordinatorSystemPrompt);
+                coordinatorHistory.AddSystemMessage(toolConfig.CoordinatorSystemPrompt + toolDescriptions);
                 coordinatorHistory.AddUserMessage(actionPrompt);
 
                 // Configure planner for later use
                 plannerHistory.Clear();
-                plannerHistory.AddSystemMessage(toolConfig.PlannerSystemPrompt);
+                plannerHistory.AddSystemMessage(toolConfig.PlannerSystemPrompt + toolDescriptions);
 
                 
                 // Configure actioner for later use
                 actionerHistory.Clear();
-                actionerHistory.AddSystemMessage(toolConfig.ActionerSystemPrompt);
+                actionerHistory.AddSystemMessage(toolConfig.ActionerSystemPrompt + toolDescriptions);
 
 
                 // Clear agent coordinator message history
@@ -449,11 +453,14 @@ namespace FlowVision.lib.Classes
         {
             // Set up coordinator history with system prompt
             coordinatorHistory.Clear();
-            coordinatorHistory.AddSystemMessage(toolConfig.CoordinatorSystemPrompt);
+            string toolDescriptions = toolConfig.DynamicToolPrompts
+                ? "\n\n" + ToolDescriptionGenerator.GetToolDescriptions(toolConfig)
+                : string.Empty;
+            coordinatorHistory.AddSystemMessage(toolConfig.CoordinatorSystemPrompt + toolDescriptions);
 
             // Set up planner history with system prompt
             plannerHistory.Clear();
-            plannerHistory.AddSystemMessage(toolConfig.PlannerSystemPrompt);
+            plannerHistory.AddSystemMessage(toolConfig.PlannerSystemPrompt + toolDescriptions);
 
             foreach (var message in chatHistory)
             {
