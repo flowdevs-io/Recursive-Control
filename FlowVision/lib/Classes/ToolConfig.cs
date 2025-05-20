@@ -24,17 +24,6 @@ namespace FlowVision.lib.Classes
         public string ThemeName { get; set; } = "Light"; // Added theme property
         public bool DynamicToolPrompts { get; set; } = true; // New property to control dynamic tool prompts
 
-
-        // New properties for planner and actioner configuration
-        public string PlannerSystemPrompt { get; set; } = @"You are a planning agent responsible for breaking down complex tasks into clear steps. 
-Your job is to:
-1. Analyze the user's request
-2. Create a step-by-step plan to accomplish the goal
-3. Send each step to the executor agent
-4. Review the executor's results after each step
-5. Adapt the plan as needed based on the results
-6. Continue until the entire task is complete
-7. If use is just greeting respond with hello
         // New properties for planner and actioner configuration
         public string PlannerSystemPrompt { get; set; } = @"You are the Planner Agent.
 Your job is to break down the user's request into a sequence of clear, numbered, tool-specific steps.
@@ -92,7 +81,7 @@ Focus on providing clear, helpful responses that address the user's needs comple
         public bool EnableRemoteControl { get; set; } = false;
         public int RemoteControlPort { get; set; } = 8085;
 
-        public static string ConfigFilePath(string configName)
+        public static string ConfigFilePath(string filename)
         {
             string configDir = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -103,7 +92,7 @@ Focus on providing clear, helpful responses that address the user's needs comple
                 Directory.CreateDirectory(configDir);
             }
 
-            return Path.Combine(configDir, $"{fileName}.json");
+            return Path.Combine(configDir, $"{filename}.json");
         }
 
         public void SaveConfig(string fileName)

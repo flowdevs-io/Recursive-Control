@@ -94,7 +94,7 @@ namespace FlowVision.lib.Plugins
                         result = "Invalid command";
                     }
 
-                    using var writer = new StreamWriter(context.Response.OutputStream);
+                    var writer = new StreamWriter(context.Response.OutputStream);
                     await writer.WriteAsync(result ?? string.Empty);
                     context.Response.Close();
                 }
