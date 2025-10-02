@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using FlowVision.lib.Classes;
-using Microsoft.SemanticKernel;
 
 namespace FlowVision.lib.Plugins
 {
@@ -30,7 +29,7 @@ namespace FlowVision.lib.Plugins
             _windowSelector = new WindowSelectionPlugin();
         }
 
-        [KernelFunction, Description("Used to capture the Screen and return Parsed Content")]
+        [Description("Used to capture the Screen and return Parsed Content")]
         public async Task<List<ParsedContent>> CaptureScreen(string handleString)
         {
             PluginLogger.LogPluginUsage("ScreenCaptureOmniParserPlugin", "CaptureScreen");
@@ -50,7 +49,7 @@ namespace FlowVision.lib.Plugins
         }
 
         //capture the whole screen
-        [KernelFunction, Description("Used to capture the whole screen")]
+        [Description("Used to capture the whole screen")]
         public async Task<List<ParsedContent>> CaptureWholeScreen()
         {
             PluginLogger.LogPluginUsage("ScreenCaptureOmniParserPlugin", "CaptureWholeScreen");

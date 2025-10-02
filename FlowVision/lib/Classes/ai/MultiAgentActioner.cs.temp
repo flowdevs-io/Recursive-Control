@@ -7,8 +7,7 @@ using System.Windows.Forms;
 using FlowVision.lib.Plugins;
 using Microsoft.Extensions.AI;
 using Azure.AI.OpenAI;
-using Azure;
-using ChatMessage = Microsoft.Extensions.AI.ChatMessage;
+using OpenAI.Chat;
 
 namespace FlowVision.lib.Classes
 {
@@ -144,87 +143,105 @@ namespace FlowVision.lib.Classes
                     return "Error: Actioner model not configured";
                 }
 
-                // Setup coordinator chat client (no tools, only coordination capabilities)
-                var coordinatorAzureClient = new AzureOpenAIClient(new Uri(coordinatorConfig.EndpointURL), new AzureKeyCredential(coordinatorConfig.APIKey));
-                coordinatorChat = coordinatorAzureClient.GetChatClient(coordinatorConfig.DeploymentName).AsIChatClient();
+                // Setup the kernel for coordinator (no tools, only coordination capabilities)
+                var coordinatorBuilder = Kernel.CreateBuilder();
+                coordinatorBuilder.AddAzureOpenAIChatCompletion(
+                    coordinatorConfig.DeploymentName,
+                    coordinatorConfig.EndpointURL,
+                    coordinatorConfig.APIKey);
 
-                // Setup planner chat client (no tools, only planning capabilities)
-                var plannerAzureClient = new AzureOpenAIClient(new Uri(plannerConfig.EndpointURL), new AzureKeyCredential(plannerConfig.APIKey));
-                plannerChat = plannerAzureClient.GetChatClient(plannerConfig.DeploymentName).AsIChatClient();
+                coordinatorKernel = coordinatorBuilder.Build();
+                coordinatorChat = coordinatorKernel.GetRequiredService<IChatClient>();
 
-                // Setup actioner chat client with all tools
-                var actionerAzureClient = new AzureOpenAIClient(new Uri(actionerConfig.EndpointURL), new AzureKeyCredential(actionerConfig.APIKey));
-                IChatClient actionerChatBase = actionerAzureClient.GetChatClient(actionerConfig.DeploymentName).AsIChatClient();
+                // Setup the kernel for planner (no tools, only planning capabilities)
+                var plannerBuilder = Kernel.CreateBuilder();
+                plannerBuilder.AddAzureOpenAIChatCompletion(
+                    plannerConfig.DeploymentName,
+                    plannerConfig.EndpointURL,
+                    plannerConfig.APIKey);
 
-                // Collect tools based on configuration
-                var tools = new List<AITool>();
+                plannerKernel = plannerBuilder.Build();
+                plannerChat = plannerKernel.GetRequiredService<IChatClient>();
 
+                // Setup the kernel for actioner with all tools
+                var actionerBuilder = Kernel.CreateBuilder();
+                actionerBuilder.AddAzureOpenAIChatCompletion(
+                    actionerConfig.DeploymentName,
+                    actionerConfig.EndpointURL,
+                    actionerConfig.APIKey);
+
+                // Add plugins dynamically based on tool configuration
                 if (toolConfig.EnableCMDPlugin)
                 {
-                    tools.AddRange(PluginToolExtractor.ExtractTools(new CMDPlugin()));
+                    actionerBuilder.Plugins.AddFromType<CMDPlugin>();
                 }
 
                 if (toolConfig.EnablePowerShellPlugin)
                 {
-                    tools.AddRange(PluginToolExtractor.ExtractTools(new PowerShellPlugin()));
+                    actionerBuilder.Plugins.AddFromType<PowerShellPlugin>();
                 }
 
                 if (toolConfig.EnableScreenCapturePlugin)
                 {
-                    tools.AddRange(PluginToolExtractor.ExtractTools(new ScreenCaptureOmniParserPlugin()));
+                    actionerBuilder.Plugins.AddFromType<ScreenCaptureOmniParserPlugin>();
                 }
 
                 if (toolConfig.EnableKeyboardPlugin)
                 {
-                    tools.AddRange(PluginToolExtractor.ExtractTools(new KeyboardPlugin()));
+                    actionerBuilder.Plugins.AddFromType<KeyboardPlugin>();
                 }
 
                 if (toolConfig.EnableMousePlugin)
                 {
-                    tools.AddRange(PluginToolExtractor.ExtractTools(new MousePlugin()));
+                    actionerBuilder.Plugins.AddFromType<MousePlugin>();
                 }
 
                 if (toolConfig.EnableWindowSelectionPlugin)
                 {
-                    tools.AddRange(PluginToolExtractor.ExtractTools(new WindowSelectionPlugin()));
+                    actionerBuilder.Plugins.AddFromType<WindowSelectionPlugin>();
                 }
 
                 if (toolConfig.EnablePlaywrightPlugin)
                 {
-                    tools.AddRange(PluginToolExtractor.ExtractTools(new PlaywrightPlugin()));
+                    // Register Playwright plugin so the execution agent can call ExecuteScript and CloseBrowser
+                    actionerBuilder.Plugins.AddFromType<PlaywrightPlugin>();
                 }
 
                 if (toolConfig.EnableRemoteControl)
                 {
-                    tools.AddRange(PluginToolExtractor.ExtractTools(new RemoteControlPlugin()));
+                    actionerBuilder.Plugins.AddFromType<RemoteControlPlugin>();
                 }
 
-                // Setup actioner with function invocation using builder pattern
-                actionerChat = new ChatClientBuilder(actionerChatBase).UseFunctionInvocation().Build();
+                actionerKernel = actionerBuilder.Build();
+                actionerChat = actionerKernel.GetRequiredService<IChatClient>();
 
                 // Get initial coordination from coordinator agent
                 PluginLogger.StopLoadingIndicator();
                 PluginLogger.LogPluginUsage("🗣️ Coordinating request...");
                 PluginLogger.StartLoadingIndicator("coordination");
 
-                var coordinatorOptions = new ChatOptions
+                var coordinatorSettings = new OpenAIPromptExecutionSettings
                 {
-                    Temperature = 0.2f
+                    Temperature = 0.2,
+                    // No tools for coordinator
                 };
 
-                var plannerOptions = new ChatOptions
+                var plannerSettings = new OpenAIPromptExecutionSettings
                 {
-                    Temperature = 0.2f
+                    Temperature = 0.2,
+                    // No tools for planner
                 };
 
-                var actionerOptions = new ChatOptions
+                var actionerSettings = new OpenAIPromptExecutionSettings
                 {
-                    Temperature = (float)toolConfig.Temperature,
-                    Tools = tools
+                    Temperature = toolConfig.Temperature,
+                    ToolCallBehavior = toolConfig.AutoInvokeKernelFunctions
+                        ? ToolCallBehavior.AutoInvokeKernelFunctions
+                        : ToolCallBehavior.EnableKernelFunctions
                 };
 
                 // Get the initial coordination
-                string coordinatorResponse = await GetAgentResponseAsync(coordinatorChat, coordinatorHistory, coordinatorOptions);
+                string coordinatorResponse = await GetAgentResponseAsync(coordinatorChat, coordinatorHistory, coordinatorSettings, coordinatorKernel);
                 PluginLogger.LogPluginUsage("🎯 Coordinator Assessment:\n" + coordinatorResponse);
 
                 agentCoordinator.AddMessage(AgentRole.Coordinator, AgentRole.Planner,
@@ -238,7 +255,7 @@ namespace FlowVision.lib.Classes
                 PluginLogger.StartLoadingIndicator("planning");
 
                 // Get the initial plan
-                string plan = await GetAgentResponseAsync(plannerChat, plannerHistory, plannerOptions);
+                string plan = await GetAgentResponseAsync(plannerChat, plannerHistory, plannerSettings, plannerKernel);
                 PluginLogger.LogPluginUsage("📝 Initial Plan:\n" + plan);
 
                 
@@ -272,7 +289,7 @@ namespace FlowVision.lib.Classes
 
                     
                     // Get actioner response with tools
-                    string executionResult = await GetAgentResponseAsync(actionerChat, actionerHistory, actionerOptions);
+                    string executionResult = await GetAgentResponseAsync(actionerChat, actionerHistory, actionerSettings, actionerKernel);
                     
                     // Store the execution result for the final response
                     executionResults.Add(executionResult);
@@ -293,7 +310,7 @@ namespace FlowVision.lib.Classes
                     PluginLogger.StartLoadingIndicator("planning");
 
                     // Get planner's evaluation of the result
-                    plan = await GetAgentResponseAsync(plannerChat, plannerHistory, plannerOptions);
+                    plan = await GetAgentResponseAsync(plannerChat, plannerHistory, plannerSettings, plannerKernel);
 
                     agentCoordinator.AddMessage(AgentRole.Planner, AgentRole.Coordinator,
                         "STATUS_UPDATE", plan);
@@ -320,7 +337,7 @@ namespace FlowVision.lib.Classes
                         PluginLogger.StartLoadingIndicator("coordination");
 
                         // Get coordinator's final response with detailed results
-                        finalResult = await GetAgentResponseAsync(coordinatorChat, coordinatorHistory, coordinatorOptions);
+                        finalResult = await GetAgentResponseAsync(coordinatorChat, coordinatorHistory, coordinatorSettings, coordinatorKernel);
 
                         // Store this as a completed response but without the TASK_COMPLETE tag
                         agentCoordinator.AddMessage(AgentRole.Coordinator, AgentRole.User,
@@ -354,7 +371,7 @@ namespace FlowVision.lib.Classes
                     PluginLogger.StartLoadingIndicator("coordination");
 
                     // Get coordinator's explanation with detailed results
-                    string resultWithExplanation = await GetAgentResponseAsync(coordinatorChat, coordinatorHistory, coordinatorOptions);
+                    string resultWithExplanation = await GetAgentResponseAsync(coordinatorChat, coordinatorHistory, coordinatorSettings, coordinatorKernel);
 
                     agentCoordinator.AddMessage(AgentRole.Coordinator, AgentRole.User,
                         "STATUS_UPDATE", resultWithExplanation);
@@ -375,20 +392,29 @@ namespace FlowVision.lib.Classes
         private async Task<string> GetAgentResponseAsync(
             IChatClient chatService,
             List<ChatMessage> history,
-            ChatOptions options)
+            OpenAIPromptExecutionSettings settings,
+            Kernel kernel)
         {
             var responseBuilder = new StringBuilder();
-            
-            await foreach (var update in chatService.GetStreamingResponseAsync(history, options))
+            var responseStream = chatService.GetStreamingChatMessageContentsAsync(history, settings, kernel);
+            var enumerator = responseStream.GetAsyncEnumerator();
+
+            try
             {
-                if (update.Text != null)
+                while (await enumerator.MoveNextAsync())
                 {
-                    responseBuilder.Append(update.Text);
+                    var message = enumerator.Current;
+                    if (message.Content == "None") continue;
+                    responseBuilder.Append(message.Content);
                 }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
             }
 
             string response = responseBuilder.ToString();
-            history.Add(new ChatMessage(ChatRole.Assistant, response));
+            history.AddAssistantMessage(response);
 
             return response;
         }
@@ -424,7 +450,7 @@ namespace FlowVision.lib.Classes
             return null;
         }
 
-        internal void SetChatHistory(List<LocalChatMessage> chatHistory)
+        internal void SetList<ChatMessage>(List<LocalChatMessage> List<ChatMessage>)
         {
             // Set up coordinator history with system prompt
             coordinatorHistory.Clear();
@@ -437,7 +463,7 @@ namespace FlowVision.lib.Classes
             plannerHistory.Clear();
             plannerHistory.Add(new ChatMessage(ChatRole.System, toolConfig.PlannerSystemPrompt + toolDescriptions));
 
-            foreach (var message in chatHistory)
+            foreach (var message in List<ChatMessage>)
             {
                 if (message.Author == "You")
                 {

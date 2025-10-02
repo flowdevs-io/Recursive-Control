@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using FlowVision.lib.Classes;
-using Microsoft.SemanticKernel;
 
 namespace FlowVision.lib.Plugins
 {
@@ -17,7 +16,7 @@ namespace FlowVision.lib.Plugins
         private static readonly string[] BrowserProcesses = { "msedge", "chrome", "firefox", "iexplore", "opera" };
         private static readonly string[] NonWaitingCommands = { "start ", "explorer " };
 
-        [KernelFunction, Description("Executes a CMD command and returns the output.")]
+        [Description("Executes a CMD command and returns the output.")]
         public async Task<string> ExecuteCommand([Description("Command Prompt Command")] string command)
         {
             // Log the plugin usage
@@ -79,7 +78,7 @@ namespace FlowVision.lib.Plugins
             }
         }
 
-        [KernelFunction, Description("Launches an external application without waiting for it to exit.")]
+        [Description("Launches an external application without waiting for it to exit.")]
         public string LaunchApplication([Description("Application to launch")] string application, 
                                        [Description("Arguments for the application")] string arguments = "")
         {

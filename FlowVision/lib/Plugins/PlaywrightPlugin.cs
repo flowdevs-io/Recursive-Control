@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading.Tasks;
 using FlowVision.lib.Classes;
 using Microsoft.Playwright;
-using Microsoft.SemanticKernel;
 using System.Collections.Generic;
 using System.Threading;
 using System.Text.Json;
@@ -28,7 +27,7 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Gets whether a browser instance is currently active.
         /// </summary>
-        [KernelFunction, Description("Checks if a browser is already running")]
+        [Description("Checks if a browser is already running")]
         public string IsBrowserActive()
         {
             PluginLogger.LogPluginUsage("PlaywrightPlugin", "IsBrowserActive");
@@ -46,7 +45,7 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Gets information about the current Playwright status.
         /// </summary>
-        [KernelFunction, Description("Gets detailed information about the current browser status")]
+        [Description("Gets detailed information about the current browser status")]
         public string GetBrowserStatus()
         {
             PluginLogger.LogPluginUsage("PlaywrightPlugin", "GetBrowserStatus");
@@ -98,7 +97,7 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Sets the active session ID for browser operations.
         /// </summary>
-        [KernelFunction, Description("Sets the active session ID for browser operations")]
+        [Description("Sets the active session ID for browser operations")]
         public string SetSessionId(
             [Description("Session ID to use")] string sessionId = "default")
         {
@@ -116,7 +115,7 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Enables or disables session persistence.
         /// </summary>
-        [KernelFunction, Description("Enables or disables session persistence")]
+        [Description("Enables or disables session persistence")]
         public string EnableSessionPersistence(
             [Description("Enable session persistence (true/false)")] string enable = "true")
         {
@@ -131,7 +130,7 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Launches a browser with the specified options.
         /// </summary>
-        [KernelFunction, Description("Launches a new browser instance or uses existing browser if already running")]
+        [Description("Launches a new browser instance or uses existing browser if already running")]
         public async Task<string> LaunchBrowser(
             [Description("Browser type (chromium, firefox, webkit)")] string browserType = "chromium",
             [Description("Launch as headless browser (true/false)")] string headless = "true",
@@ -238,7 +237,7 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Saves the current browser session for future use.
         /// </summary>
-        [KernelFunction, Description("Saves the current browser session for future use")]
+        [Description("Saves the current browser session for future use")]
         public async Task<string> SaveSession()
         {
             PluginLogger.LogPluginUsage("PlaywrightPlugin", "SaveSession", $"SessionId: {_currentSessionId}");
@@ -271,7 +270,7 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Navigates to the specified URL.
         /// </summary>
-        [KernelFunction, Description("Navigates to a specified URL")]
+        [Description("Navigates to a specified URL")]
         public async Task<string> NavigateTo(
             [Description("URL to navigate to")] string url,
             [Description("Navigation wait strategy: load, domcontentloaded, networkidle")]
@@ -349,7 +348,7 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Takes a screenshot of the current page.
         /// </summary>
-        [KernelFunction, Description("Takes a screenshot of the current page")]
+        [Description("Takes a screenshot of the current page")]
         public async Task<string> TakeScreenshot(
             [Description("Path where the screenshot should be saved")] string path = null,
             [Description("CSS selector to screenshot specific element")] string selector = null)
@@ -413,7 +412,7 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Clicks on an element identified by a selector and automatically saves session state.
         /// </summary>
-        [KernelFunction, Description("Clicks on an element identified by CSS selector")]
+        [Description("Clicks on an element identified by CSS selector")]
         public async Task<string> ClickElement(
             [Description("CSS selector for the element to click")] string selector)
         {
@@ -488,7 +487,7 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Types text into an input field identified by a selector and automatically saves session state.
         /// </summary>
-        [KernelFunction, Description("Types text into an input field identified by CSS selector")]
+        [Description("Types text into an input field identified by CSS selector")]
         public async Task<string> TypeText(
             [Description("CSS selector for the input field")] string selector,
             [Description("Text to type into the field")] string text)
@@ -717,7 +716,7 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Lists all available saved sessions.
         /// </summary>
-        [KernelFunction, Description("Lists all available saved browser sessions")]
+        [Description("Lists all available saved browser sessions")]
         public string ListSessions()
         {
             PluginLogger.LogPluginUsage("PlaywrightPlugin", "ListSessions");
@@ -742,7 +741,7 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Deletes a saved session.
         /// </summary>
-        [KernelFunction, Description("Deletes a saved browser session")]
+        [Description("Deletes a saved browser session")]
         public string DeleteSession(
             [Description("ID of the session to delete")] string sessionId = null)
         {
@@ -770,7 +769,7 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Closes the current browser instance and disposes all related resources.
         /// </summary>
-        [KernelFunction, Description("Closes the active browser and releases resources")]
+        [Description("Closes the active browser and releases resources")]
         public async Task<string> CloseBrowser()
         {
             PluginLogger.LogPluginUsage("PlaywrightPlugin", "CloseBrowser");
@@ -807,7 +806,7 @@ namespace FlowVision.lib.Plugins
         }
         /// Gets the full HTML content of the current page.
         /// </summary>
-        [KernelFunction, Description("Gets the current page HTML content")]
+        [Description("Gets the current page HTML content")]
         public async Task<string> GetPageContent()
         {
             PluginLogger.LogPluginUsage("PlaywrightPlugin", "GetPageContent");
@@ -823,7 +822,7 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Retrieves text content from an element identified by a CSS selector.
         /// </summary>
-        [KernelFunction, Description("Gets the text content of an element by CSS selector")]
+        [Description("Gets the text content of an element by CSS selector")]
         public async Task<string> GetElementText(
             [Description("CSS selector of the element")] string selector)
         {
@@ -859,7 +858,7 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Executes custom JavaScript in the current page and returns the result.
         /// </summary>
-        [KernelFunction, Description("Executes a JavaScript snippet in the current page")]
+        [Description("Executes a JavaScript snippet in the current page")]
         public async Task<string> ExecuteScript(
             [Description("JavaScript code to run")] string script)
         {

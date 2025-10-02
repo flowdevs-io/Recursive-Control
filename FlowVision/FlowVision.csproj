@@ -13,6 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <LangVersion>latest</LangVersion>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
@@ -71,6 +72,9 @@
     </Reference>
     <Reference Include="Microsoft.Extensions.AI.AzureAIInference, Version=9.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.AI.AzureAIInference.9.4.0-preview.1.25207.5\lib\net462\Microsoft.Extensions.AI.AzureAIInference.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.AI.OpenAI, Version=9.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.AI.OpenAI.9.4.0-preview.1.25207.5\lib\net462\Microsoft.Extensions.AI.OpenAI.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.Caching.Abstractions, Version=10.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Caching.Abstractions.10.0.0-preview.3.25171.5\lib\net462\Microsoft.Extensions.Caching.Abstractions.dll</HintPath>
@@ -193,6 +197,7 @@
     <Compile Include="lib\Classes\MarkdownHelper.cs" />
     <Compile Include="lib\Classes\PlaywrightSessionManager.cs" />
     <Compile Include="lib\Classes\PluginLogger.cs" />
+    <Compile Include="lib\Classes\PluginToolExtractor.cs" />
     <Compile Include="lib\Classes\SettingsProfileManager.cs" />
     <Compile Include="lib\Classes\SpeechRecognitionService.cs" />
     <Compile Include="lib\Classes\TaskNotifier.cs" />

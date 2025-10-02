@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using FlowVision.lib.Plugins;
-using Microsoft.SemanticKernel;
 
 namespace FlowVision.lib.Classes
 {
