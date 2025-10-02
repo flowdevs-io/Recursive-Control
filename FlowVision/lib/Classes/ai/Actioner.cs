@@ -1,24 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using FlowVision.lib.Plugins;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
+using Microsoft.Extensions.AI;
+using Azure.AI.OpenAI;
+using Azure;
+using ChatMessage = Microsoft.Extensions.AI.ChatMessage;
 
 namespace FlowVision.lib.Classes
 {
     public class Actioner
     {
-        private IChatCompletionService actionerChat;
-        private ChatHistory actionerHistory;
-        private Kernel actionerKernel;
+        private IChatClient actionerChat;
+        private List<ChatMessage> actionerHistory;
         private const string ACTIONER_CONFIG = "actioner";
-        private const string TOOL_CONFIG = "toolsconfig"; // Added constant for tool config
+        private const string TOOL_CONFIG = "toolsconfig";
 
         private MultiAgentActioner multiAgentActioner;
         private bool useMultiAgentMode = false;
@@ -28,7 +28,7 @@ namespace FlowVision.lib.Classes
         // Update the Actioner constructor to support both the delegate and the RichTextBox approaches
         public Actioner(Form1.PluginOutputHandler outputHandler)
         {
-            actionerHistory = new ChatHistory();
+            actionerHistory = new List<ChatMessage>();
 
             // Create a RichTextBox that isn't displayed but used for logging
             var hiddenTextBox = new RichTextBox { Visible = false };
@@ -102,10 +102,10 @@ namespace FlowVision.lib.Classes
             try
             {
                 // Add system message to actioner history
-                actionerHistory.AddSystemMessage(toolConfig.ActionerSystemPrompt + toolDescriptions);
+                actionerHistory.Add(new ChatMessage(ChatRole.System, toolConfig.ActionerSystemPrompt + toolDescriptions));
 
                 // Add action prompt to actioner history
-                actionerHistory.AddUserMessage(actionPrompt);
+                actionerHistory.Add(new ChatMessage(ChatRole.User, actionPrompt));
 
                 // Load actioner model config
                 APIConfig config = APIConfig.LoadConfig(ACTIONER_CONFIG);
@@ -118,93 +118,91 @@ namespace FlowVision.lib.Classes
                     return "Error: Actioner model not configured";
                 }
 
-                // Setup the kernel for actioner with plugins
-                var builder = Kernel.CreateBuilder();
-                builder.AddAzureOpenAIChatCompletion(
-                    config.DeploymentName,
-                    config.EndpointURL,
-                    config.APIKey);
+                // Create Azure OpenAI chat client with IChatClient interface
+                var azureClient = new AzureOpenAIClient(new Uri(config.EndpointURL), new AzureKeyCredential(config.APIKey));
+                IChatClient baseChatClient = azureClient.GetChatClient(config.DeploymentName).AsIChatClient();
 
-                // Configure OpenAI settings based on toolConfig
-                var settings = new OpenAIPromptExecutionSettings
-                {
-                    Temperature = toolConfig.Temperature,
-                    ToolCallBehavior = toolConfig.AutoInvokeKernelFunctions
-                        ? Microsoft.SemanticKernel.Connectors.OpenAI.ToolCallBehavior.AutoInvokeKernelFunctions
-                        : Microsoft.SemanticKernel.Connectors.OpenAI.ToolCallBehavior.EnableKernelFunctions
-                };
+                // Collect tools based on configuration
+                var tools = new List<AITool>();
 
-                // Add plugins dynamically based on tool configuration
                 if (toolConfig.EnableCMDPlugin)
                 {
-                    builder.Plugins.AddFromType<CMDPlugin>();
+                    tools.AddRange(PluginToolExtractor.ExtractTools(new CMDPlugin()));
                 }
 
                 if (toolConfig.EnablePowerShellPlugin)
                 {
-                    builder.Plugins.AddFromType<PowerShellPlugin>();
+                    tools.AddRange(PluginToolExtractor.ExtractTools(new PowerShellPlugin()));
                 }
 
                 if (toolConfig.EnableScreenCapturePlugin)
                 {
-                    builder.Plugins.AddFromType<ScreenCaptureOmniParserPlugin>();
+                    tools.AddRange(PluginToolExtractor.ExtractTools(new ScreenCaptureOmniParserPlugin()));
                 }
 
                 if (toolConfig.EnableKeyboardPlugin)
                 {
-                    builder.Plugins.AddFromType<KeyboardPlugin>();
+                    tools.AddRange(PluginToolExtractor.ExtractTools(new KeyboardPlugin()));
                 }
 
                 if (toolConfig.EnableMousePlugin)
                 {
-                    builder.Plugins.AddFromType<MousePlugin>();
+                    tools.AddRange(PluginToolExtractor.ExtractTools(new MousePlugin()));
                 }
 
                 if (toolConfig.EnableWindowSelectionPlugin)
                 {
-                    builder.Plugins.AddFromType<WindowSelectionPlugin>();
+                    tools.AddRange(PluginToolExtractor.ExtractTools(new WindowSelectionPlugin()));
                 }
 
                 if (toolConfig.EnablePlaywrightPlugin)
                 {
-                    // Expose browser automation utilities including ExecuteScript and CloseBrowser
-                    builder.Plugins.AddFromType<PlaywrightPlugin>();
+                    tools.AddRange(PluginToolExtractor.ExtractTools(new PlaywrightPlugin()));
                 }
 
                 if (toolConfig.EnableRemoteControl)
                 {
-                    builder.Plugins.AddFromType<RemoteControlPlugin>();
+                    tools.AddRange(PluginToolExtractor.ExtractTools(new RemoteControlPlugin()));
                 }
 
-                actionerKernel = builder.Build();
-                actionerChat = actionerKernel.GetRequiredService<IChatCompletionService>();
+                // Configure chat options with tools
+                var chatOptions = new ChatOptions
+                {
+                    Temperature = (float)toolConfig.Temperature,
+                    Tools = tools
+                };
+
+                // Build chat client with function invocation if enabled
+                actionerChat = toolConfig.AutoInvokeKernelFunctions 
+                    ? new ChatClientBuilder(baseChatClient).UseFunctionInvocation().Build()
+                    : baseChatClient;
 
                 // Update loading message to show we're now processing the response
                 PluginLogger.StopLoadingIndicator();
                 PluginLogger.StartLoadingIndicator("AI response");
 
-                // Process the response
+                // Process the response with streaming
                 var responseBuilder = new StringBuilder();
-                var responseStream = actionerChat.GetStreamingChatMessageContentsAsync(actionerHistory, settings, actionerKernel);
-                var enumerator = responseStream.GetAsyncEnumerator();
-                try
+                await foreach (var update in actionerChat.GetStreamingResponseAsync(actionerHistory, chatOptions))
                 {
-                    while (await enumerator.MoveNextAsync())
+                    if (update.Text != null)
                     {
-                        var message = enumerator.Current;
-                        if (message.Content == "None") continue;
-                        responseBuilder.Append(message.Content);
+                        responseBuilder.Append(update.Text);
                     }
-                }
-                finally
-                {
-                    await enumerator.DisposeAsync();
                 }
 
                 // Task completed successfully
                 PluginLogger.NotifyTaskComplete("Action Execution", true);
 
-                return responseBuilder.ToString();
+                var response = responseBuilder.ToString();
+                
+                // Add assistant response to history
+                if (!string.IsNullOrEmpty(response))
+                {
+                    actionerHistory.Add(new ChatMessage(ChatRole.Assistant, response));
+                }
+
+                return response;
             }
             catch (Exception ex)
             {
@@ -221,11 +219,11 @@ namespace FlowVision.lib.Classes
             {
                 if (message.Author == "You")
                 {
-                    actionerHistory.AddUserMessage(message.Content);
+                    actionerHistory.Add(new ChatMessage(ChatRole.User, message.Content));
                 }
                 else if (message.Author == "AI")
                 {
-                    actionerHistory.AddAssistantMessage(message.Content);
+                    actionerHistory.Add(new ChatMessage(ChatRole.Assistant, message.Content));
                 }
             }
 

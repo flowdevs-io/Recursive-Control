@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,42 +8,40 @@ using Azure;
 using Azure.AI.Inference;
 using FlowVision.lib.Plugins;
 using FlowVision.Properties;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.AzureAIInference;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
+using Microsoft.Extensions.AI;
+using Azure.AI.OpenAI;
+using ChatMessage = Microsoft.Extensions.AI.ChatMessage;
+using ChatRole = Microsoft.Extensions.AI.ChatRole;
 
 namespace FlowVision.lib.Classes
 {
     public class Github_Actioner
     {
-        private IChatCompletionService _chat;
-        private ChatHistory _history;
-        private Kernel _kernel;
-        private RichTextBox _output;
+        private IChatClient _chat;
+        private List<ChatMessage> _history;
+                private RichTextBox _output;
         private const string ACTIONER_CONFIG = "github";
         private const string TOOL_CONFIG = "toolsconfig";
 
         public Github_Actioner(RichTextBox outputTextBox)
         {
             _output = outputTextBox;
-            _history = new ChatHistory();
+            _history = new List<ChatMessage>();
             
             // Load tool config to get system message
             ToolConfig toolConfig = ToolConfig.LoadConfig(TOOL_CONFIG);
             
             // Set system message from config
-            _history.AddSystemMessage(toolConfig.ActionerSystemPrompt);
+            _history.Add(new ChatMessage(ChatRole.System, toolConfig.ActionerSystemPrompt));
         }
 
         public async Task<string> ExecuteAction(string actionPrompt)
         {
-            _history.AddUserMessage(actionPrompt);
+            _history.Add(new ChatMessage(ChatRole.User, actionPrompt));
 
             // 1. Load your GitHub‑Models config
             APIConfig config = APIConfig.LoadConfig(ACTIONER_CONFIG);
-            ToolConfig toolConfig = ToolConfig.LoadConfig(ACTIONER_CONFIG);
+            ToolConfig toolConfig = ToolConfig.LoadConfig(TOOL_CONFIG);
 
             if (string.IsNullOrWhiteSpace(config.EndpointURL) ||
                 string.IsNullOrWhiteSpace(config.APIKey) ||
@@ -58,57 +57,45 @@ namespace FlowVision.lib.Classes
                 new AzureKeyCredential(config.APIKey)   // your GITHUB_TOKEN
             );
 
-            // 3. Wire it into Semantic Kernel
-            var builder = Kernel.CreateBuilder();
-#pragma warning disable SKEXP0070 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
-            builder.AddAzureAIInferenceChatCompletion(
-                modelId: config.DeploymentName,  // e.g. "openai/gpt-4.1"
-                chatClient: chatClient
-            );
-#pragma warning restore SKEXP0070 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            // 3. Convert to IChatClient using Microsoft.Extensions.AI
+            var aiChatClient = chatClient.AsIChatClient(config.DeploymentName);
 
-            // 4. Add your tool‑plugins
-            builder.Plugins.AddFromType<CMDPlugin>();
-            builder.Plugins.AddFromType<PowerShellPlugin>();
-            builder.Plugins.AddFromType<ScreenCapturePlugin>();
-            builder.Plugins.AddFromType<KeyboardPlugin>();
-            builder.Plugins.AddFromType<MousePlugin>();
+            // 4. Add tool plugins using helper
+            var tools = new List<AITool>();
+            
+            tools.AddRange(PluginToolExtractor.ExtractTools(new CMDPlugin()));
+            tools.AddRange(PluginToolExtractor.ExtractTools(new PowerShellPlugin()));
+            tools.AddRange(PluginToolExtractor.ExtractTools(new ScreenCapturePlugin()));
+            tools.AddRange(PluginToolExtractor.ExtractTools(new KeyboardPlugin()));
+            tools.AddRange(PluginToolExtractor.ExtractTools(new MousePlugin()));
 
-            // 5. Inject the output box for plugins that need it
-            builder.Services.AddSingleton(_output);
+            // 5. Enable function invocation
+            _chat = new ChatClientBuilder(aiChatClient).UseFunctionInvocation().Build();
 
-            // 6. Build and grab IChatCompletionService
-            _kernel = builder.Build();
-            _chat = _kernel.GetRequiredService<IChatCompletionService>();
-
-            // 7. Define your PromptExecutionSettings
-            var settings = new OpenAIPromptExecutionSettings
+            // 6. Define your chat options
+            var options = new ChatOptions
             {
-                Temperature = 0.2,
-                ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions
+                Temperature = 0.2f,
+                Tools = tools
             };
 
-            // Process the response
+            // Process the response with streaming
             var responseBuilder = new StringBuilder();
-            // Uncomment for Open AI
-            var responseStream = _chat.GetStreamingChatMessageContentsAsync(_history, settings, _kernel);
-            var enumerator = responseStream.GetAsyncEnumerator();
-            try
+            await foreach (var update in _chat.GetStreamingResponseAsync(_history, options))
             {
-                while (await enumerator.MoveNextAsync())
+                if (update.Text != null)
                 {
-                    var message = enumerator.Current;
-                    if (message.Content == "None") continue;
-                    responseBuilder.Append(message.Content);
+                    responseBuilder.Append(update.Text);
                 }
-            }
-            finally
-            {
-                await enumerator.DisposeAsync();
             }
 
             string response = responseBuilder.ToString();
-
+            
+            // Add response to history
+            if (!string.IsNullOrEmpty(response))
+            {
+                _history.Add(new ChatMessage(ChatRole.Assistant, response));
+            }
 
             return response;
         }

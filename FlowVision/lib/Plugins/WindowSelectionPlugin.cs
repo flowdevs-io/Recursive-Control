@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using FlowVision.lib.Classes;
-using Microsoft.SemanticKernel;
 
 namespace FlowVision.lib.Plugins
 {
@@ -17,7 +16,7 @@ namespace FlowVision.lib.Plugins
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
-        [KernelFunction, Description("Used to set current handle as foreground")]
+        [Description("Used to set current handle as foreground")]
         public async Task<bool> ForegroundSelect(string handleString)
         {
             // Log the plugin usage
@@ -31,7 +30,7 @@ namespace FlowVision.lib.Plugins
             return true;
         }
 
-        [KernelFunction, Description("Returns a list of available window handles, titles, and process names.")]
+        [Description("Returns a list of available window handles, titles, and process names.")]
         public string ListWindowHandles()
         {
             // Log the plugin usage
