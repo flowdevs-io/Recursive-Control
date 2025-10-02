@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using FlowVision.lib.Classes;
-using Microsoft.SemanticKernel;
 
 namespace FlowVision.lib.Plugins
 {
@@ -23,7 +22,7 @@ namespace FlowVision.lib.Plugins
         [DllImport("user32.dll", SetLastError = true)]
         private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 
-        [KernelFunction, Description("Used to interact with the keyboard")]
+        [Description("Used to interact with the keyboard")]
         public async Task<bool> SendKey(string keyCombo)
         {
             PluginLogger.LogPluginUsage("KeyboardPlugin", "SendKey", keyCombo);
@@ -38,7 +37,7 @@ namespace FlowVision.lib.Plugins
             }
         }
 
-        [KernelFunction, Description("Enter Key")]
+        [Description("Enter Key")]
         public async Task<bool> EnterKey()
         {
             PluginLogger.LogPluginUsage("KeyboardPlugin", "EnterKey", "ENTER");
@@ -53,7 +52,7 @@ namespace FlowVision.lib.Plugins
             }
         }
 
-        [KernelFunction, Description("Ctrl + Letter")]
+        [Description("Ctrl + Letter")]
         public async Task<bool> CtrlKey(string letter)
         {
             PluginLogger.LogPluginUsage("KeyboardPlugin", "CtrlKey", letter);
@@ -70,7 +69,7 @@ namespace FlowVision.lib.Plugins
 
         /*
          *
-         *[KernelFunction, Description("Alt + F4")]
+         *[Description("Alt + F4")]
         public async Task<bool> AltFFour()
         {
             FlowVision.lib.Classes.PluginLogger.LogPluginUsage("KeyboardPlugin", "AltFFour", "Alt + F4");
@@ -89,7 +88,7 @@ namespace FlowVision.lib.Plugins
          */
 
         /*
-        [KernelFunction, Description("Opens the Run dialog (Windows+R)")]
+        [Description("Opens the Run dialog (Windows+R)")]
         public async Task<bool> OpenRunDialog()
         {
             FlowVision.lib.Classes.PluginLogger.LogPluginUsage("KeyboardPlugin", "OpenRunDialog", "Windows+R");

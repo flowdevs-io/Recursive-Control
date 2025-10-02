@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using FlowVision.lib.Classes;
-using Microsoft.SemanticKernel;
 
 namespace FlowVision.lib.Plugins
 {
@@ -24,7 +23,7 @@ namespace FlowVision.lib.Plugins
         private const uint MOUSEEVENTF_RIGHTDOWN = 0x08;
         private const uint MOUSEEVENTF_RIGHTUP = 0x10;
 
-        [KernelFunction, Description("Clicks at the specified normalized bounding box coordinates on a specific window handle.")]
+        [Description("Clicks at the specified normalized bounding box coordinates on a specific window handle.")]
         public async Task<bool> ClickOnWindow(string windowHandleString, double[] bBox, bool leftClick, int clickTimes)
         {
             // Log the plugin usage
@@ -61,7 +60,7 @@ namespace FlowVision.lib.Plugins
             return true;
         }
 
-        [KernelFunction, Description("uses scroll wheel on a specific window handle.")]
+        [Description("uses scroll wheel on a specific window handle.")]
         public async Task<bool> ScrollOnWindow(string windowHandleString, int scrollAmount)
         {
             // Log the plugin usage
