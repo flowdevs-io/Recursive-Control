@@ -4,7 +4,6 @@ using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FlowVision.lib.Classes;
-using Microsoft.SemanticKernel;
 using System.ComponentModel;
 
 namespace FlowVision.lib.Plugins
@@ -48,7 +47,7 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Returns the status of the remote control server.
         /// </summary>
-        [KernelFunction, Description("Get the status of the remote control server")]
+        [Description("Get the status of the remote control server")]
         public static string GetStatus() => _running ? $"Listening on {_port}" : "Stopped";
 
         private static async Task ListenLoop()

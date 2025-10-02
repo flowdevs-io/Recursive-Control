@@ -1,16 +1,15 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using FlowVision.lib.Classes;
-using Microsoft.SemanticKernel;
 
 namespace FlowVision.lib.Plugins
 {
     internal class PowerShellPlugin
     {
-        [KernelFunction, Description("Executes a PowerShell command and returns the output.")]
+        [Description("Executes a PowerShell command and returns the output.")]
         public async Task<string> ExecuteCommand([Description("Powershell Command")] string command)
         {
             // Log the plugin usage
