@@ -1,0 +1,26 @@
+# GitHub Pages Configuration for Recursive Control
+
+# Site settings
+title: Recursive Control Documentation
+description: AI-Powered Computer Control for Windows
+baseurl: "/Recursive-Control"
+url: "https://flowdevs-io.github.io"
+
+# Theme (GitHub Pages supported themes)
+remote_theme: pages-themes/cayman@v0.2.0
+
+# Plugins (GitHub Pages whitelist)
+plugins:
+  - jekyll-remote-theme
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# Markdown settings
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
+
+# Show downloads button
+show_downloads: false
