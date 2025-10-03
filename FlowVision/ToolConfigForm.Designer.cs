@@ -80,6 +80,7 @@
             this.chkUseCustomCoordinatorConfig = new System.Windows.Forms.CheckBox();
             this.comboCoordinatorConfig = new System.Windows.Forms.ComboBox();
             this.btnConfigureCoordinator = new System.Windows.Forms.Button();
+            this.btnResetCoordinator = new System.Windows.Forms.Button();
             this.tabPlanner = new System.Windows.Forms.TabPage();
             this.grpPlannerConfig = new System.Windows.Forms.GroupBox();
             this.lblPlannerPrompt = new System.Windows.Forms.Label();
@@ -87,6 +88,7 @@
             this.chkUseCustomPlannerConfig = new System.Windows.Forms.CheckBox();
             this.comboPlannerConfig = new System.Windows.Forms.ComboBox();
             this.btnConfigurePlanner = new System.Windows.Forms.Button();
+            this.btnResetPlanner = new System.Windows.Forms.Button();
             this.tabActioner = new System.Windows.Forms.TabPage();
             this.grpActionerConfig = new System.Windows.Forms.GroupBox();
             this.lblActionerPrompt = new System.Windows.Forms.Label();
@@ -94,6 +96,7 @@
             this.chkUseCustomExecutorConfig = new System.Windows.Forms.CheckBox();
             this.comboActionerConfig = new System.Windows.Forms.ComboBox();
             this.btnConfigureActioner = new System.Windows.Forms.Button();
+            this.btnResetActioner = new System.Windows.Forms.Button();
             this.tabAppearance = new System.Windows.Forms.TabPage();
             this.groupBoxTheme = new System.Windows.Forms.GroupBox();
             this.labelTheme = new System.Windows.Forms.Label();
@@ -724,6 +727,7 @@
             this.grpCoordinatorConfig.Controls.Add(this.chkUseCustomCoordinatorConfig);
             this.grpCoordinatorConfig.Controls.Add(this.comboCoordinatorConfig);
             this.grpCoordinatorConfig.Controls.Add(this.btnConfigureCoordinator);
+            this.grpCoordinatorConfig.Controls.Add(this.btnResetCoordinator);
             this.grpCoordinatorConfig.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grpCoordinatorConfig.Location = new System.Drawing.Point(6, 6);
             this.grpCoordinatorConfig.Name = "grpCoordinatorConfig";
@@ -785,6 +789,17 @@
             this.btnConfigureCoordinator.Text = "Configure";
             this.btnConfigureCoordinator.UseVisualStyleBackColor = true;
             // 
+            // btnResetCoordinator
+            // 
+            this.btnResetCoordinator.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnResetCoordinator.Location = new System.Drawing.Point(8, 252);
+            this.btnResetCoordinator.Name = "btnResetCoordinator";
+            this.btnResetCoordinator.Size = new System.Drawing.Size(120, 26);
+            this.btnResetCoordinator.TabIndex = 28;
+            this.btnResetCoordinator.Text = "🔄 Reset to Default";
+            this.btnResetCoordinator.UseVisualStyleBackColor = true;
+            this.btnResetCoordinator.Click += new System.EventHandler(this.btnResetCoordinator_Click);
+            // 
             // tabPlanner
             // 
             this.tabPlanner.Controls.Add(this.grpPlannerConfig);
@@ -802,6 +817,7 @@
             this.grpPlannerConfig.Controls.Add(this.chkUseCustomPlannerConfig);
             this.grpPlannerConfig.Controls.Add(this.comboPlannerConfig);
             this.grpPlannerConfig.Controls.Add(this.btnConfigurePlanner);
+            this.grpPlannerConfig.Controls.Add(this.btnResetPlanner);
             this.grpPlannerConfig.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grpPlannerConfig.Location = new System.Drawing.Point(6, 6);
             this.grpPlannerConfig.Name = "grpPlannerConfig";
@@ -865,6 +881,17 @@
             this.btnConfigurePlanner.UseVisualStyleBackColor = true;
             this.btnConfigurePlanner.Click += new System.EventHandler(this.btnConfigurePlanner_Click);
             // 
+            // btnResetPlanner
+            // 
+            this.btnResetPlanner.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnResetPlanner.Location = new System.Drawing.Point(8, 252);
+            this.btnResetPlanner.Name = "btnResetPlanner";
+            this.btnResetPlanner.Size = new System.Drawing.Size(120, 26);
+            this.btnResetPlanner.TabIndex = 27;
+            this.btnResetPlanner.Text = "🔄 Reset to Default";
+            this.btnResetPlanner.UseVisualStyleBackColor = true;
+            this.btnResetPlanner.Click += new System.EventHandler(this.btnResetPlanner_Click);
+            // 
             // tabActioner
             // 
             this.tabActioner.Controls.Add(this.grpActionerConfig);
@@ -882,6 +909,7 @@
             this.grpActionerConfig.Controls.Add(this.chkUseCustomExecutorConfig);
             this.grpActionerConfig.Controls.Add(this.comboActionerConfig);
             this.grpActionerConfig.Controls.Add(this.btnConfigureActioner);
+            this.grpActionerConfig.Controls.Add(this.btnResetActioner);
             this.grpActionerConfig.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grpActionerConfig.Location = new System.Drawing.Point(6, 6);
             this.grpActionerConfig.Name = "grpActionerConfig";
@@ -944,6 +972,17 @@
             this.btnConfigureActioner.Text = "Configure";
             this.btnConfigureActioner.UseVisualStyleBackColor = true;
             this.btnConfigureActioner.Click += new System.EventHandler(this.btnConfigureActioner_Click);
+            // 
+            // btnResetActioner
+            // 
+            this.btnResetActioner.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnResetActioner.Location = new System.Drawing.Point(8, 252);
+            this.btnResetActioner.Name = "btnResetActioner";
+            this.btnResetActioner.Size = new System.Drawing.Size(120, 26);
+            this.btnResetActioner.TabIndex = 26;
+            this.btnResetActioner.Text = "🔄 Reset to Default";
+            this.btnResetActioner.UseVisualStyleBackColor = true;
+            this.btnResetActioner.Click += new System.EventHandler(this.btnResetActioner_Click);
             // 
             // tabAppearance
             // 
@@ -1261,6 +1300,7 @@
         private System.Windows.Forms.CheckBox chkUseCustomCoordinatorConfig;
         private System.Windows.Forms.ComboBox comboCoordinatorConfig;
         private System.Windows.Forms.Button btnConfigureCoordinator;
+        private System.Windows.Forms.Button btnResetCoordinator;
         private System.Windows.Forms.TabPage tabPlanner;
         private System.Windows.Forms.GroupBox grpPlannerConfig;
         private System.Windows.Forms.Label lblPlannerPrompt;
@@ -1268,12 +1308,14 @@
         private System.Windows.Forms.CheckBox chkUseCustomPlannerConfig;
         private System.Windows.Forms.ComboBox comboPlannerConfig;
         private System.Windows.Forms.Button btnConfigurePlanner;
+        private System.Windows.Forms.Button btnResetPlanner;
         private System.Windows.Forms.TabPage tabActioner;
         private System.Windows.Forms.GroupBox grpActionerConfig;
         private System.Windows.Forms.Label lblActionerPrompt;
         private System.Windows.Forms.TextBox txtActionerSystemPrompt;
         private System.Windows.Forms.ComboBox comboActionerConfig;
         private System.Windows.Forms.Button btnConfigureActioner;
+        private System.Windows.Forms.Button btnResetActioner;
         private System.Windows.Forms.CheckBox chkUseCustomExecutorConfig;
         private System.Windows.Forms.TabPage tabAppearance;
         private System.Windows.Forms.GroupBox groupBoxTheme;
