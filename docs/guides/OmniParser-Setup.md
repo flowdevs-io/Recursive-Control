@@ -439,6 +439,5 @@ All fast after first one!
 
 ---
 
-**Full Documentation:** See `LOCAL_OMNIPARSER_INTEGRATION.md`
 **Status:** ✅ Ready to use
 **Configuration:** ❌ None needed (optional customization available)
