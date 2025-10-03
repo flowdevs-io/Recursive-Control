@@ -11,6 +11,7 @@ namespace FlowVision.lib.Classes
         public string DeploymentName { get; set; }
         public string EndpointURL { get; set; }
         public string APIKey { get; set; }
+        public string ProviderType { get; set; } = "AzureOpenAI"; // "AzureOpenAI", "OpenAI", "LMStudio"
 
         private static string ConfigFilePath(string model)
         {
