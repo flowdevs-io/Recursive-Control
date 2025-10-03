@@ -1,0 +1,20 @@
+<div class="command-palette" id="command-palette" aria-hidden="true">
+  <div class="command-palette__backdrop" data-palette-close></div>
+  <div class="command-palette__panel" role="dialog" aria-modal="true" aria-labelledby="command-palette-title">
+    <header class="command-palette__header">
+      <h2 id="command-palette-title">Quick Navigation</h2>
+      <p class="command-palette__hint">Type to search or jump with ↑ ↓ ↵ · Press Esc to close</p>
+    </header>
+    <div class="command-palette__search">
+      <input id="command-palette-input" type="search" placeholder="Jump to any page or command..." autocomplete="off" spellcheck="false" />
+      <div class="command-palette__status" id="command-palette-status">Press Enter to open selection</div>
+    </div>
+    <div class="command-palette__groups" id="command-palette-results" role="listbox" aria-live="polite"></div>
+    <footer class="command-palette__footer">
+      <span><kbd>Ctrl</kbd> + <kbd>K</kbd></span>
+      <span>Switch theme <kbd>T</kbd></span>
+      <span>Cycle focus <kbd>Tab</kbd></span>
+    </footer>
+  </div>
+</div>
+

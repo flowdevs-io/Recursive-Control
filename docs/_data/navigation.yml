@@ -1,0 +1,74 @@
+# Navigation map for the Recursive Control docs portal
+# Each group defines a lane in the Compass navigation and command palette
+
+- title: Mission Control
+  icon: ✨
+  links:
+    - label: Home
+      path: /
+      description: "Orientation deck, latest signal boosts, and portal jump points"
+    - label: Installation Capsule
+      path: /Installation.html
+      description: "Everything required to land Recursive Control on Windows"
+    - label: First Flight Checklist
+      path: /Getting-Started.html
+      description: "Spin up your agents and complete your first automations"
+
+- title: Ops Dashboard
+  icon: 🧭
+  links:
+    - label: UI Features Atlas
+      path: /UI-Features.html
+      description: "Every panel, overlay, and feedback loop mapped"
+    - label: UI Redesign Narrative
+      path: /UI-Redesign.html
+      description: "Evolution of the command cockpit and design rituals"
+    - label: Release Trail Journal
+      path: /Blog-Post-v2.0.html
+      description: "Product story from MVP experiments to AI copilots"
+
+- title: Systems Lab
+  icon: ⚙️
+  links:
+    - label: Multi-Agent Architecture
+      path: /Multi-Agent-Architecture.html
+      description: "Planner, coordinator, executor – the triad that flies your missions"
+    - label: System Prompts Reference
+      path: /System-Prompts-Reference.html
+      description: "Tune personas, guardrails, and playbooks for each agent"
+    - label: OmniParser Setup
+      path: /guides/OmniParser-Setup.html
+      description: "Wire up vision parsing to unlock spatial reasoning"
+    - label: AI Provider Comparison
+      path: /guides/AI-Provider-Comparison.html
+      description: "Latency, cost, and capability matrix across model vendors"
+    - label: LM Studio Quickstart
+      path: /guides/LM-Studio-Quickstart.html
+      description: "Local-first deployments powered by LM Studio"
+
+- title: Extensible Orbit
+  icon: 🧩
+  links:
+    - label: API Reference
+      path: /API-Reference.html
+      description: "REST endpoints, payloads, and automation recipes"
+    - label: Plugin Architecture Primer
+      path: /Multi-Agent-Architecture.html#plugin-ecosystem
+      description: "Where plugins dock into the agent orchestration"
+    - label: UI Telemetry Hooks
+      path: /UI-Features.html#telemetry-hooks
+      description: "Signal taps for real-time dashboards and observers"
+
+- title: Support Bay
+  icon: 🛟
+  links:
+    - label: FAQ Loop
+      path: /FAQ.html
+      description: "Quick responses to the most common mission questions"
+    - label: Troubleshooting Console
+      path: /Troubleshooting.html
+      description: "On-call runbooks for recovering from turbulence"
+    - label: Repo Handbook
+      path: /README.html
+      description: "Contribution guidelines, strategy, and governance notes"
+

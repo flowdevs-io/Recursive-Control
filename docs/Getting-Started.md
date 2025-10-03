@@ -3,94 +3,87 @@ layout: default
 title: Getting Started
 ---
 
-# Getting Started with Recursive Control
+# First Flight Checklist
 
-This guide will help you get up and running with Recursive Control quickly.
+Strap into Mission Control and run your first full-loop automation in under ten minutes.
 
-## Your First Commands
+## Cue the Agents
 
-Once installed and configured, you can start using natural language commands:
+Once the cockpit is configured you can talk in plain-text, mission-style briefs.
 
-### Basic Examples
+### Launch Scripts
 
-1. **File Management**
+1. **File Ops Circuit**
    ```
-   "Open File Explorer and navigate to my Documents folder"
-   "Create a new folder called Projects on my Desktop"
-   "Rename all .txt files in this folder to .md"
-   ```
-
-2. **Application Control**
-   ```
-   "Open Notepad and type Hello World"
-   "Launch Chrome and navigate to github.com"
-   "Open Excel and create a new spreadsheet"
+   “Open File Explorer and navigate to my Documents folder.”
+   “Create a new folder called Projects on my Desktop.”
+   “Rename all .txt files in this folder to .md.”
    ```
 
-3. **Screen Capture**
+2. **App Relay**
    ```
-   "Take a screenshot of the current window"
-   "Capture the entire screen"
-   ```
-
-4. **Web Automation**
-   ```
-   "Open a browser and search for AI automation tools"
-   "Fill out this form with my information"
-   "Extract data from this webpage"
+   “Open Notepad and type Hello World.”
+   “Launch Chrome and navigate to github.com.”
+   “Open Excel and create a new spreadsheet.”
    ```
 
-## Understanding the Multi-Agent System
+3. **Vision Probe**
+   ```
+   “Take a screenshot of the current window.”
+   “Capture the entire screen.”
+   ```
 
-Recursive Control uses a sophisticated 3-agent architecture:
+4. **Browser Drone**
+   ```
+   “Open a browser and search for AI automation tools.”
+   “Fill out this form with my information.”
+   “Extract data from this webpage.”
+   ```
 
-1. **Coordinator Agent**: Understands your request and determines the best approach
-2. **Planner Agent**: Creates a step-by-step plan to accomplish the task
-3. **Executor Agent**: Executes the plan using available plugins
+## Meet the Crew
 
-This system ensures tasks are completed efficiently and accurately.
+- **Hermes (Coordinator)** — interprets intent, sets the heading
+- **Daedalus (Planner)** — drafts the maneuver plan step by step
+- **Talos (Executor)** — performs every keystroke, click, and command
 
-## Tips for Better Results
+Agents talk to you in real-time so you can abort, adjust, or cheer as they work.
 
-### Be Specific
-❌ "Do something with files"
-✅ "Move all PDF files from Downloads to Documents folder"
+## Mission Briefing Tips
 
-### Break Down Complex Tasks
-For very complex workflows, break them into smaller steps and verify each step.
+- **Paint the picture** → “Move all PDF files from Downloads to Documents” beats “Do something with files.”
+- **Chunk the mission** → Run multi-stage workflows in segments and confirm each leg.
+- **Talk human** → Natural language with intent and context works best; no scripting required.
 
-### Use Natural Language
-You don't need to use technical commands - just describe what you want in plain English.
+## Plugin Bay at a Glance
 
-## Available Plugins
+- Keyboard + Mouse autopilot
+- Command line (CMD + PowerShell)
+- Screen capture + annotation
+- Window switching + focus
+- Playwright browser automation
+- Remote control HTTP bridge
 
-Your commands can utilize these built-in plugins:
+## Next Flight Plans
 
-- **Keyboard & Mouse**: Automate input and clicks
-- **Command Line**: Execute CMD and PowerShell commands
-- **Screen Capture**: Take and analyze screenshots
-- **Window Management**: Control application windows
-- **Web Browser**: Automate websites with Playwright
-- **Remote Control**: Accept commands via HTTP API
+- Tour the [UI Features Atlas](UI-Features.html)
+- Study the [Multi-Agent Architecture](Multi-Agent-Architecture.html)
+- Customize personas via [System Prompts Reference](System-Prompts-Reference.html)
+- Join the [Discord flight crew](https://discord.gg/mQWsWeHsVU)
 
-## Next Steps
+## First-Time FAQs
 
-- Explore the [UI Features](UI-Features.html) guide
-- Learn about [Multi-Agent Architecture](Multi-Agent-Architecture.html)
-- Check out [System Prompts](System-Prompts-Reference.html) for customization
-- Join our [Discord](https://discord.gg/mQWsWeHsVU) for community support
+**How do I know it’s engaged?**
 
-## Common First-Time Questions
+Watch the live reasoning feed and action timeline.
 
-**Q: How do I know if it's working?**
-A: The UI will show the agent's thinking process and actions in real-time.
+**Something went sideways.**
 
-**Q: What if something goes wrong?**
-A: You can interrupt execution at any time. Check the [Troubleshooting](Troubleshooting.html) guide for help.
+Hit the abort control, then consult the [Troubleshooting Console](Troubleshooting.html).
 
-**Q: Can I customize the behavior?**
-A: Yes! You can adjust system prompts, enable/disable plugins, and configure various settings.
+**Can I reshape its behavior?**
+
+Absolutely. Tweak prompts, toggle plugins, and save profiles.
 
 ---
 
-Ready to dive deeper? Check out our [advanced documentation](Multi-Agent-Architecture.html) or join the [community](https://discord.gg/mQWsWeHsVU)!
+Ready for more? Dive into [advanced documentation](Multi-Agent-Architecture.html) or sync with the [community](https://discord.gg/mQWsWeHsVU).

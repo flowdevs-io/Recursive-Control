@@ -3,46 +3,45 @@ layout: default
 title: Installation
 ---
 
-# Installation Guide
+# Installation Capsule
 
-Get Recursive Control up and running on your Windows system.
+Your mission dock for landing Recursive Control on Windows. Choose your payload, confirm dependencies, and ignite the thrusters.
 
-## System Requirements
+## Flight Readiness Checklist
 
-### Minimum Requirements
+### Baseline Specs
 - **Operating System**: Windows 10 or Windows 11
 - **.NET Framework**: 4.8 or later
 - **RAM**: 4 GB minimum (8 GB recommended)
 - **Disk Space**: 500 MB for application files
 
-### Additional Requirements
+### Network & Auth
 - Internet connection for AI model API access
 - API key for your preferred AI provider (OpenAI, Azure OpenAI, Anthropic, Google, etc.)
 
-## Installation Steps
+## Deploy Options
 
-### Option 1: Download Pre-built Release (Recommended)
+### Rapid Drop (Recommended)
 
-1. **Download the Latest Release**
-   - Visit the [Releases page](https://github.com/flowdevs-io/Recursive-Control/releases)
-   - Download the latest `recursivecontrol.zip` or installer
-   - Extract to your preferred location
+1. **Pull the latest build**
+   - Hop to the [Releases hangar](https://github.com/flowdevs-io/Recursive-Control/releases)
+   - Snag the newest `recursivecontrol.zip` payload
+   - Extract anywhere friendly (no admin elevation required)
 
-2. **Run the Application**
-   - Double-click `recursivecontrol.exe`
-   - The application will launch and prompt for initial setup
+2. **Boot the cockpit**
+   - Launch `recursivecontrol.exe`
+   - First boot unlocks the setup co-pilot
 
-3. **Configure Your AI Provider**
-   - Click the settings/configuration button
-   - Select your AI provider (OpenAI, Azure, Anthropic, etc.)
-   - Enter your API key
-   - Choose your preferred model
+3. **Wire your pilot**
+   - Open Settings → Providers
+   - Pick your model stack (OpenAI, Azure, Claude, Gemini, LM Studio…)
+   - Drop in your API credentials
 
-4. **Test the Installation**
-   - Try a simple command like "What can you do?"
-   - Verify the AI responds correctly
+4. **Ping the tower**
+   - Ask "What can you do?"
+   - Confirm you see agent chatter + completion
 
-### Option 2: Build from Source
+### Source Build (Engineers’ Track)
 
 For developers who want to build from source:
 
@@ -63,9 +62,9 @@ dotnet build
 dotnet run --project FlowVision
 ```
 
-## Initial Configuration
+## Configure Your Pilot
 
-### Setting Up Your AI Provider
+### OpenAI
 
 #### OpenAI
 1. Get your API key from [OpenAI Platform](https://platform.openai.com)
@@ -97,7 +96,7 @@ dotnet run --project FlowVision
    - Provider: LM Studio
    - Endpoint: http://localhost:1234 (or your configured port)
 
-### Plugin Configuration
+### Plugin Bay
 
 Enable or disable plugins based on your needs:
 
@@ -110,7 +109,7 @@ Enable or disable plugins based on your needs:
    - ⚠️ Playwright (requires additional setup)
    - ⚠️ Remote Control (enable for HTTP API)
 
-## Verifying Installation
+## System Checks
 
 Run these test commands to verify everything works:
 
@@ -121,9 +120,9 @@ Run these test commands to verify everything works:
 
 If all tests pass, you're ready to go!
 
-## Troubleshooting Installation Issues
+## Troubleshooting Bay
 
-### .NET Framework Not Found
+### .NET Framework Missing
 - Download and install [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/net48)
 
 ### API Key Errors
@@ -131,7 +130,7 @@ If all tests pass, you're ready to go!
 - Check that your API provider account has credits/active subscription
 - Ensure internet connection is working
 
-### Application Won't Start
+### Application Won’t Start
 - Run as Administrator
 - Check Windows Event Viewer for error details
 - Verify all dependencies are installed
@@ -141,13 +140,13 @@ If all tests pass, you're ready to go!
 - Increase available RAM
 - Consider using a lighter AI model
 
-## Next Steps
+## Next Flight Plans
 
 - Continue to [Getting Started](Getting-Started.html) guide
 - Explore [UI Features](UI-Features.html)
 - Join our [Discord community](https://discord.gg/mQWsWeHsVU)
 
-## Uninstallation
+## Uninstall Playbook
 
 To remove Recursive Control:
 1. Delete the application folder
