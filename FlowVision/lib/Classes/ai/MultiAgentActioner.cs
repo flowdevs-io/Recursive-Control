@@ -191,7 +191,7 @@ namespace FlowVision.lib.Classes
 
                 if (toolConfig.EnablePlaywrightPlugin)
                 {
-                    tools.AddRange(PluginToolExtractor.ExtractTools(new PlaywrightPlugin()));
+                    tools.AddRange(PluginToolExtractor.ExtractTools(PlaywrightPlugin.Instance));
                 }
 
                 if (toolConfig.EnableRemoteControl)

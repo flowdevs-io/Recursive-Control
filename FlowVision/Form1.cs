@@ -37,17 +37,15 @@ namespace FlowVision
 
         private void azureOpenAIToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Check if the config form is already open
-            if (Application.OpenForms.OfType<ConfigForm>().Count() == 1)
+            // Use the new unified AI Provider config form
+            if (Application.OpenForms.OfType<AIProviderConfigForm>().Count() == 1)
             {
-                // If it is, bring it to the front
-                Application.OpenForms.OfType<ConfigForm>().First().BringToFront();
+                Application.OpenForms.OfType<AIProviderConfigForm>().First().BringToFront();
             }
             else
             {
-                // If it isn't, create a new instance of the form
-                ConfigForm configForm = new ConfigForm("actioner");
-                configForm.Show();
+                AIProviderConfigForm configForm = new AIProviderConfigForm("actioner");
+                configForm.ShowDialog();
             }
         }
 

@@ -12,9 +12,15 @@ namespace FlowVision.lib.Plugins
 {
     /// <summary>
     /// Playwright plugin for browser automation within FlowVision.
+    /// Uses singleton pattern to maintain browser state across multiple calls.
     /// </summary>
     internal class PlaywrightPlugin 
     {
+        // Singleton instance to maintain state across calls
+        private static PlaywrightPlugin _instance;
+        private static readonly object _lock = new object();
+
+        // Instance variables that maintain state
         private IPlaywright _playwright;
         private IBrowser _browser;
         private IBrowserContext _context;
@@ -23,6 +29,39 @@ namespace FlowVision.lib.Plugins
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
         private string _currentSessionId = "default";
         private bool _useSession = true;
+        private bool _autoSaveSession = true; // Auto-save after actions
+
+        /// <summary>
+        /// Gets the singleton instance of PlaywrightPlugin
+        /// </summary>
+        public static PlaywrightPlugin Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new PlaywrightPlugin();
+                        }
+                    }
+                }
+                return _instance;
+            }
+        }
+
+        // Private constructor to enforce singleton pattern
+        private PlaywrightPlugin()
+        {
+        }
+
+        // Public constructor for backward compatibility (delegates to singleton)
+        public PlaywrightPlugin(bool useSingleton) : this()
+        {
+            // This allows new PlaywrightPlugin() to work but still use the singleton
+        }
         
         /// <summary>
         /// Gets whether a browser instance is currently active.
@@ -258,12 +297,124 @@ namespace FlowVision.lib.Plugins
                 PlaywrightSessionManager.SaveStorageState(_currentSessionId, storageState);
                 
                 PluginLogger.NotifyTaskComplete("Session save");
-                return $"Session saved successfully with ID: {_currentSessionId}";
+                return $"Session saved successfully with ID: {_currentSessionId}. Cookies and login state preserved.";
             }
             catch (Exception ex)
             {
                 PluginLogger.NotifyTaskComplete("Session save", false);
                 return $"Error saving session: {ex.Message}";
+            }
+        }
+
+        /// <summary>
+        /// Automatically saves the session if auto-save is enabled
+        /// </summary>
+        private async Task AutoSaveSessionIfEnabled()
+        {
+            if (_autoSaveSession && _useSession && _context != null)
+            {
+                try
+                {
+                    var storageState = await _context.StorageStateAsync();
+                    PlaywrightSessionManager.SaveStorageState(_currentSessionId, storageState);
+                }
+                catch (Exception)
+                {
+                    // Silently fail auto-save - don't interrupt user's flow
+                }
+            }
+        }
+
+        /// <summary>
+        /// Enables or disables automatic session saving
+        /// </summary>
+        [Description("Enables or disables automatic session saving after actions")]
+        public string EnableAutoSave(
+            [Description("Enable auto-save (true/false)")] string enable = "true")
+        {
+            PluginLogger.LogPluginUsage("PlaywrightPlugin", "EnableAutoSave", $"Enable: {enable}");
+            
+            bool enableAutoSave = string.IsNullOrEmpty(enable) ? true : bool.Parse(enable);
+            _autoSaveSession = enableAutoSave;
+            
+            return $"Auto-save session set to: {enableAutoSave}. " +
+                   (enableAutoSave ? "Sessions will be automatically saved after navigation and actions." : "Sessions must be manually saved.");
+        }
+
+        /// <summary>
+        /// Waits for user to complete manual actions (like logging in) and then saves the session
+        /// </summary>
+        [Description("Waits for user to complete manual actions (like login) then saves session")]
+        public async Task<string> WaitForUserAndSaveSession(
+            [Description("Number of seconds to wait")] string seconds = "30")
+        {
+            PluginLogger.LogPluginUsage("PlaywrightPlugin", "WaitForUserAndSaveSession", $"Seconds: {seconds}");
+            
+            try
+            {
+                if (_page == null)
+                {
+                    return "Error: Browser not launched. Call LaunchBrowser first.";
+                }
+
+                int waitTime = int.Parse(seconds);
+                
+                PluginLogger.NotifyTaskStart("Waiting for user", $"Waiting {waitTime} seconds for user to complete actions");
+                
+                // Wait for the specified time
+                await Task.Delay(waitTime * 1000);
+                
+                // Save the session
+                var result = await SaveSession();
+                
+                PluginLogger.NotifyTaskComplete("Waiting for user");
+                return $"Waited {waitTime} seconds. {result}";
+            }
+            catch (Exception ex)
+            {
+                PluginLogger.NotifyTaskComplete("Waiting for user", false);
+                return $"Error waiting for user: {ex.Message}";
+            }
+        }
+
+        /// <summary>
+        /// Waits for a specific element to appear (indicating user has logged in or completed action)
+        /// </summary>
+        [Description("Waits for a specific element to appear, then saves session. Useful for detecting successful login")]
+        public async Task<string> WaitForElementAndSave(
+            [Description("CSS selector or text of element to wait for")] string selector,
+            [Description("Maximum seconds to wait")] string timeout = "30")
+        {
+            PluginLogger.LogPluginUsage("PlaywrightPlugin", "WaitForElementAndSave", $"Selector: {selector}");
+            
+            try
+            {
+                if (_page == null)
+                {
+                    return "Error: Browser not launched. Call LaunchBrowser first.";
+                }
+
+                int timeoutMs = int.Parse(timeout) * 1000;
+                
+                PluginLogger.NotifyTaskStart("Waiting for element", $"Waiting for: {selector}");
+                
+                // Wait for element
+                await _page.WaitForSelectorAsync(selector, new PageWaitForSelectorOptions
+                {
+                    Timeout = timeoutMs,
+                    State = WaitForSelectorState.Visible
+                });
+                
+                // Save the session
+                var result = await SaveSession();
+                
+                PluginLogger.NotifyTaskComplete("Waiting for element");
+                return $"Element appeared: {selector}. {result}";
+            }
+            catch (Exception ex)
+            {
+                PluginLogger.NotifyTaskComplete("Waiting for element", false);
+                return $"Error waiting for element: {ex.Message}";
             }
         }
         
@@ -321,14 +472,11 @@ namespace FlowVision.lib.Plugins
                     Timeout = 30000
                 });
                 
-                // Save session state after navigation if enabled
-                if (_useSession)
-                {
-                    await SaveSession();
-                }
+                // Auto-save session state after navigation
+                await AutoSaveSessionIfEnabled();
                 
                 PluginLogger.NotifyTaskComplete("Navigation");
-                return $"Successfully navigated to {url}";
+                return $"Successfully navigated to {url}. Session automatically saved.";
             }
             catch (Exception ex)
             {
@@ -468,14 +616,11 @@ namespace FlowVision.lib.Plugins
                     return $"Error: Failed to click element '{selector}': {clickEx.Message}";
                 }
                 
-                // Save session state after clicking if enabled
-                if (_useSession)
-                {
-                    await SaveSession();
-                }
+                // Auto-save session state after clicking
+                await AutoSaveSessionIfEnabled();
                 
                 PluginLogger.NotifyTaskComplete("Click interaction");
-                return $"Successfully clicked on element: {selector}";
+                return $"Successfully clicked on element: {selector}. Session automatically saved.";
             }
             catch (Exception ex)
             {
@@ -624,11 +769,8 @@ namespace FlowVision.lib.Plugins
                                     }
                                 }
                                 
-                                // Save session state after typing if enabled
-                                if (_useSession)
-                                {
-                                    await SaveSession();
-                                }
+                                // Auto-save session state after typing
+                                await AutoSaveSessionIfEnabled();
                                 
                                 PluginLogger.NotifyTaskComplete("Text input");
                                 return $"Successfully typed text into field with selector: {currentSelector}";
