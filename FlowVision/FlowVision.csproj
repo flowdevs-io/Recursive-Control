@@ -179,11 +179,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AIProviderConfigForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="ConfigForm.Designer.cs">
       <DependentUpon>ConfigForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LMStudioConfigForm.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -193,7 +199,9 @@
     </Compile>
     <Compile Include="lib\Classes\AgentCoordinator.cs" />
     <Compile Include="lib\Classes\ai\AgentRole.cs" />
+    <Compile Include="lib\Classes\ai\LMStudioActioner.cs" />
     <Compile Include="lib\Classes\ai\MultiAgentActioner.cs" />
+    <Compile Include="lib\Classes\LMStudioConfig.cs" />
     <Compile Include="lib\Classes\MarkdownHelper.cs" />
     <Compile Include="lib\Classes\PlaywrightSessionManager.cs" />
     <Compile Include="lib\Classes\PluginLogger.cs" />
