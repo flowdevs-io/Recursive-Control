@@ -173,11 +173,11 @@ You're now running AI locally!
 - Try different models
 - Experiment with settings
 - Test tool calling features
-- Read full documentation: LMSTUDIO_INTEGRATION.md
+- Read full documentation: [LM Studio Integration Guide](LM-Studio-Integration.md)
 
 ## 🆘 Need Help?
 
-1. Check full guide: `LMSTUDIO_INTEGRATION.md`
+1. Check full guide: [LM Studio Integration Guide](LM-Studio-Integration.md)
 2. LM Studio docs: https://lmstudio.ai/docs
 3. LM Studio Discord: https://discord.gg/lmstudio
 4. GitHub Issues: (your repo)
