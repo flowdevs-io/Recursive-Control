@@ -883,12 +883,12 @@ namespace FlowVision
         {
             try
             {
-                System.Diagnostics.Process.Start("https://github.com/flowdevs-io/Recursive-Control/wiki");
+                System.Diagnostics.Process.Start("https://flowdevs-io.github.io/Recursive-Control");
             }
             catch
             {
                 MessageBox.Show("Could not open documentation.\n\n" +
-                    "Visit: https://github.com/flowdevs-io/Recursive-Control/wiki",
+                    "Visit: https://flowdevs-io.github.io/Recursive-Control",
                     "Documentation",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
