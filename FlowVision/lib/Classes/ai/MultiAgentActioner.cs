@@ -248,7 +248,7 @@ namespace FlowVision.lib.Classes
 
                 // Now execute the plan step by step
                 bool isComplete = false;
-                int maxIterations = 10; // Safety limit
+                int maxIterations = 25; // Increased from 10 to 25 for complex tasks
                 int currentIteration = 0;
                 string finalResult = "";
                 List<string> executionResults = new List<string>();
@@ -256,18 +256,25 @@ namespace FlowVision.lib.Classes
                 while (!isComplete && currentIteration < maxIterations)
                 {
                     currentIteration++;
-                    PluginLogger.LogPluginUsage($"⚙️ Iteration {currentIteration} of {maxIterations}");
+                    PluginLogger.LogPluginUsage($"⚙️ Step {currentIteration}/{maxIterations}");
 
                     
-                    // Ask actioner to perform the current step
-                    actionerHistory.Add(new ChatMessage(ChatRole.User, $"Please execute the following step of our plan: {plan}"));
+                    // Ask actioner to perform the current step with clearer instructions
+                    actionerHistory.Add(new ChatMessage(ChatRole.User, 
+                        $"Execute this step:\n\n{plan}\n\n" +
+                        $"Current progress: {currentIteration}/{maxIterations} steps\n\n" +
+                        "Remember to:\n" +
+                        "1. Use window handles for keyboard/mouse actions (SendKeyToWindow, not SendKey)\n" +
+                        "2. Take screenshots to verify state when needed\n" +
+                        "3. Report exactly what you did and what you observed\n" +
+                        "4. If something fails, explain what went wrong"));
                     
                     agentCoordinator.AddMessage(AgentRole.Planner, AgentRole.Actioner, 
                         "EXECUTION_REQUEST", plan);
                     
 
                     PluginLogger.StopLoadingIndicator();
-                    PluginLogger.LogPluginUsage("🔧 Processing step...");
+                    PluginLogger.LogPluginUsage("🔧 Executing step...");
                     PluginLogger.StartLoadingIndicator("executing");
 
                     
@@ -277,15 +284,24 @@ namespace FlowVision.lib.Classes
                     // Store the execution result for the final response
                     executionResults.Add(executionResult);
                     
-                    PluginLogger.LogPluginUsage("📊 Execution result:\n" + executionResult);
+                    PluginLogger.LogPluginUsage("📊 Step result:\n" + executionResult);
                     
                     agentCoordinator.AddMessage(AgentRole.Actioner, AgentRole.Planner, 
 
                         "EXECUTION_RESPONSE", executionResult);
 
-                    // Add the execution result to the planner's history
+                    // Add the execution result to the planner's history with clearer prompting
 
-                    plannerHistory.Add(new ChatMessage(ChatRole.User, $"The actioner agent performed the requested step. Here is the result:\n\n{executionResult}\n\nIs the task fully completed, or do we need additional steps? If additional steps are needed, provide just the next step to execute. If the task is complete, respond with 'TASK COMPLETED' followed by a summary of what was accomplished."));
+                    plannerHistory.Add(new ChatMessage(ChatRole.User, 
+                        $"Step {currentIteration} Result:\n{executionResult}\n\n" +
+                        $"Progress: {currentIteration}/{maxIterations} steps completed\n\n" +
+                        "Evaluate:\n" +
+                        "1. Did this step succeed?\n" +
+                        "2. Is the overall task now complete?\n" +
+                        "3. If not complete, what is the NEXT SINGLE step?\n\n" +
+                        "If task is COMPLETE, respond with:\n" +
+                        "'TASK COMPLETED: [brief summary]'\n\n" +
+                        "If task needs more work, provide ONLY the next single step to execute."));
                     
 
                     PluginLogger.StopLoadingIndicator();
@@ -298,25 +314,28 @@ namespace FlowVision.lib.Classes
                     agentCoordinator.AddMessage(AgentRole.Planner, AgentRole.Coordinator,
                         "STATUS_UPDATE", plan);
 
-                    // Check if the task is complete
-                    if (plan.Contains("TASK COMPLETED"))
+                    // Check if the task is complete (case insensitive)
+                    if (plan.IndexOf("TASK COMPLETED", StringComparison.OrdinalIgnoreCase) >= 0 || 
+                        plan.IndexOf("Task completed", StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         isComplete = true;
 
-                        // Extract the summary from the "TASK COMPLETED" message
-                        string taskSummary = plan.Replace("TASK COMPLETED", "").Trim();
+                        PluginLogger.LogPluginUsage("✅ Task marked as complete by planner");
 
                         // Send all execution results to the coordinator for final formatting
                         string executionSummary = string.Join("\n\n", executionResults);
 
                         coordinatorHistory.Add(new ChatMessage(ChatRole.User, 
-                            $"The task has been completed. Here are the detailed results from the process:\n\n{executionSummary}\n\n" +
-                            "Please provide a comprehensive response for the user that includes the actual results and information obtained during the process. " +
-                            "Do not include phrases like 'TASK_COMPLETE' or similar tags."
+                            $"The task has been completed after {currentIteration} steps.\n\n" +
+                            $"Complete execution log:\n{executionSummary}\n\n" +
+                            $"Planner's completion message:\n{plan}\n\n" +
+                            "Please provide a clear, user-friendly summary of what was accomplished. " +
+                            "Include specific results, any important details, and the current state. " +
+                            "Be concise but informative. Do not use technical tags or internal markers."
                         ));
 
                         PluginLogger.StopLoadingIndicator();
-                        PluginLogger.LogPluginUsage("✅ Task completed, generating detailed response...");
+                        PluginLogger.LogPluginUsage("📝 Generating user response...");
                         PluginLogger.StartLoadingIndicator("coordination");
 
                         // Get coordinator's final response with detailed results
@@ -328,7 +347,7 @@ namespace FlowVision.lib.Classes
                     }
                     else
                     {
-                        PluginLogger.LogPluginUsage("🔍 Progress evaluation:\n" + plan);
+                        PluginLogger.LogPluginUsage($"⏭️  Next step:\n{plan}");
                     }
                 }
 
@@ -424,7 +443,7 @@ namespace FlowVision.lib.Classes
             return null;
         }
 
-        internal void SetChatHistory(List<LocalChatMessage> chatHistory)
+        public void SetChatHistory(List<LocalChatMessage> chatHistory)
         {
             // Set up coordinator history with system prompt
             coordinatorHistory.Clear();

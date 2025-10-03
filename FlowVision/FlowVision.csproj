@@ -168,6 +168,10 @@
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Threading.Tasks.Extensions.4.6.3\lib\net462\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.ML.OnnxRuntime">
+      <HintPath>..\packages\Microsoft.ML.OnnxRuntime.Managed.1.21.1\lib\netstandard2.0\Microsoft.ML.OnnxRuntime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -177,6 +181,10 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Runtime.WindowsRuntime" />
+    <Reference Include="Windows">
+      <HintPath>C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.19041.0\Windows.winmd</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AIProviderConfigForm.cs">
@@ -224,9 +232,19 @@
     </Compile>
     <Compile Include="lib\Classes\ai\Actioner.cs" />
     <Compile Include="lib\Classes\APIConfig.cs" />
+    <Compile Include="lib\Classes\OnnxOmniParserEngine.cs" />
+    <Compile Include="lib\Classes\OcrHelper.cs" />
+    <Compile Include="lib\Classes\ChatExporter.cs" />
+    <Compile Include="lib\Classes\LocalOmniParserManager.cs" />
     <Compile Include="lib\Classes\OmniParserClient.cs" />
     <Compile Include="lib\Classes\OmniParserConfig.cs" />
     <Compile Include="lib\Classes\ToolConfig.cs" />
+    <Compile Include="lib\Classes\UI\ExecutionVisualizer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="lib\Classes\UI\ActivityMonitor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="lib\Plugins\CMDPlugin.cs" />
     <Compile Include="lib\Plugins\KeyboardPlugin.cs" />
     <Compile Include="lib\Plugins\MousePlugin.cs" />
@@ -289,6 +307,13 @@
     <Error Condition="!Exists('..\packages\Costura.Fody.6.0.0\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.6.0.0\build\Costura.Fody.props'))" />
     <Error Condition="!Exists('..\packages\Costura.Fody.6.0.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.6.0.0\build\Costura.Fody.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Playwright.1.52.0\build\Microsoft.Playwright.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Playwright.1.52.0\build\Microsoft.Playwright.targets'))" />
+  </Target>
+  <!-- Copy ONNX Runtime native DLLs to output directory -->
+  <Target Name="CopyOnnxRuntimeNative" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <OnnxRuntimeNative Include="..\packages\Microsoft.ML.OnnxRuntime.1.19.2\runtimes\win-x64\native\*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(OnnxRuntimeNative)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
   </Target>
   <Import Project="..\packages\CefSharp.Common.135.0.170\build\CefSharp.Common.targets" Condition="Exists('..\packages\CefSharp.Common.135.0.170\build\CefSharp.Common.targets')" />
   <Import Project="..\packages\Fody.6.9.2\build\Fody.targets" Condition="Exists('..\packages\Fody.6.9.2\build\Fody.targets')" />
