@@ -81,7 +81,10 @@ namespace FlowVision.lib.Classes
                     richTextBox.SelectedText = boldText;
                     // Re-select the text and make it bold
                     richTextBox.Select(startIndex, boldText.Length);
-                    richTextBox.SelectionFont = new Font(richTextBox.SelectionFont, FontStyle.Bold);
+                    
+                    // Safely get current font or use default
+                    Font currentFont = richTextBox.SelectionFont ?? new Font("Segoe UI", 10F);
+                    richTextBox.SelectionFont = new Font(currentFont, FontStyle.Bold);
                 }
             }
         }
@@ -101,7 +104,10 @@ namespace FlowVision.lib.Classes
                     richTextBox.Select(startIndex, match.Length);
                     richTextBox.SelectedText = italicText;
                     richTextBox.Select(startIndex, italicText.Length);
-                    richTextBox.SelectionFont = new Font(richTextBox.SelectionFont, FontStyle.Italic);
+                    
+                    // Safely get current font or use default
+                    Font currentFont = richTextBox.SelectionFont ?? new Font("Segoe UI", 10F);
+                    richTextBox.SelectionFont = new Font(currentFont, FontStyle.Italic);
                 }
             }
         }
@@ -121,7 +127,10 @@ namespace FlowVision.lib.Classes
                     richTextBox.Select(startIndex, match.Length);
                     richTextBox.SelectedText = codeText;
                     richTextBox.Select(startIndex, codeText.Length);
-                    richTextBox.SelectionFont = new Font("Consolas", richTextBox.SelectionFont.Size);
+                    
+                    // Get current font size, defaulting to 10 if null
+                    float fontSize = richTextBox.SelectionFont?.Size ?? 10F;
+                    richTextBox.SelectionFont = new Font("Consolas", fontSize);
                     richTextBox.SelectionBackColor = Color.LightGray;
                 }
             }
@@ -141,7 +150,10 @@ namespace FlowVision.lib.Classes
                     richTextBox.Select(startIndex, match.Length);
                     richTextBox.SelectedText = codeBlockText;
                     richTextBox.Select(startIndex, codeBlockText.Length);
-                    richTextBox.SelectionFont = new Font("Consolas", richTextBox.SelectionFont.Size);
+                    
+                    // Get current font size, defaulting to 10 if null
+                    float fontSize = richTextBox.SelectionFont?.Size ?? 10F;
+                    richTextBox.SelectionFont = new Font("Consolas", fontSize);
                     richTextBox.SelectionBackColor = Color.LightGray;
                 }
             }

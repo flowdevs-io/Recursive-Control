@@ -118,6 +118,10 @@ namespace FlowVision
                     var defaultConfig = new ToolConfig();
                     defaultConfig.SaveConfig(toolConfigName);
                 }
+                
+                // Load current configuration and update UI
+                var toolConfig = ToolConfig.LoadConfig(toolConfigName);
+                multiAgentModeToolStripMenuItem.Checked = toolConfig.EnableMultiAgentMode;
             }
             catch (Exception ex)
             {
@@ -750,6 +754,145 @@ namespace FlowVision
 
             // Dispose of speech recognition service if initialized
             speechRecognition?.Dispose();
+        }
+
+        // Export menu event handlers
+        private void exportToJSONToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ChatExporter.ExportToJson(chatHistory);
+        }
+
+        private void exportToMarkdownToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ChatExporter.ExportToMarkdown(chatHistory);
+        }
+
+        private void exportDebugLogToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ChatExporter.ExportWithToolCalls(chatHistory);
+        }
+
+        private void copyToClipboardToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ChatExporter.CopyToClipboard(chatHistory);
+        }
+
+        // AI Agent configuration handlers
+        private void actionerAgentToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Application.OpenForms.OfType<AIProviderConfigForm>().Count() == 1)
+            {
+                Application.OpenForms.OfType<AIProviderConfigForm>().First().BringToFront();
+            }
+            else
+            {
+                AIProviderConfigForm configForm = new AIProviderConfigForm("actioner");
+                configForm.ShowDialog();
+            }
+        }
+
+        private void plannerAgentToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Application.OpenForms.OfType<AIProviderConfigForm>().Count() == 1)
+            {
+                Application.OpenForms.OfType<AIProviderConfigForm>().First().BringToFront();
+            }
+            else
+            {
+                AIProviderConfigForm configForm = new AIProviderConfigForm("planner");
+                configForm.ShowDialog();
+            }
+        }
+
+        private void coordinatorAgentToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Application.OpenForms.OfType<AIProviderConfigForm>().Count() == 1)
+            {
+                Application.OpenForms.OfType<AIProviderConfigForm>().First().BringToFront();
+            }
+            else
+            {
+                AIProviderConfigForm configForm = new AIProviderConfigForm("coordinator");
+                configForm.ShowDialog();
+            }
+        }
+
+        private void githubAgentToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Application.OpenForms.OfType<AIProviderConfigForm>().Count() == 1)
+            {
+                Application.OpenForms.OfType<AIProviderConfigForm>().First().BringToFront();
+            }
+            else
+            {
+                AIProviderConfigForm configForm = new AIProviderConfigForm("github");
+                configForm.ShowDialog();
+            }
+        }
+
+        // Multi-agent mode toggle
+        private void multiAgentModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var toolConfig = ToolConfig.LoadConfig("toolsconfig");
+            toolConfig.EnableMultiAgentMode = multiAgentModeToolStripMenuItem.Checked;
+            toolConfig.SaveConfig("toolsconfig");
+            
+            string status = multiAgentModeToolStripMenuItem.Checked ? "enabled" : "disabled";
+            AddMessage("System", $"Multi-Agent Mode {status}. " +
+                (multiAgentModeToolStripMenuItem.Checked 
+                    ? "Using Coordinator → Planner → Actioner workflow with up to 25 steps." 
+                    : "Using direct Actioner execution."), true);
+        }
+
+        // View menu handlers
+        private void activityMonitorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // TODO: Toggle activity monitor panel
+            MessageBox.Show("Activity Monitor feature coming soon!", "Feature Preview",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void executionVisualizerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // TODO: Toggle execution visualizer panel
+            MessageBox.Show("Execution Visualizer feature coming soon!", "Feature Preview",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        // Help menu handlers
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "Recursive Control\n\n" +
+                "AI Computer Control for Windows\n\n" +
+                "Version: 2.0 (October 2025)\n\n" +
+                "Features:\n" +
+                "• Multi-Agent Workflow (Coordinator → Planner → Actioner)\n" +
+                "• ONNX-powered Screenshot Analysis\n" +
+                "• Window-Targeted Keyboard/Mouse Control\n" +
+                "• Browser Automation with Playwright\n" +
+                "• PowerShell & CMD Execution\n" +
+                "• Voice Commands\n\n" +
+                "Visit: github.com/flowdevs-io/Recursive-Control",
+                "About Recursive Control",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+
+        private void documentationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start("https://github.com/flowdevs-io/Recursive-Control/wiki");
+            }
+            catch
+            {
+                MessageBox.Show("Could not open documentation.\n\n" +
+                    "Visit: https://github.com/flowdevs-io/Recursive-Control/wiki",
+                    "Documentation",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
         }
     }
 
