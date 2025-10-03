@@ -832,6 +832,58 @@ namespace FlowVision
             // Update status indicators when any plugin checkbox changes
             UpdateStatusIndicators();
         }
+
+        // Reset button event handlers
+        private void btnResetActioner_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show(
+                "Are you sure you want to reset the Actioner system prompt to default?\n\nThis will overwrite your current prompt.",
+                "Reset to Default",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                txtActionerSystemPrompt.Text = ToolConfig.GetDefaultActionerPrompt();
+                MessageBox.Show(
+                    "Actioner system prompt has been reset to default.\n\nDon't forget to click 'Save' to apply the changes!",
+                    "Reset Complete",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+        }
+
+        private void btnResetPlanner_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show(
+                "Are you sure you want to reset the Planner system prompt to default?\n\nThis will overwrite your current prompt.",
+                "Reset to Default",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                txtPlannerSystemPrompt.Text = ToolConfig.GetDefaultPlannerPrompt();
+                MessageBox.Show(
+                    "Planner system prompt has been reset to default.\n\nDon't forget to click 'Save' to apply the changes!",
+                    "Reset Complete",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+        }
+
+        private void btnResetCoordinator_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show(
+                "Are you sure you want to reset the Coordinator system prompt to default?\n\nThis will overwrite your current prompt.",
+                "Reset to Default",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                txtCoordinatorSystemPrompt.Text = ToolConfig.GetDefaultCoordinatorPrompt();
+                MessageBox.Show(
+                    "Coordinator system prompt has been reset to default.\n\nDon't forget to click 'Save' to apply the changes!",
+                    "Reset Complete",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+        }
     }
 
     // Simple input dialog for profile name entry
