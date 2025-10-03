@@ -83,8 +83,16 @@ namespace FlowVision.lib.Classes
                 // Add system message to actioner history
                 actionerHistory.Add(new ChatMessage(ChatRole.System, toolConfig.ActionerSystemPrompt + toolDescriptions));
 
-                // Add action prompt to actioner history
-                actionerHistory.Add(new ChatMessage(ChatRole.User, actionPrompt));
+                // Add action prompt with explicit instruction to EXECUTE
+                string enhancedPrompt = $@"{actionPrompt}
+
+IMPORTANT REMINDER:
+1. DO NOT just observe and describe - you must EXECUTE the action!
+2. After CaptureWholeScreen(), you MUST continue to actually click/type/interact
+3. Follow ALL steps: Observe → Plan → EXECUTE → Verify
+4. Do not stop until you've performed the actual action requested";
+
+                actionerHistory.Add(new ChatMessage(ChatRole.User, enhancedPrompt));
 
                 // Verify LM Studio is enabled and configured
                 if (!lmStudioConfig.Enabled)
@@ -162,9 +170,21 @@ namespace FlowVision.lib.Classes
                 };
 
                 // Build chat client with function invocation if enabled
-                actionerChat = toolConfig.AutoInvokeKernelFunctions 
-                    ? new ChatClientBuilder(baseChatClient).UseFunctionInvocation().Build()
-                    : baseChatClient;
+                if (toolConfig.AutoInvokeKernelFunctions)
+                {
+                    // Use function invocation with default behavior
+                    // The middleware will automatically loop and call tools
+                    actionerChat = new ChatClientBuilder(baseChatClient)
+                        .UseFunctionInvocation()
+                        .Build();
+                    
+                    PluginLogger.LogInfo("LMStudioActioner", "ExecuteAction", 
+                        "Function invocation enabled - will auto-invoke tools");
+                }
+                else
+                {
+                    actionerChat = baseChatClient;
+                }
 
                 // Update loading message to show we're now processing the response
                 PluginLogger.StopLoadingIndicator();
