@@ -28,14 +28,14 @@ public class OmniParserClient
     /// <returns>An instance of MyCustomObject representing the API response.</returns>
     public async Task<OmniparserResponse> ProcessScreenshotAsync(string base64Image)
     {
-        // Use the static LoadConfig method to retrieve configuration
-        OmniParserConfig config = OmniParserConfig.LoadConfig();
-
         if (string.IsNullOrWhiteSpace(base64Image))
             throw new ArgumentException("Base64 image data is required", nameof(base64Image));
 
-        if (string.IsNullOrWhiteSpace(config.ServerURL))
-            throw new InvalidOperationException("OmniParser server URL is not configured. Please set it in the OmniParser settings.");
+        // Get server URL from LocalOmniParserManager (auto-managed)
+        string serverUrl = LocalOmniParserManager.GetServerUrl();
+        
+        if (string.IsNullOrWhiteSpace(serverUrl))
+            throw new InvalidOperationException("OmniParser server URL is not configured.");
 
         // Build the JSON payload expected by the API.
         var payload = new { base64_image = base64Image };
@@ -48,7 +48,7 @@ public class OmniParserClient
         _httpClient.Timeout = TimeSpan.FromMinutes(10);
         
         // Properly concatenate the server URL with the API endpoint
-        string fullUrl = config.ServerURL.TrimEnd('/') + ApiEndpoint;
+        string fullUrl = serverUrl.TrimEnd('/') + ApiEndpoint;
         HttpResponseMessage response = await _httpClient.PostAsync(fullUrl, content);
         response.EnsureSuccessStatusCode();
 
