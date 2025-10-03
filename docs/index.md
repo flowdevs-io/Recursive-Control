@@ -3,125 +3,89 @@ layout: default
 title: Home
 ---
 
-# 📎 Recursive Control Documentation
+# Mission Control Briefing
 
-Welcome to the official documentation for **Recursive Control** - an AI-powered computer control system for Windows.
-
-[![Join us on Discord](https://img.shields.io/badge/Join_our_Discord-7289DA?logo=discord&logoColor=white&labelColor=5865F2)](https://discord.gg/mQWsWeHsVU)
-
-## 🚀 What is Recursive Control?
-
-Recursive Control is an innovative project designed to enable artificial intelligence (AI) to interact seamlessly with your computer, automating tasks, performing complex workflows, and enhancing productivity through natural language commands.
-
-## ✨ Key Features
-
-- **AI-Powered Interaction**: Utilize AI models (GPT, Claude, Gemini, etc.) to interpret user input and intelligently execute actions
-- **Automated Workflow Execution**: Automate repetitive or complex sequences of computer actions
-- **Natural Language Commands**: Simply describe tasks in plain language, and let the AI handle execution
-- **Multi-Agent Architecture**: Sophisticated 3-agent system for planning, coordination, and execution
-- **Extensible Plugin System**: Modular architecture supporting custom plugins
-
-## 📚 Documentation
-
-### Getting Started
-- [Installation Guide](Installation.html) - Set up Recursive Control on your system
-- [Getting Started](Getting-Started.html) - Your first tasks and tutorials
-- [UI Features](UI-Features.html) - Complete guide to the user interface
-
-### Advanced Topics
-- [Multi-Agent Architecture](Multi-Agent-Architecture.html) - Technical deep dive into the agent system
-- [System Prompts Reference](System-Prompts-Reference.html) - Understanding and customizing system prompts
-- [API Reference](API-Reference.html) - Developer documentation
-
-### Support
-- [FAQ](FAQ.html) - Frequently asked questions
-- [Troubleshooting](Troubleshooting.html) - Common issues and solutions
-
-## 🎯 Quick Start
-
-### Prerequisites
-- .NET 4.8 or later
-- Windows Operating System
-- API Key for your preferred LLM provider (OpenAI, Azure, Anthropic, etc.)
-
-### Installation Steps
-
-1. **Download** the latest release from the [Releases](https://github.com/flowdevs-io/Recursive-Control/releases) page
-2. **Run** `recursivecontrol.exe`
-3. **Configure** your LLM provider in the settings
-4. **Start** automating with natural language commands!
-
-## 🔌 Built-in Plugins
-
-Recursive Control comes with powerful plugins out of the box:
-
-- **CMDPlugin**: Execute Windows command line instructions
-- **PowershellPlugin**: Run PowerShell scripts and commands
-- **KeyboardPlugin**: Automate keyboard input
-- **MousePlugin**: Automate mouse actions
-- **ScreenCapturePlugin**: Capture and analyze screenshots
-- **WindowSelectionPlugin**: Select and interact with application windows
-- **PlaywrightPlugin**: Automate web browsers
-- **RemoteControlPlugin**: HTTP API for remote command execution
-
-## 💡 Example Use Cases
-
-- "Open Excel and create a new spreadsheet"
-- "Capture screenshots for documentation"
-- "Batch rename files in a folder"
-- "Automate website testing with Playwright"
-- "Fill out forms automatically"
-
-## 🛠️ Development
-
-Want to contribute or build from source?
-
-```bash
-# Clone the repository
-git clone https://github.com/flowdevs-io/Recursive-Control.git
-
-# Navigate to directory
-cd Recursive-Control
-
-# Restore and build
-dotnet restore
-dotnet build
-```
-
-## 🗺️ Roadmap
-
-### Near-Term Goals
-- [ ] Content warning logging for improved safety
-- [ ] Expanded model support (Gemini, OLLAMA, Bedrock, Phi4)
-- [ ] Improved speech recognition using real-time audio models
-
-### Future Vision
-- [ ] Local Bbox search for reduced token usage
-- [ ] Managed LLM integration with subscription options
-- [ ] YOLO Bbox parser integration for advanced vision
-
-**End Goal**: Recursive Control on every Windows computer, leveraging local SLMs and embedded vision models. Making computer interaction so seamless that keyboards and mice become optional.
-
-## 🤝 Community & Support
-
-- [GitHub Issues](https://github.com/flowdevs-io/Recursive-Control/issues) - Bug reports and feature requests
-- [Discussions](https://github.com/flowdevs-io/Recursive-Control/discussions) - Q&A and ideas
-- [Discord Community](https://discord.gg/mQWsWeHsVU) - Real-time chat and support
-- [LinkedIn](https://www.linkedin.com/company/flowdevs) - Updates and networking
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/flowdevs-io/Recursive-Control/blob/master/LICENSE) file for details.
-
-## 📧 Contact
-
-For questions, feedback, or collaboration inquiries, connect with us through:
-- GitHub repository
-- [Discord server](https://discord.gg/mQWsWeHsVU)
-- [LinkedIn](https://www.linkedin.com/company/flowdevs)
+Welcome aboard **Recursive Control Mission Control**. This is your hangar, briefing room, and launch pad for orchestrating autonomous Windows workflows with your preferred AI pilots.
 
 ---
 
-<div align="center">
-Made with ❤️ by Engineers
-</div>
+## Launch Console
+
+**Pick Your Objective**
+
+- [Installation Capsule](Installation.html) — deploy the suite locally in minutes
+- [First Flight Checklist](Getting-Started.html) — complete your first automation loop
+- [UI Features Atlas](UI-Features.html) — map every control surface and telemetry feed
+
+**Signal Boosts**
+
+- Discord flight crew → [Join the ops channel](https://discord.gg/mQWsWeHsVU)
+- Latest release notes → [Version pulse](https://github.com/flowdevs-io/Recursive-Control/releases)
+
+---
+
+## What You’re Flying
+
+Recursive Control stitches together a **triad of agents**, a **modular plugin bay**, and **vision-assisted perception** so your instructions arrive as working Windows tasks.
+
+| Layer | Callsign | Mission |
+| --- | --- | --- |
+| 🧭 Coordinator | Hermes | Interprets intent, selects strategy |
+| 🛠️ Planner | Daedalus | Authors the execution playbook |
+| ⚡ Executor | Talos | Operates Windows actions through plugins |
+
+Plugins extend the aircraft: keyboard and mouse automation, screen intelligence, PowerShell/CMD access, Playwright browser control, remote HTTP bridge, and more.
+
+---
+
+## Flight Patterns
+
+```text
+“Launch Excel, log in to Teams, and stage the daily report template.”
+“Sweep Downloads, convert every .png into annotated documentation captures.”
+“Open Chrome, authenticate into Jira, and create status tickets for each blocker.”
+```
+
+Every request is decomposed into atomic moves, verified, and streamed back with commentary.
+
+---
+
+## Build Lab
+
+```bash
+git clone https://github.com/flowdevs-io/Recursive-Control.git
+cd Recursive-Control
+dotnet restore && dotnet build
+```
+
+Fork the repository to inject new agents, craft plugins, or integrate your own telemetry.
+
+---
+
+## Radar Timeline
+
+**Now shipping**
+
+- Multi-agent orchestration with live reasoning feed
+- OmniParser bridge for Florence-powered spatial awareness
+- Plugin toggles, profiles, and per-model prompt vibes
+
+**Locking targets**
+
+- Reconfigurable task board with shared state between agents
+- Gemini, Bedrock, Ollama, Phi4 connectors
+- Real-time speech recognition powered by Whisper successors
+
+---
+
+## Support Deck
+
+- [FAQ Loop](FAQ.html)
+- [Troubleshooting Console](Troubleshooting.html)
+- [Repo Handbook](README.html)
+
+Open a [GitHub issue](https://github.com/flowdevs-io/Recursive-Control/issues) for feature requests or turbulence reports.
+
+---
+
+**“Make computers feel like teammates.”** — FlowDevs Flight Core

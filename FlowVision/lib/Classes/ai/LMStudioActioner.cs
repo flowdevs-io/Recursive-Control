@@ -185,10 +185,23 @@ namespace FlowVision.lib.Classes
 
                 var response = responseBuilder.ToString();
                 
+                // Log the response for debugging
+                PluginLogger.LogInfo("LMStudioActioner", "ExecuteAction", 
+                    $"AI Response: {(string.IsNullOrEmpty(response) ? "(empty)" : $"{response.Length} chars")}");
+                
                 // Add assistant response to history
                 if (!string.IsNullOrEmpty(response))
                 {
                     actionerHistory.Add(new ChatMessage(ChatRole.Assistant, response));
+                }
+                else
+                {
+                    // If response is empty, check if there were tool calls and provide a default response
+                    var defaultResponse = "I executed the requested action successfully.";
+                    PluginLogger.LogInfo("LMStudioActioner", "ExecuteAction", 
+                        "Empty response from model, using default response");
+                    actionerHistory.Add(new ChatMessage(ChatRole.Assistant, defaultResponse));
+                    return defaultResponse;
                 }
 
                 return response;

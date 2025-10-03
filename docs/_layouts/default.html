@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% assign nav = site.data.navigation %}
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#07070a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f7f7fb" media="(prefers-color-scheme: light)" />
+    <title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
+    {%- seo -%}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ '/assets/css/compass.css' | relative_url }}" />
+    <script>
+      (function () {
+        const root = document.documentElement;
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+        const stored = localStorage.getItem('rc-theme');
+        const initial = stored || (prefersDark.matches ? 'dark' : 'light');
+        root.dataset.theme = initial;
+        document.body?.classList.add(initial === 'dark' ? 'theme-dark' : 'theme-light');
+      })();
+    </script>
+    <script>
+      // Hydrate navigation data for quick palette boot.
+      window.__RC_NAV__ = {{ nav | jsonify | replace: '</', '<\/' }};
+    </script>
+  </head>
+  <body class="theme-auto" data-page="{{ page.url | relative_url | default: '/' }}">
+    <div class="gradient-spark" aria-hidden="true"></div>
+    <div class="gradient-spark gradient-spark--two" aria-hidden="true"></div>
+
+    <button class="command-launch" type="button" data-palette-open>
+      <span>Command Palette</span>
+      <kbd>Ctrl</kbd><kbd>K</kbd>
+    </button>
+
+    {% include command-palette.html %}
+
+    <div class="viewport-frame">
+      <aside class="nav-compass" aria-label="Documentation navigation">
+        <div class="nav-compass__header">
+          <a class="brand-mark" href="{{ '/' | relative_url }}">
+            <span class="brand-mark__orb"></span>
+            <div class="brand-mark__text">
+              <span class="brand-mark__title">Recursive Control</span>
+              <span class="brand-mark__subtitle">Docs Compass</span>
+            </div>
+          </a>
+          <div class="nav-controls">
+            <button class="nav-toggle" data-nav-toggle aria-expanded="true">
+              <span class="nav-toggle__icon"></span>
+              <span class="nav-toggle__label">Collapse</span>
+            </button>
+            <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">
+              <span class="theme-toggle__icon" aria-hidden="true"></span>
+              <span class="theme-toggle__label">Theme</span>
+            </button>
+          </div>
+        </div>
+        <div class="nav-compass__scroll">
+          {% if nav %}
+            <nav class="nav-stacks">
+              {% for group in nav %}
+                <section class="nav-stack" data-stack>
+                  <header class="nav-stack__header">
+                    <span class="nav-stack__icon">{{ group.icon }}</span>
+                    <h2>{{ group.title }}</h2>
+                  </header>
+                  <ul class="nav-stack__links">
+                    {% for link in group.links %}
+                      <li>
+                        <a
+                          href="{{ link.path | relative_url }}"
+                          data-nav-link
+                          data-description="{{ link.description }}"
+                        >
+                          <span class="nav-link__label">{{ link.label }}</span>
+                          <span class="nav-link__chevron" aria-hidden="true">→</span>
+                        </a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </section>
+              {% endfor %}
+            </nav>
+          {% else %}
+            <p class="nav-empty">Add navigation data in <code>_data/navigation.yml</code> to power the Compass.</p>
+          {% endif %}
+        </div>
+        <div class="nav-compass__footer">
+          <a class="nav-footer-link" href="https://github.com/flowdevs-io/Recursive-Control" target="_blank" rel="noopener">
+            <span>View on GitHub</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <a class="nav-footer-link" href="https://discord.gg/mQWsWeHsVU" target="_blank" rel="noopener">
+            <span>Join Discord</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </aside>
+
+      <div class="content-orbit">
+        <header class="page-masthead">
+          <div class="masthead__meta">
+            <span class="masthead__eyebrow">{{ site.description }}</span>
+            <span class="masthead__pulse" aria-hidden="true"></span>
+          </div>
+          <div class="masthead__titles">
+            <h1>{{ page.title | default: 'Recursive Control Docs' }}</h1>
+            {% if page.subtitle %}
+              <p class="masthead__subtitle">{{ page.subtitle }}</p>
+            {% endif %}
+          </div>
+          <div class="masthead__actions">
+            <a class="masthead__action" href="{{ '/Installation.html' | relative_url }}">Install</a>
+            <a class="masthead__action masthead__action--secondary" href="{{ '/Getting-Started.html' | relative_url }}">Quickstart</a>
+            <a class="masthead__action masthead__action--ghost" href="https://github.com/flowdevs-io/Recursive-Control/releases" target="_blank" rel="noopener">Releases</a>
+          </div>
+        </header>
+
+        <div class="reading-lane">
+          <aside class="reading-lane__rail" data-rail>
+            <div class="rail-card rail-card--context">
+              <span class="rail-card__title">Compass Cue</span>
+              <p class="rail-card__body" id="nav-description">Hover a page in the Compass to read its story.</p>
+            </div>
+            <div class="rail-card rail-card--toc" id="rail-toc"></div>
+          </aside>
+          <article class="doc-canvas" data-doc-canvas>
+            {{ content }}
+          </article>
+        </div>
+
+        <footer class="page-footer">
+          <div class="page-footer__left">
+            <span>Need something else?</span>
+            <a href="https://github.com/flowdevs-io/Recursive-Control/issues" target="_blank" rel="noopener">Open an issue</a>
+          </div>
+          <div class="page-footer__right">
+            <span>Found a typo?</span>
+            <a href="https://github.com/flowdevs-io/Recursive-Control/edit/main/docs/{{ page.path | uri_escape }}" target="_blank" rel="noopener">Suggest an edit</a>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script defer src="{{ '/assets/js/compass.js' | relative_url }}"></script>
+  </body>
+</html>
+
