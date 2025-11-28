@@ -53,7 +53,7 @@ namespace FlowVision.lib.Plugins
             }
         }
 
-        [Description("Send keyboard input to a specific window by handle")]
+        [Description("Send keyboard input to a specific window by handle. keys format: standard SendKeys (e.g. 'Hello', '{ENTER}', '^c').")]
         public async Task<bool> SendKeyToWindow(string windowHandleString, string keyCombo)
         {
             PluginLogger.LogPluginUsage("KeyboardPlugin", "SendKeyToWindow", 
@@ -72,7 +72,8 @@ namespace FlowVision.lib.Plugins
                 }
 
                 // Wait a bit for the window to become active
-                await Task.Delay(200);
+                // Increased to 500ms to ensure slower apps (like Notepad startup) are ready
+                await Task.Delay(500);
 
                 // Send the keys
                 SendKeys.SendWait(keyCombo);
@@ -132,6 +133,16 @@ namespace FlowVision.lib.Plugins
             return await SendKeyToWindow(windowHandleString, $"^({letter})");
         }
 
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SetFocus(IntPtr hWnd);
+
+        private const int SW_RESTORE = 9;
+
+        // ... (existing imports)
+
         /// <summary>
         /// Brings a window to the foreground and ensures it has focus using multiple techniques
         /// </summary>
@@ -142,12 +153,11 @@ namespace FlowVision.lib.Plugins
 
             try
             {
+                // 1. Force window restore if minimized
+                ShowWindow(hWnd, SW_RESTORE);
+
                 // Get the current foreground window
                 IntPtr currentForeground = GetForegroundWindow();
-
-                // If it's already in foreground, we're done
-                if (currentForeground == hWnd)
-                    return true;
 
                 // Get thread IDs
                 uint currentThreadId = GetCurrentThreadId();
@@ -161,14 +171,27 @@ namespace FlowVision.lib.Plugins
                     AttachThreadInput(currentThreadId, foregroundThreadId, true);
                     needsDetach = true;
                 }
+                
+                // Also attach to the target thread if it's different
+                if (targetThreadId != currentThreadId && targetThreadId != foregroundThreadId)
+                {
+                     AttachThreadInput(currentThreadId, targetThreadId, true);
+                }
 
                 // Try to set foreground window
                 bool success = SetForegroundWindow(hWnd);
+                
+                // Force focus to the specific handle
+                SetFocus(hWnd);
 
                 // Detach if we attached
                 if (needsDetach)
                 {
                     AttachThreadInput(currentThreadId, foregroundThreadId, false);
+                }
+                if (targetThreadId != currentThreadId && targetThreadId != foregroundThreadId)
+                {
+                     AttachThreadInput(currentThreadId, targetThreadId, false);
                 }
 
                 // Give it a moment to process

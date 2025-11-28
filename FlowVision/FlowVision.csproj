@@ -211,6 +211,7 @@
     </Compile>
     <Compile Include="lib\Classes\AgentCoordinator.cs" />
     <Compile Include="lib\Classes\ai\AgentRole.cs" />
+    <Compile Include="lib\Classes\ai\AIClientFactory.cs" />
     <Compile Include="lib\Classes\ai\LMStudioActioner.cs" />
     <Compile Include="lib\Classes\ai\MultiAgentActioner.cs" />
     <Compile Include="lib\Classes\LMStudioConfig.cs" />
@@ -250,7 +251,9 @@
     <Compile Include="lib\Classes\UI\ActivityMonitor.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="lib\Plugins\ClipboardPlugin.cs" />
     <Compile Include="lib\Plugins\CMDPlugin.cs" />
+    <Compile Include="lib\Plugins\FileSystemPlugin.cs" />
     <Compile Include="lib\Plugins\KeyboardPlugin.cs" />
     <Compile Include="lib\Plugins\MousePlugin.cs" />
     <Compile Include="lib\Plugins\PowershellPlugin.cs" />
@@ -301,6 +304,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="recursive-control-icon.ico" />
+    <EmbeddedResource Include="Models\icon_detect.onnx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets" Condition="Exists('..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" />
@@ -326,13 +330,6 @@
       <TesseractNative Include="..\packages\Tesseract.5.2.0\x64\*.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(TesseractNative)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
-  </Target>
-  <!-- Copy OmniParser model to output directory -->
-  <Target Name="CopyOmniParserModel" AfterTargets="AfterBuild">
-    <ItemGroup>
-      <OmniParserModel Include="Models\icon_detect.onnx" />
-    </ItemGroup>
-    <Copy SourceFiles="@(OmniParserModel)" DestinationFolder="$(OutputPath)\models" SkipUnchangedFiles="true" />
   </Target>
   <Import Project="..\packages\CefSharp.Common.135.0.170\build\CefSharp.Common.targets" Condition="Exists('..\packages\CefSharp.Common.135.0.170\build\CefSharp.Common.targets')" />
   <Import Project="..\packages\Tesseract.5.2.0\build\Tesseract.targets" Condition="Exists('..\packages\Tesseract.5.2.0\build\Tesseract.targets')" />
