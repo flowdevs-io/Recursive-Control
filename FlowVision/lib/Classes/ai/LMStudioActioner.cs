@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using FlowVision.lib.Plugins;
 using Microsoft.Extensions.AI;
 using OpenAI;
 using ChatMessage = Microsoft.Extensions.AI.ChatMessage;
+using FlowVision; // Required for Form1
 
 namespace FlowVision.lib.Classes
 {
@@ -107,6 +113,20 @@ IMPORTANT REMINDER:
                     return "Error: LM Studio endpoint not configured. Default is http://localhost:1234/v1";
                 }
 
+                // Check for invalid config load
+                if (!lmStudioConfig.IsValid)
+                {
+                     PluginLogger.NotifyTaskComplete("LM Studio Action Execution", false);
+                     return "Error: LM Studio configuration file is corrupt. Please go to settings and re-save the configuration.";
+                }
+
+                // Validate URI format before attempting to create client
+                if (!Uri.TryCreate(lmStudioConfig.EndpointURL, UriKind.Absolute, out _))
+                {
+                    PluginLogger.NotifyTaskComplete("LM Studio Action Execution", false);
+                    return $"Error: Invalid Endpoint URL '{lmStudioConfig.EndpointURL}'. Please correct it in settings.";
+                }
+
                 // Create OpenAI client pointing to LM Studio
                 // LM Studio provides an OpenAI-compatible API
                 var openAIClient = new OpenAIClient(new System.ClientModel.ApiKeyCredential(lmStudioConfig.APIKey), new OpenAIClientOptions
@@ -164,7 +184,7 @@ IMPORTANT REMINDER:
                 // Configure chat options with tools
                 var chatOptions = new ChatOptions
                 {
-                    Temperature = (float)lmStudioConfig.Temperature,
+                    Temperature = 1.0f, // Fixed at 1.0 for LM Studio models
                     MaxOutputTokens = lmStudioConfig.MaxTokens,
                     Tools = tools
                 };
@@ -242,7 +262,7 @@ IMPORTANT REMINDER:
             }
         }
 
-        public void SetChatHistory(List<LocalChatMessage> chatHistory)
+        public void SetChatHistory(System.Collections.Generic.List<FlowVision.LocalChatMessage> chatHistory)
         {
             actionerHistory.Clear();
             foreach (var message in chatHistory)

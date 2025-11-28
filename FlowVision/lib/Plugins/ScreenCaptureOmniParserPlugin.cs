@@ -64,6 +64,45 @@ namespace FlowVision.lib.Plugins
             }
         }
 
+        [Description("Find specific text on screen using OCR. Useful if visual detection fails.")]
+        public async Task<string> FindTextOnScreen(string searchText)
+        {
+            PluginLogger.LogPluginUsage("ScreenCaptureOmniParserPlugin", "FindTextOnScreen", searchText);
+
+            // Capture whole screen
+            using (Bitmap screenshot = new Bitmap(SystemInformation.VirtualScreen.Width, SystemInformation.VirtualScreen.Height))
+            {
+                using (Graphics gfx = Graphics.FromImage(screenshot))
+                {
+                    gfx.CopyFromScreen(
+                        SystemInformation.VirtualScreen.X, 
+                        SystemInformation.VirtualScreen.Y, 
+                        0, 0, 
+                        SystemInformation.VirtualScreen.Size, 
+                        CopyPixelOperation.SourceCopy);
+                }
+
+                // Use OCR to find the text
+                var rect = await OcrHelper.FindTextLocationAsync(screenshot, searchText);
+                
+                if (rect.HasValue)
+                {
+                    // Return in format compatible with ClickOnWindow (normalized bbox: x1, y1, x2, y2)
+                    float width = screenshot.Width;
+                    float height = screenshot.Height;
+                    
+                    float x1 = rect.Value.X / width;
+                    float y1 = rect.Value.Y / height;
+                    float x2 = (rect.Value.X + rect.Value.Width) / width;
+                    float y2 = (rect.Value.Y + rect.Value.Height) / height;
+
+                    return $"Found '{searchText}' at normalized box: [{x1:F4}, {y1:F4}, {x2:F4}, {y2:F4}]";
+                }
+                
+                return $"Text '{searchText}' not found on screen.";
+            }
+        }
+
         /// <summary>
         /// Process screenshot with Simple OmniParser (KISS implementation)
         /// </summary>

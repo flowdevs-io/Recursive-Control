@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using FlowVision.lib.Plugins;
 using Microsoft.Extensions.AI;
-using Azure.AI.OpenAI;
-using Azure;
-using ChatMessage = Microsoft.Extensions.AI.ChatMessage;
+using FlowVision.lib.Classes.ai;
+using Azure.AI.OpenAI; // Needed for some types if referenced, but Factory returns IChatClient
+using Azure; // Needed for AzureKeyCredential if strictly typed, but Factory handles it. 
+using FlowVision; // Required for Form1
 
 namespace FlowVision.lib.Classes
 {
@@ -23,7 +24,7 @@ namespace FlowVision.lib.Classes
         private List<ChatMessage> coordinatorHistory;
         private List<ChatMessage> plannerHistory;
         private List<ChatMessage> actionerHistory;
-                                private AgentCoordinator agentCoordinator;
+        private AgentCoordinator agentCoordinator;
 
         // Configuration constants
         private const string TOOL_CONFIG = "toolsconfig";
@@ -144,17 +145,12 @@ namespace FlowVision.lib.Classes
                     return "Error: Actioner model not configured";
                 }
 
-                // Setup coordinator chat client (no tools, only coordination capabilities)
-                var coordinatorAzureClient = new AzureOpenAIClient(new Uri(coordinatorConfig.EndpointURL), new AzureKeyCredential(coordinatorConfig.APIKey));
-                coordinatorChat = coordinatorAzureClient.GetChatClient(coordinatorConfig.DeploymentName).AsIChatClient();
-
-                // Setup planner chat client (no tools, only planning capabilities)
-                var plannerAzureClient = new AzureOpenAIClient(new Uri(plannerConfig.EndpointURL), new AzureKeyCredential(plannerConfig.APIKey));
-                plannerChat = plannerAzureClient.GetChatClient(plannerConfig.DeploymentName).AsIChatClient();
-
-                // Setup actioner chat client with all tools
-                var actionerAzureClient = new AzureOpenAIClient(new Uri(actionerConfig.EndpointURL), new AzureKeyCredential(actionerConfig.APIKey));
-                IChatClient actionerChatBase = actionerAzureClient.GetChatClient(actionerConfig.DeploymentName).AsIChatClient();
+                // Setup clients using the Factory (supports Azure, Gemini, etc.)
+                coordinatorChat = AIClientFactory.CreateClient(coordinatorConfig);
+                plannerChat = AIClientFactory.CreateClient(plannerConfig);
+                
+                // Setup actioner client base
+                IChatClient actionerChatBase = AIClientFactory.CreateClient(actionerConfig);
 
                 // Collect tools based on configuration
                 var tools = new List<AITool>();
@@ -199,6 +195,16 @@ namespace FlowVision.lib.Classes
                     tools.AddRange(PluginToolExtractor.ExtractTools(new RemoteControlPlugin()));
                 }
 
+                if (toolConfig.EnableClipboardPlugin)
+                {
+                    tools.AddRange(PluginToolExtractor.ExtractTools(new ClipboardPlugin()));
+                }
+
+                if (toolConfig.EnableFileSystemPlugin)
+                {
+                    tools.AddRange(PluginToolExtractor.ExtractTools(new FileSystemPlugin()));
+                }
+
                 // Setup actioner with function invocation using builder pattern
                 actionerChat = new ChatClientBuilder(actionerChatBase).UseFunctionInvocation().Build();
 
@@ -209,12 +215,12 @@ namespace FlowVision.lib.Classes
 
                 var coordinatorOptions = new ChatOptions
                 {
-                    Temperature = 0.2f
+                    Temperature = (float)toolConfig.Temperature
                 };
 
                 var plannerOptions = new ChatOptions
                 {
-                    Temperature = 0.2f
+                    Temperature = (float)toolConfig.Temperature
                 };
 
                 var actionerOptions = new ChatOptions
@@ -252,13 +258,19 @@ namespace FlowVision.lib.Classes
                 int currentIteration = 0;
                 string finalResult = "";
                 List<string> executionResults = new List<string>();
+                
+                // Novel Feature: Focus Tracking
+                // Keep track of window focus to detect popups (like "Save As") automatically
+                var windowTracker = new WindowSelectionPlugin();
 
                 while (!isComplete && currentIteration < maxIterations)
                 {
                     currentIteration++;
                     PluginLogger.LogPluginUsage($"⚙️ Step {currentIteration}/{maxIterations}");
 
-                    
+                    // Capture pre-action state
+                    string preActionWindow = windowTracker.GetForegroundWindowInfo();
+
                     // Ask actioner to perform the current step with clearer instructions
                     actionerHistory.Add(new ChatMessage(ChatRole.User, 
                         $"Execute this step:\n\n{plan}\n\n" +
@@ -281,6 +293,28 @@ namespace FlowVision.lib.Classes
                     // Get actioner response with tools
                     string executionResult = await GetAgentResponseAsync(actionerChat, actionerHistory, actionerOptions);
                     
+                    // Capture post-action state
+                    string postActionWindow = windowTracker.GetForegroundWindowInfo();
+
+                    // FIX 1: Handle empty execution results (common with successful shell commands)
+                    if (string.IsNullOrWhiteSpace(executionResult))
+                    {
+                        executionResult = "The command executed successfully with no output.";
+                    }
+
+                    // Novel Feature: Inject Focus Change Alert
+                    // If the active window changed (e.g. "Save As" dialog popped up), explicitly tell the Planner.
+                    if (preActionWindow != postActionWindow)
+                    {
+                        string alert = $"\n\n[SYSTEM ALERT]: Active window focus changed!\n" +
+                                       $"Previous: {preActionWindow}\n" +
+                                       $"Current:  {postActionWindow}\n" +
+                                       $"Use the new Handle ({postActionWindow.Split(',')[0]}) for subsequent interactions.";
+                        
+                        executionResult += alert;
+                        PluginLogger.LogInfo("MultiAgentActioner", "ExecuteAction", "Detected window focus change, alerting Planner.");
+                    }
+
                     // Store the execution result for the final response
                     executionResults.Add(executionResult);
                     
@@ -289,6 +323,10 @@ namespace FlowVision.lib.Classes
                     agentCoordinator.AddMessage(AgentRole.Actioner, AgentRole.Planner, 
 
                         "EXECUTION_RESPONSE", executionResult);
+
+                    // FIX 2: Manage context window to prevent token overflow
+                    ManageContextWindow(actionerHistory, 10);
+                    ManageContextWindow(plannerHistory, 10);
 
                     // Add the execution result to the planner's history with clearer prompting
 
@@ -398,18 +436,43 @@ namespace FlowVision.lib.Classes
         {
             var responseBuilder = new StringBuilder();
             
-            await foreach (var update in chatService.GetStreamingResponseAsync(history, options))
+            try
             {
-                if (update.Text != null)
+                await foreach (var update in chatService.GetStreamingResponseAsync(history, options))
                 {
-                    responseBuilder.Append(update.Text);
+                    if (update.Text != null)
+                    {
+                        responseBuilder.Append(update.Text);
+                    }
                 }
+            }
+            catch (Exception ex) when (ex.Message.Contains("Unknown ChatFinishReason") || ex.Message.Contains("function_call_filter"))
+            {
+                // Swallow known SDK mapping errors for specific provider finish reasons
+                // This allows us to keep the text generated so far
+                PluginLogger.LogInfo("MultiAgentActioner", "GetAgentResponseAsync", $"Ignored known SDK finish reason error: {ex.Message}");
             }
 
             string response = responseBuilder.ToString();
             history.Add(new ChatMessage(ChatRole.Assistant, response));
 
             return response;
+        }
+
+        private void ManageContextWindow(List<ChatMessage> history, int maxMessages)
+        {
+            // Always keep the system prompt (assumed to be at index 0)
+            if (history.Count <= maxMessages + 1) return;
+
+            // Calculate how many messages to remove
+            // We want to keep: SystemPrompt (1) + Last N messages
+            int messagesToRemove = history.Count - (maxMessages + 1);
+
+            if (messagesToRemove > 0)
+            {
+                // Remove messages starting from index 1 (preserve System Prompt)
+                history.RemoveRange(1, messagesToRemove);
+            }
         }
 
         /// <summary>
@@ -443,7 +506,7 @@ namespace FlowVision.lib.Classes
             return null;
         }
 
-        public void SetChatHistory(List<LocalChatMessage> chatHistory)
+        public void SetChatHistory(System.Collections.Generic.List<FlowVision.LocalChatMessage> chatHistory)
         {
             // Set up coordinator history with system prompt
             coordinatorHistory.Clear();

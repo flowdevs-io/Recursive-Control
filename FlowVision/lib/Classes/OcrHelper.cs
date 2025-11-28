@@ -83,6 +83,54 @@ namespace FlowVision.lib.Classes
         }
 
         /// <summary>
+        /// Search for specific text in an image and return its bounding box.
+        /// Returns the first match found.
+        /// </summary>
+        public static async Task<Rectangle?> FindTextLocationAsync(Bitmap image, string searchText)
+        {
+            if (!_isAvailable || _engine == null || string.IsNullOrWhiteSpace(searchText))
+                return null;
+
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    lock (_lock)
+                    {
+                        using (var pix = PixConverter.ToPix(image))
+                        using (var page = _engine.Process(pix))
+                        using (var iter = page.GetIterator())
+                        {
+                            iter.Begin();
+                            do
+                            {
+                                // Get text at current iterator level (Word)
+                                string currentText = iter.GetText(PageIteratorLevel.Word)?.Trim();
+                                
+                                // Simple case-insensitive match
+                                if (!string.IsNullOrWhiteSpace(currentText) && 
+                                    currentText.Equals(searchText, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    // Found exact match! Get bounding box.
+                                    if (iter.TryGetBoundingBox(PageIteratorLevel.Word, out var rect))
+                                    {
+                                        return (Rectangle?)new Rectangle(rect.X1, rect.Y1, rect.Width, rect.Height);
+                                    }
+                                }
+                            } while (iter.Next(PageIteratorLevel.Word));
+                        }
+                    }
+                    return (Rectangle?)null;
+                }
+                catch (Exception ex)
+                {
+                    PluginLogger.LogError("OcrHelper", "FindTextLocationAsync", $"OCR search failed: {ex.Message}");
+                    return (Rectangle?)null;
+                }
+            });
+        }
+
+        /// <summary>
         /// Extract text from a bitmap image
         /// </summary>
         public static async Task<string> ExtractTextAsync(Bitmap image)
