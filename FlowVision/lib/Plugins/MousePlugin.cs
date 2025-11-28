@@ -18,19 +18,48 @@ namespace FlowVision.lib.Plugins
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+
+        [DllImport("kernel32.dll")]
+        private static extern uint GetCurrentThreadId();
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SetFocus(IntPtr hWnd);
+
+        private const int SW_RESTORE = 9;
         private const uint MOUSEEVENTF_LEFTDOWN = 0x02;
         private const uint MOUSEEVENTF_LEFTUP = 0x04;
         private const uint MOUSEEVENTF_RIGHTDOWN = 0x08;
         private const uint MOUSEEVENTF_RIGHTUP = 0x10;
 
-        [Description("Clicks at the specified normalized bounding box coordinates on a specific window handle.")]
-        public async Task<bool> ClickOnWindow(string windowHandleString, double[] bBox, bool leftClick, int clickTimes)
+        [Description("Clicks at the specified normalized bounding box coordinates on a specific window handle. Box is [x1, y1, x2, y2].")]
+        public async Task<bool> ClickOnWindow(string windowHandleString, double x1, double y1, double x2, double y2, bool leftClick, int clickTimes)
         {
             // Log the plugin usage
             PluginLogger.LogPluginUsage("MousePlugin", "ClickOnWindow", 
-                $"window={windowHandleString}, pos={string.Join(",", bBox)}, leftClick={leftClick}, times={clickTimes}");
+                $"window={windowHandleString}, box=[{x1},{y1},{x2},{y2}], leftClick={leftClick}");
 
             IntPtr windowHandle = new IntPtr(Convert.ToInt32(windowHandleString));
+
+            // Ensure window is visible and focused
+            if (!BringWindowToForegroundWithFocus(windowHandle))
+            {
+                PluginLogger.LogError("MousePlugin", "ClickOnWindow", "Failed to focus window");
+                return false;
+            }
 
             if (!GetWindowRect(windowHandle, out RECT rc))
             {
@@ -41,15 +70,16 @@ namespace FlowVision.lib.Plugins
             int windowHeight = rc.Bottom - rc.Top;
 
             // Calculate absolute position based on bounding box (normalized)
-            int x = rc.Left + (int)((bBox[0] + bBox[2]) / 2 * windowWidth);
-            int y = rc.Top + (int)((bBox[1] + bBox[3]) / 2 * windowHeight);
+            int x = rc.Left + (int)((x1 + x2) / 2 * windowWidth);
+            int y = rc.Top + (int)((y1 + y2) / 2 * windowHeight);
 
             if (!SetCursorPos(x, y))
             {
                 throw new InvalidOperationException("Failed to set cursor position.");
             }
 
-            await Task.Delay(100);
+            // Increased delay to allow UI to register hover state
+            await Task.Delay(200);
 
             for (int i = 0; i < clickTimes; i++)
             {
@@ -66,7 +96,14 @@ namespace FlowVision.lib.Plugins
             // Log the plugin usage
             PluginLogger.LogPluginUsage("MousePlugin", "ScrollOnWindow", 
                 $"window={windowHandleString}, amount={scrollAmount}");
+            
             IntPtr windowHandle = new IntPtr(Convert.ToInt32(windowHandleString));
+            
+            if (!BringWindowToForegroundWithFocus(windowHandle))
+            {
+                return false;
+            }
+
             if (!GetWindowRect(windowHandle, out RECT rc))
             {
                 throw new InvalidOperationException("Failed to get window rectangle.");
@@ -77,7 +114,7 @@ namespace FlowVision.lib.Plugins
             {
                 throw new InvalidOperationException("Failed to set cursor position.");
             }
-            await Task.Delay(100);
+            await Task.Delay(200);
             mouse_event(0x0800, 0, 0, (uint)scrollAmount, UIntPtr.Zero);
             return true;
         }
@@ -89,6 +126,51 @@ namespace FlowVision.lib.Plugins
 
             mouse_event(down, (uint)x, (uint)y, 0, UIntPtr.Zero);
             mouse_event(up, (uint)x, (uint)y, 0, UIntPtr.Zero);
+        }
+
+        /// <summary>
+        /// Brings a window to the foreground and ensures it has focus using multiple techniques
+        /// </summary>
+        private bool BringWindowToForegroundWithFocus(IntPtr hWnd)
+        {
+            if (hWnd == IntPtr.Zero) return false;
+
+            try
+            {
+                ShowWindow(hWnd, SW_RESTORE);
+                IntPtr currentForeground = GetForegroundWindow();
+                if (currentForeground == hWnd) return true;
+
+                uint currentThreadId = GetCurrentThreadId();
+                uint targetThreadId = GetWindowThreadProcessId(hWnd, out _);
+                uint foregroundThreadId = GetWindowThreadProcessId(currentForeground, out _);
+
+                bool needsDetach = false;
+                if (currentThreadId != foregroundThreadId)
+                {
+                    AttachThreadInput(currentThreadId, foregroundThreadId, true);
+                    needsDetach = true;
+                }
+                if (targetThreadId != currentThreadId && targetThreadId != foregroundThreadId)
+                {
+                     AttachThreadInput(currentThreadId, targetThreadId, true);
+                }
+
+                bool success = SetForegroundWindow(hWnd);
+                SetFocus(hWnd);
+
+                if (needsDetach) AttachThreadInput(currentThreadId, foregroundThreadId, false);
+                if (targetThreadId != currentThreadId && targetThreadId != foregroundThreadId)
+                     AttachThreadInput(currentThreadId, targetThreadId, false);
+
+                System.Threading.Thread.Sleep(100);
+                return GetForegroundWindow() == hWnd;
+            }
+            catch (Exception ex)
+            {
+                PluginLogger.LogError("MousePlugin", "BringWindowToForegroundWithFocus", $"Error: {ex.Message}");
+                return false;
+            }
         }
 
         [StructLayout(LayoutKind.Sequential)]
