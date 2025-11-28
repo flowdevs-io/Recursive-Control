@@ -1,4 +1,10 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,10 +13,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using FlowVision.lib.Plugins;
 using Microsoft.Extensions.AI;
-using Azure.AI.OpenAI;
-using Azure;
-using OpenAI;
-using ChatMessage = Microsoft.Extensions.AI.ChatMessage;
+using FlowVision.lib.Classes.ai;
+using FlowVision; // Required for Form1
 
 namespace FlowVision.lib.Classes
 {
@@ -128,9 +132,8 @@ namespace FlowVision.lib.Classes
                     return "Error: Actioner model not configured";
                 }
 
-                // Create Azure OpenAI chat client with IChatClient interface
-                var azureClient = new AzureOpenAIClient(new Uri(config.EndpointURL), new AzureKeyCredential(config.APIKey));
-                IChatClient baseChatClient = azureClient.GetChatClient(config.DeploymentName).AsIChatClient();
+                // Use the Factory to create the client based on ProviderType
+                IChatClient baseChatClient = AIClientFactory.CreateClient(config);
 
                 // Collect tools based on configuration
                 var tools = new List<AITool>();
@@ -175,6 +178,16 @@ namespace FlowVision.lib.Classes
                     tools.AddRange(PluginToolExtractor.ExtractTools(new RemoteControlPlugin()));
                 }
 
+                if (toolConfig.EnableClipboardPlugin)
+                {
+                    tools.AddRange(PluginToolExtractor.ExtractTools(new ClipboardPlugin()));
+                }
+
+                if (toolConfig.EnableFileSystemPlugin)
+                {
+                    tools.AddRange(PluginToolExtractor.ExtractTools(new FileSystemPlugin()));
+                }
+
                 // Configure chat options with tools
                 var chatOptions = new ChatOptions
                 {
@@ -193,12 +206,19 @@ namespace FlowVision.lib.Classes
 
                 // Process the response with streaming
                 var responseBuilder = new StringBuilder();
-                await foreach (var update in actionerChat.GetStreamingResponseAsync(actionerHistory, chatOptions))
+                try
                 {
-                    if (update.Text != null)
+                    await foreach (var update in actionerChat.GetStreamingResponseAsync(actionerHistory, chatOptions))
                     {
-                        responseBuilder.Append(update.Text);
+                        if (update.Text != null)
+                        {
+                            responseBuilder.Append(update.Text);
+                        }
                     }
+                }
+                catch (Exception ex) when (ex.Message.Contains("Unknown ChatFinishReason") || ex.Message.Contains("function_call_filter"))
+                {
+                    PluginLogger.LogInfo("Actioner", "ExecuteAction", $"Ignored known SDK finish reason error: {ex.Message}");
                 }
 
                 // Task completed successfully
@@ -222,7 +242,7 @@ namespace FlowVision.lib.Classes
             }
         }
 
-        internal void SetChatHistory(List<LocalChatMessage> chatHistory)
+        internal void SetChatHistory(System.Collections.Generic.List<FlowVision.LocalChatMessage> chatHistory)
         {
             actionerHistory.Clear();
             foreach (var message in chatHistory)
