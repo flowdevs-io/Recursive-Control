@@ -167,7 +167,7 @@ namespace FlowVision.lib.Classes
 
                 if (toolConfig.EnableScreenCapturePlugin)
                 {
-                    tools.AddRange(PluginToolExtractor.ExtractTools(new ScreenCaptureOmniParserPlugin()));
+                    tools.AddRange(PluginToolExtractor.ExtractTools(new ScreenCapturePlugin()));
                 }
 
                 if (toolConfig.EnableKeyboardPlugin)
@@ -254,14 +254,19 @@ namespace FlowVision.lib.Classes
 
                 // Now execute the plan step by step
                 bool isComplete = false;
-                int maxIterations = 25; // Increased from 10 to 25 for complex tasks
+                int maxIterations = 25;
                 int currentIteration = 0;
                 string finalResult = "";
                 List<string> executionResults = new List<string>();
                 
                 // Novel Feature: Focus Tracking
-                // Keep track of window focus to detect popups (like "Save As") automatically
                 var windowTracker = new WindowSelectionPlugin();
+                
+                // Novel Feature: Reflection Memory
+                // Stores lessons learned from failures to prevent repeating mistakes
+                List<string> lessonsLearned = new List<string>();
+                int consecutiveFailures = 0;
+                const int MAX_CONSECUTIVE_FAILURES = 3;
 
                 while (!isComplete && currentIteration < maxIterations)
                 {
@@ -271,39 +276,55 @@ namespace FlowVision.lib.Classes
                     // Capture pre-action state
                     string preActionWindow = windowTracker.GetForegroundWindowInfo();
 
-                    // Ask actioner to perform the current step with clearer instructions
+                    // Build context with lessons learned (if any)
+                    string lessonsContext = lessonsLearned.Count > 0
+                        ? $"\n\n⚠️ LESSONS FROM PREVIOUS ATTEMPTS:\n" + string.Join("\n", lessonsLearned.Select((l, i) => $"{i + 1}. {l}"))
+                        : "";
+
+                    // Ask actioner to perform the current step with enhanced instructions
                     actionerHistory.Add(new ChatMessage(ChatRole.User, 
                         $"Execute this step:\n\n{plan}\n\n" +
-                        $"Current progress: {currentIteration}/{maxIterations} steps\n\n" +
-                        "Remember to:\n" +
-                        "1. Use window handles for keyboard/mouse actions (SendKeyToWindow, not SendKey)\n" +
-                        "2. Take screenshots to verify state when needed\n" +
-                        "3. Report exactly what you did and what you observed\n" +
-                        "4. If something fails, explain what went wrong"));
+                        $"Current progress: {currentIteration}/{maxIterations} steps" +
+                        lessonsContext + "\n\n" +
+                        "CRITICAL RULES:\n" +
+                        "1. Use GetPageElements() to find selectors for elements\n" +
+                        "2. Use ClickElement with waitForNavigation=\"true\" for submit buttons\n" +
+                        "3. If an action fails, STOP and explain exactly what went wrong\n" +
+                        "4. Report: [ACTION TAKEN] + [RESULT OBSERVED] + [SUCCESS/FAILURE]"));
                     
                     agentCoordinator.AddMessage(AgentRole.Planner, AgentRole.Actioner, 
                         "EXECUTION_REQUEST", plan);
-                    
 
                     PluginLogger.StopLoadingIndicator();
                     PluginLogger.LogPluginUsage("🔧 Executing step...");
                     PluginLogger.StartLoadingIndicator("executing");
 
-                    
                     // Get actioner response with tools
                     string executionResult = await GetAgentResponseAsync(actionerChat, actionerHistory, actionerOptions);
+                    
+                    // ═══════════════════════════════════════════════════════════════
+                    // ANTI-HALLUCINATION CHECK
+                    // Detect if actioner claimed to do something without tool calls
+                    // ═══════════════════════════════════════════════════════════════
+                    bool possibleHallucination = DetectHallucination(executionResult);
+                    if (possibleHallucination)
+                    {
+                        PluginLogger.LogPluginUsage("⚠️ Possible hallucination detected - no tool calls found");
+                        executionResult = "[SYSTEM WARNING: The actioner responded without calling any tools. " +
+                            "This response may be hallucinated. The actioner MUST call tools to perform actions.]\n\n" +
+                            "Original response: " + executionResult;
+                    }
                     
                     // Capture post-action state
                     string postActionWindow = windowTracker.GetForegroundWindowInfo();
 
-                    // FIX 1: Handle empty execution results (common with successful shell commands)
+                    // Handle empty execution results
                     if (string.IsNullOrWhiteSpace(executionResult))
                     {
-                        executionResult = "The command executed successfully with no output.";
+                        executionResult = "[No tool was called. The actioner must call a tool to perform an action.]";
                     }
 
-                    // Novel Feature: Inject Focus Change Alert
-                    // If the active window changed (e.g. "Save As" dialog popped up), explicitly tell the Planner.
+                    // Focus Change Alert
                     if (preActionWindow != postActionWindow)
                     {
                         string alert = $"\n\n[SYSTEM ALERT]: Active window focus changed!\n" +
@@ -312,34 +333,98 @@ namespace FlowVision.lib.Classes
                                        $"Use the new Handle ({postActionWindow.Split(',')[0]}) for subsequent interactions.";
                         
                         executionResult += alert;
-                        PluginLogger.LogInfo("MultiAgentActioner", "ExecuteAction", "Detected window focus change, alerting Planner.");
+                        PluginLogger.LogInfo("MultiAgentActioner", "ExecuteAction", "Detected window focus change.");
                     }
 
-                    // Store the execution result for the final response
+                    // ═══════════════════════════════════════════════════════════════
+                    // SELF-REFLECTION LOOP
+                    // Detect failures and learn from them to prevent repetition
+                    // ═══════════════════════════════════════════════════════════════
+                    bool stepFailed = DetectStepFailure(executionResult) || possibleHallucination;
+                    
+                    if (stepFailed)
+                    {
+                        consecutiveFailures++;
+                        PluginLogger.LogPluginUsage($"⚠️ Step appears to have failed ({consecutiveFailures}/{MAX_CONSECUTIVE_FAILURES})");
+                        
+                        // Ask the actioner to reflect on what went wrong
+                        actionerHistory.Add(new ChatMessage(ChatRole.User, 
+                            "🔍 REFLECTION REQUIRED: The previous step appears to have failed.\n\n" +
+                            "Analyze what went wrong and provide:\n" +
+                            "1. WHAT FAILED: What specific action didn't work?\n" +
+                            "2. WHY IT FAILED: What was the root cause?\n" +
+                            "3. HOW TO FIX: What should be done differently?\n\n" +
+                            "Be specific and actionable."));
+                        
+                        PluginLogger.LogPluginUsage("🔍 Reflecting on failure...");
+                        string reflection = await GetAgentResponseAsync(actionerChat, actionerHistory, actionerOptions);
+                        
+                        // Extract the lesson and add to memory
+                        string lesson = ExtractLesson(reflection, plan);
+                        if (!string.IsNullOrEmpty(lesson))
+                        {
+                            lessonsLearned.Add(lesson);
+                            PluginLogger.LogPluginUsage($"📚 Lesson learned: {lesson}");
+                        }
+                        
+                        // Add reflection to execution result
+                        executionResult += $"\n\n[REFLECTION]:\n{reflection}";
+                        
+                        // If too many consecutive failures, escalate to coordinator
+                        if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES)
+                        {
+                            PluginLogger.LogPluginUsage("🚨 Multiple failures detected, requesting coordinator intervention...");
+                            
+                            coordinatorHistory.Add(new ChatMessage(ChatRole.User,
+                                $"⚠️ INTERVENTION NEEDED: The actioner has failed {consecutiveFailures} times in a row.\n\n" +
+                                $"Original task: {actionPrompt}\n\n" +
+                                $"Current step that keeps failing: {plan}\n\n" +
+                                $"Lessons learned:\n{string.Join("\n", lessonsLearned)}\n\n" +
+                                "Please provide a DIFFERENT approach to complete this task."));
+                            
+                            string intervention = await GetAgentResponseAsync(coordinatorChat, coordinatorHistory, coordinatorOptions);
+                            
+                            // Reset the planner with the new approach
+                            plannerHistory.Clear();
+                            plannerHistory.Add(new ChatMessage(ChatRole.System, toolConfig.PlannerSystemPrompt + toolDescriptions));
+                            plannerHistory.Add(new ChatMessage(ChatRole.User, 
+                                $"New approach from coordinator:\n{intervention}\n\n" +
+                                $"Previous lessons learned:\n{string.Join("\n", lessonsLearned)}"));
+                            
+                            consecutiveFailures = 0;
+                            PluginLogger.LogPluginUsage("🔄 Trying new approach from coordinator...");
+                        }
+                    }
+                    else
+                    {
+                        consecutiveFailures = 0; // Reset on success
+                    }
+                    // ═══════════════════════════════════════════════════════════════
+
+                    // Store the execution result
                     executionResults.Add(executionResult);
                     
                     PluginLogger.LogPluginUsage("📊 Step result:\n" + executionResult);
                     
                     agentCoordinator.AddMessage(AgentRole.Actioner, AgentRole.Planner, 
-
                         "EXECUTION_RESPONSE", executionResult);
 
-                    // FIX 2: Manage context window to prevent token overflow
-                    ManageContextWindow(actionerHistory, 10);
-                    ManageContextWindow(plannerHistory, 10);
+                    // Manage context window to prevent token overflow
+                    ManageContextWindow(actionerHistory, 12);
+                    ManageContextWindow(plannerHistory, 12);
 
-                    // Add the execution result to the planner's history with clearer prompting
-
+                    // Add the execution result to the planner's history with enhanced prompting
+                    string successIndicator = stepFailed ? "⚠️ STEP FAILED" : "✅ STEP SUCCEEDED";
+                    
                     plannerHistory.Add(new ChatMessage(ChatRole.User, 
+                        $"{successIndicator}\n\n" +
                         $"Step {currentIteration} Result:\n{executionResult}\n\n" +
-                        $"Progress: {currentIteration}/{maxIterations} steps completed\n\n" +
-                        "Evaluate:\n" +
-                        "1. Did this step succeed?\n" +
-                        "2. Is the overall task now complete?\n" +
-                        "3. If not complete, what is the NEXT SINGLE step?\n\n" +
-                        "If task is COMPLETE, respond with:\n" +
-                        "'TASK COMPLETED: [brief summary]'\n\n" +
-                        "If task needs more work, provide ONLY the next single step to execute."));
+                        $"Progress: {currentIteration}/{maxIterations} steps\n\n" +
+                        (lessonsLearned.Count > 0 ? $"Lessons learned:\n{string.Join("\n", lessonsLearned)}\n\n" : "") +
+                        "Evaluate and respond with EXACTLY ONE of:\n" +
+                        "A) 'TASK COMPLETED: [summary of what was accomplished]'\n" +
+                        "B) 'NEXT STEP: [specific action to take with exact tool call]'\n" +
+                        "C) 'TASK FAILED: [explanation of why it cannot be completed]'"));
                     
 
                     PluginLogger.StopLoadingIndicator();
@@ -352,22 +437,34 @@ namespace FlowVision.lib.Classes
                     agentCoordinator.AddMessage(AgentRole.Planner, AgentRole.Coordinator,
                         "STATUS_UPDATE", plan);
 
-                    // Check if the task is complete (case insensitive)
-                    if (plan.IndexOf("TASK COMPLETED", StringComparison.OrdinalIgnoreCase) >= 0 || 
-                        plan.IndexOf("Task completed", StringComparison.OrdinalIgnoreCase) >= 0)
+                    // Check if the task is complete or failed
+                    bool taskCompleted = plan.IndexOf("TASK COMPLETED", StringComparison.OrdinalIgnoreCase) >= 0;
+                    bool taskFailed = plan.IndexOf("TASK FAILED", StringComparison.OrdinalIgnoreCase) >= 0;
+                    
+                    if (taskCompleted || taskFailed)
                     {
                         isComplete = true;
 
-                        PluginLogger.LogPluginUsage("✅ Task marked as complete by planner");
+                        if (taskCompleted)
+                        {
+                            PluginLogger.LogPluginUsage("✅ Task marked as complete by planner");
+                        }
+                        else
+                        {
+                            PluginLogger.LogPluginUsage("❌ Task marked as failed by planner");
+                        }
 
                         // Send all execution results to the coordinator for final formatting
                         string executionSummary = string.Join("\n\n", executionResults);
+                        string lessonsText = lessonsLearned.Count > 0 
+                            ? $"\n\nLessons learned during execution:\n{string.Join("\n", lessonsLearned)}" 
+                            : "";
 
                         coordinatorHistory.Add(new ChatMessage(ChatRole.User, 
-                            $"The task has been completed after {currentIteration} steps.\n\n" +
+                            $"The task has {(taskCompleted ? "been completed" : "failed")} after {currentIteration} steps.\n\n" +
                             $"Complete execution log:\n{executionSummary}\n\n" +
-                            $"Planner's completion message:\n{plan}\n\n" +
-                            "Please provide a clear, user-friendly summary of what was accomplished. " +
+                            $"Planner's final message:\n{plan}" + lessonsText + "\n\n" +
+                            "Please provide a clear, user-friendly summary of what was accomplished (or what went wrong). " +
                             "Include specific results, any important details, and the current state. " +
                             "Be concise but informative. Do not use technical tags or internal markers."
                         ));
@@ -379,13 +476,19 @@ namespace FlowVision.lib.Classes
                         // Get coordinator's final response with detailed results
                         finalResult = await GetAgentResponseAsync(coordinatorChat, coordinatorHistory, coordinatorOptions);
 
-                        // Store this as a completed response but without the TASK_COMPLETE tag
+                        // Store this as a completed response
                         agentCoordinator.AddMessage(AgentRole.Coordinator, AgentRole.User,
                             "USER_RESPONSE", finalResult);
                     }
                     else
                     {
-                        PluginLogger.LogPluginUsage($"⏭️  Next step:\n{plan}");
+                        // Extract just the next step from the plan (remove "NEXT STEP:" prefix if present)
+                        if (plan.IndexOf("NEXT STEP:", StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            int idx = plan.IndexOf("NEXT STEP:", StringComparison.OrdinalIgnoreCase);
+                            plan = plan.Substring(idx + 10).Trim();
+                        }
+                        PluginLogger.LogPluginUsage($"⏭️ Next step:\n{plan}");
                     }
                 }
 
@@ -504,6 +607,168 @@ namespace FlowVision.lib.Classes
                 return lines[0].Trim();
 
             return null;
+        }
+
+        /// <summary>
+        /// Detects if the actioner hallucinated (claimed to do something without calling tools)
+        /// </summary>
+        private bool DetectHallucination(string executionResult)
+        {
+            if (string.IsNullOrWhiteSpace(executionResult))
+                return true; // Empty response = no tool called
+            
+            string lower = executionResult.ToLowerInvariant();
+            
+            // CRITICAL: Check for fake tool names that don't exist
+            string[] fakeTools = new[]
+            {
+                "findtextonscreen", "searchtext", "locatetext", "findtext",
+                "gettext", "readtext", "scanscreen", "analyzescreen",
+                "task.delay", "wait(", "sleep(", "pause(",
+                "downloadfile", "savefile", "openfile"
+            };
+            
+            foreach (var fakeTool in fakeTools)
+            {
+                if (lower.Contains(fakeTool))
+                {
+                    PluginLogger.LogInfo("MultiAgentActioner", "DetectHallucination", 
+                        $"Detected fake tool: {fakeTool}");
+                    return true;
+                }
+            }
+            
+            // Check for code block tool calls (model writing code instead of calling functions)
+            if (executionResult.Contains("```tool_code") || 
+                executionResult.Contains("```python") ||
+                executionResult.Contains("```csharp"))
+            {
+                PluginLogger.LogInfo("MultiAgentActioner", "DetectHallucination", 
+                    "Detected code block - model writing code instead of calling tools");
+                return true;
+            }
+            
+            // Check for fake API responses
+            if (lower.Contains("the api returned") && 
+                (lower.Contains("'found': true") || lower.Contains("\"found\": true")))
+            {
+                PluginLogger.LogInfo("MultiAgentActioner", "DetectHallucination", 
+                    "Detected fake API response");
+                return true;
+            }
+            
+            // Signs that a tool was actually called (real tool output markers)
+            string[] realToolIndicators = new[]
+            {
+                "window handle", "windowhandle", "handle:",
+                "screenshot saved", "captured screen", "ui element #",
+                "bbox:", "bounding box", "[left", 
+                "process started", "command executed",
+                "browser launched", "navigated to",
+                "clicked at", "typed text", "sent key"
+            };
+            
+            bool hasRealToolOutput = false;
+            foreach (var indicator in realToolIndicators)
+            {
+                if (lower.Contains(indicator))
+                {
+                    hasRealToolOutput = true;
+                    break;
+                }
+            }
+            
+            // Signs of hallucination (claims without evidence)
+            string[] hallucinationPatterns = new[]
+            {
+                "i have successfully", "i've successfully", "i successfully",
+                "i logged in", "i signed in", "i clicked", "i typed",
+                "i opened", "i navigated", "i scrolled", "i liked",
+                "the task is complete", "task completed", "done",
+                "i performed", "i executed", "i did",
+                "[action taken]", "[result observed]", "[success]"
+            };
+            
+            foreach (var pattern in hallucinationPatterns)
+            {
+                if (lower.Contains(pattern) && !hasRealToolOutput)
+                {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        /// <summary>
+        /// Detects if a step failed based on the execution result
+        /// </summary>
+        private bool DetectStepFailure(string executionResult)
+        {
+            if (string.IsNullOrWhiteSpace(executionResult))
+                return false;
+
+            string lower = executionResult.ToLowerInvariant();
+            
+            // Explicit failure indicators
+            string[] failurePatterns = new[]
+            {
+                "error:", "exception:", "failed to", "could not", "unable to",
+                "not found", "does not exist", "permission denied", "access denied",
+                "timeout", "timed out", "no such", "invalid", "cannot find",
+                "null reference", "object reference", "index out of range",
+                "window handle is invalid", "element not found", "selector not found",
+                "no matching element", "click failed", "type failed"
+            };
+
+            foreach (var pattern in failurePatterns)
+            {
+                if (lower.Contains(pattern))
+                    return true;
+            }
+
+            // Check for empty or non-actionable results
+            if (executionResult.Trim().Length < 10)
+                return false; // Too short to determine, assume success
+            
+            return false;
+        }
+
+        /// <summary>
+        /// Extracts a concise lesson from a reflection response
+        /// </summary>
+        private string ExtractLesson(string reflection, string failedStep)
+        {
+            if (string.IsNullOrWhiteSpace(reflection))
+                return $"Step '{TruncateString(failedStep, 50)}' failed - reason unknown";
+
+            // Look for key phrases that indicate lessons
+            var lines = reflection.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            
+            foreach (var line in lines)
+            {
+                var lower = line.ToLowerInvariant();
+                // Look for fix recommendations
+                if (lower.Contains("should") || lower.Contains("instead") || 
+                    lower.Contains("fix:") || lower.Contains("solution:") ||
+                    lower.Contains("correct way") || lower.Contains("need to"))
+                {
+                    return TruncateString(line.Trim(), 150);
+                }
+            }
+
+            // Fallback: summarize the failure
+            return $"Avoid: {TruncateString(failedStep, 50)} - {TruncateString(reflection, 100)}";
+        }
+
+        /// <summary>
+        /// Truncates a string to a maximum length with ellipsis
+        /// </summary>
+        private string TruncateString(string input, int maxLength)
+        {
+            if (string.IsNullOrEmpty(input) || input.Length <= maxLength)
+                return input;
+            return input.Substring(0, maxLength - 3) + "...";
         }
 
         public void SetChatHistory(System.Collections.Generic.List<FlowVision.LocalChatMessage> chatHistory)

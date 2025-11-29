@@ -25,7 +25,7 @@ namespace FlowVision.lib.Classes
         private const string ACTIONER_CONFIG = "actioner";
         private const string TOOL_CONFIG = "toolsconfig";
 
-        private MultiAgentActioner multiAgentActioner;
+        private SimpleAgentActioner simpleAgentActioner;
         private LMStudioActioner lmStudioActioner;
         private bool useMultiAgentMode = false;
 
@@ -67,8 +67,8 @@ namespace FlowVision.lib.Classes
                 };
             }
 
-            // Initialize the multi-agent actioner and LM Studio actioner with the same output handler
-            multiAgentActioner = new MultiAgentActioner(outputHandler);
+            // Initialize the simple agent actioner and LM Studio actioner with the same output handler
+            simpleAgentActioner = new SimpleAgentActioner(outputHandler);
             lmStudioActioner = new LMStudioActioner(outputHandler);
 
             // Start remote control server if enabled
@@ -95,10 +95,10 @@ namespace FlowVision.lib.Classes
                 return await lmStudioActioner.ExecuteAction(actionPrompt);
             }
 
-            // If multi-agent mode is enabled, use the multi-agent actioner
+            // If multi-agent mode is enabled, use the simple agent actioner
             if (useMultiAgentMode)
             {
-                return await multiAgentActioner.ExecuteAction(actionPrompt);
+                return await simpleAgentActioner.ExecuteAction(actionPrompt);
             }
 
             // Otherwise use the original Azure implementation
@@ -150,7 +150,7 @@ namespace FlowVision.lib.Classes
 
                 if (toolConfig.EnableScreenCapturePlugin)
                 {
-                    tools.AddRange(PluginToolExtractor.ExtractTools(new ScreenCaptureOmniParserPlugin()));
+                    tools.AddRange(PluginToolExtractor.ExtractTools(new ScreenCapturePlugin()));
                 }
 
                 if (toolConfig.EnableKeyboardPlugin)
@@ -257,8 +257,8 @@ namespace FlowVision.lib.Classes
                 }
             }
 
-            // Also update the multi-agent and LM Studio chat history
-            multiAgentActioner.SetChatHistory(chatHistory);
+            // Also update the simple agent and LM Studio chat history
+            simpleAgentActioner.SetChatHistory(chatHistory);
             lmStudioActioner.SetChatHistory(chatHistory);
         }
     }

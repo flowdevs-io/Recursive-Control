@@ -99,10 +99,9 @@ namespace FlowVision.lib.Classes
 
         private static string GetScreenCapturePluginDescription()
         {
-            return "## ScreenCaptureOmniParserPlugin\n" +
-                  "- **CaptureScreen()**: Captures the current screen and returns a textual description of the visible content. " +
-                  "- **CaptureScreenWithOCR()**: Captures the screen and performs OCR to extract visible text. " +
-                  "- **CaptureScreenWithAnalysis()**: Captures the screen and provides AI-powered analysis of the visual content.";
+            return "## ScreenCapturePlugin\n" +
+                  "- **ForegroundSelect(handleString)**: Brings specified window to foreground.\n" +
+                  "- **ListWindowHandles()**: Returns list of available window handles, titles, and process names.";
         }
 
         private static string GetKeyboardPluginDescription()

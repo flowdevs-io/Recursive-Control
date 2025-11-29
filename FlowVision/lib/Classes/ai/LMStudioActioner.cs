@@ -94,7 +94,7 @@ namespace FlowVision.lib.Classes
 
 IMPORTANT REMINDER:
 1. DO NOT just observe and describe - you must EXECUTE the action!
-2. After CaptureWholeScreen(), you MUST continue to actually click/type/interact
+2. After GetPageElements(), you MUST continue to actually click/type/interact
 3. Follow ALL steps: Observe → Plan → EXECUTE → Verify
 4. Do not stop until you've performed the actual action requested";
 
@@ -153,7 +153,7 @@ IMPORTANT REMINDER:
 
                 if (toolConfig.EnableScreenCapturePlugin)
                 {
-                    tools.AddRange(PluginToolExtractor.ExtractTools(new ScreenCaptureOmniParserPlugin()));
+                    tools.AddRange(PluginToolExtractor.ExtractTools(new ScreenCapturePlugin()));
                 }
 
                 if (toolConfig.EnableKeyboardPlugin)

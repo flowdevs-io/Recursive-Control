@@ -40,6 +40,12 @@ namespace FlowVision.lib.Classes
             if (!ToolConfig.LoadConfig("toolsconfig").EnablePluginLogging)
                 return;
 
+            // Track that a tool was called (for hallucination detection)
+            if (!string.IsNullOrEmpty(methodName))
+            {
+                SimpleAgentActioner.IncrementToolCallCounter();
+            }
+
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
             string logMessage = $"[{timestamp}] Plugin: {pluginName}";
             

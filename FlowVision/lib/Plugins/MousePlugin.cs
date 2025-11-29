@@ -69,9 +69,31 @@ namespace FlowVision.lib.Plugins
             int windowWidth = rc.Right - rc.Left;
             int windowHeight = rc.Bottom - rc.Top;
 
-            // Calculate absolute position based on bounding box (normalized)
-            int x = rc.Left + (int)((x1 + x2) / 2 * windowWidth);
-            int y = rc.Top + (int)((y1 + y2) / 2 * windowHeight);
+            // Calculate center of bounding box
+            double centerX = (x1 + x2) / 2;
+            double centerY = (y1 + y2) / 2;
+            
+            int x, y;
+            
+            // Check if coordinates are normalized (0-1 range)
+            bool isNormalized = (x1 >= 0 && x1 <= 1.0 && y1 >= 0 && y1 <= 1.0 && 
+                                 x2 >= 0 && x2 <= 1.0 && y2 >= 0 && y2 <= 1.0);
+            
+            if (isNormalized)
+            {
+                // Normalized: multiply by window size
+                x = rc.Left + (int)(centerX * windowWidth);
+                y = rc.Top + (int)(centerY * windowHeight);
+            }
+            else
+            {
+                // Window-relative pixel coordinates: add window origin
+                x = rc.Left + (int)centerX;
+                y = rc.Top + (int)centerY;
+            }
+            
+            PluginLogger.LogInfo("MousePlugin", "ClickOnWindow", 
+                $"bbox center ({centerX:F0}, {centerY:F0}) + window ({rc.Left}, {rc.Top}) -> screen ({x}, {y})");
 
             if (!SetCursorPos(x, y))
             {
@@ -79,6 +101,31 @@ namespace FlowVision.lib.Plugins
             }
 
             // Increased delay to allow UI to register hover state
+            await Task.Delay(200);
+
+            for (int i = 0; i < clickTimes; i++)
+            {
+                SimulateClick(x, y, leftClick);
+                await Task.Delay(50);
+            }
+
+            return true;
+        }
+
+        [Description("Clicks at screen coordinates. Use with GetPageElements() to find elements.")]
+        public async Task<bool> ClickAtScreenCoordinates(double x1, double y1, double x2, double y2, bool leftClick, int clickTimes)
+        {
+            int x = (int)((x1 + x2) / 2);
+            int y = (int)((y1 + y2) / 2);
+            
+            PluginLogger.LogPluginUsage("MousePlugin", "ClickAtScreenCoordinates", 
+                $"box=[{x1},{y1},{x2},{y2}], center=({x},{y}), leftClick={leftClick}");
+
+            if (!SetCursorPos(x, y))
+            {
+                throw new InvalidOperationException("Failed to set cursor position.");
+            }
+
             await Task.Delay(200);
 
             for (int i = 0; i < clickTimes; i++)

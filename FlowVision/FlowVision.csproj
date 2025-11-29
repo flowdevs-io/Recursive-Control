@@ -26,6 +26,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -35,6 +36,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>recursive-control-icon.ico</ApplicationIcon>
@@ -172,10 +174,6 @@
       <HintPath>..\packages\Tesseract.5.2.0\lib\net48\Tesseract.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.ML.OnnxRuntime">
-      <HintPath>..\packages\Microsoft.ML.OnnxRuntime.Managed.1.21.1\lib\netstandard2.0\Microsoft.ML.OnnxRuntime.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -214,6 +212,7 @@
     <Compile Include="lib\Classes\ai\AIClientFactory.cs" />
     <Compile Include="lib\Classes\ai\LMStudioActioner.cs" />
     <Compile Include="lib\Classes\ai\MultiAgentActioner.cs" />
+    <Compile Include="lib\Classes\ai\SimpleAgentActioner.cs" />
     <Compile Include="lib\Classes\LMStudioConfig.cs" />
     <Compile Include="lib\Classes\MarkdownHelper.cs" />
     <Compile Include="lib\Classes\PlaywrightSessionManager.cs" />
@@ -227,7 +226,6 @@
     <Compile Include="lib\Classes\UI\ThemeManager.cs" />
     <Compile Include="lib\Plugins\PlaywrightPlugin.cs" />
     <Compile Include="lib\Plugins\RemoteControlPlugin.cs" />
-    <Compile Include="lib\Plugins\ScreenCaptureOmniParserPlugin.cs" />
     <Compile Include="lib\Plugins\WindowSelectionPlugin.cs" />
     <Compile Include="ToolConfigForm.cs">
       <SubType>Form</SubType>
@@ -237,13 +235,9 @@
     </Compile>
     <Compile Include="lib\Classes\ai\Actioner.cs" />
     <Compile Include="lib\Classes\APIConfig.cs" />
-    <Compile Include="lib\Classes\OnnxOmniParserEngine.cs" />
-    <Compile Include="lib\Classes\SimpleOmniParser.cs" />
+    <Compile Include="lib\Classes\ParsedContent.cs" />
     <Compile Include="lib\Classes\OcrHelper.cs" />
     <Compile Include="lib\Classes\ChatExporter.cs" />
-    <Compile Include="lib\Classes\LocalOmniParserManager.cs" />
-    <Compile Include="lib\Classes\OmniParserClient.cs" />
-    <Compile Include="lib\Classes\OmniParserConfig.cs" />
     <Compile Include="lib\Classes\ToolConfig.cs" />
     <Compile Include="lib\Classes\UI\ExecutionVisualizer.cs">
       <SubType>UserControl</SubType>
@@ -258,12 +252,6 @@
     <Compile Include="lib\Plugins\MousePlugin.cs" />
     <Compile Include="lib\Plugins\PowershellPlugin.cs" />
     <Compile Include="lib\Plugins\ScreenCapturePlugin.cs" />
-    <Compile Include="OmniParserForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="OmniParserForm.Designer.cs">
-      <DependentUpon>OmniParserForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="ConfigForm.resx">
@@ -272,9 +260,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="OmniParserForm.resx">
-      <DependentUpon>OmniParserForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -304,7 +289,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="recursive-control-icon.ico" />
-    <EmbeddedResource Include="Models\icon_detect.onnx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets" Condition="Exists('..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" />
@@ -317,15 +301,9 @@
     <Error Condition="!Exists('..\packages\Costura.Fody.6.0.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.6.0.0\build\Costura.Fody.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Playwright.1.52.0\build\Microsoft.Playwright.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Playwright.1.52.0\build\Microsoft.Playwright.targets'))" />
   </Target>
-  <!-- Copy ONNX Runtime native DLLs to output directory -->
-  <Target Name="CopyOnnxRuntimeNative" AfterTargets="AfterBuild">
-    <ItemGroup>
-      <OnnxRuntimeNative Include="..\packages\Microsoft.ML.OnnxRuntime.1.19.2\runtimes\win-x64\native\*.dll" />
-    </ItemGroup>
-    <Copy SourceFiles="@(OnnxRuntimeNative)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
-  </Target>
-  <!-- Copy Tesseract native DLLs to output directory -->
-  <Target Name="CopyTesseractNative" AfterTargets="AfterBuild">
+  <!-- Copy native DLLs BEFORE build so Costura can embed them -->
+  <Target Name="CopyNativeDllsBeforeBuild" BeforeTargets="BeforeBuild">
+    <MakeDir Directories="$(OutputPath)" />
     <ItemGroup>
       <TesseractNative Include="..\packages\Tesseract.5.2.0\x64\*.dll" />
     </ItemGroup>

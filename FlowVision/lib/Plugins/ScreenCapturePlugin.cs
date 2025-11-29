@@ -1,36 +1,21 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using FlowVision.lib.Classes;
 
 namespace FlowVision.lib.Plugins
 {
-    /* 
-         * This class is preserved for backward compatibility.
-         * It delegates to the new split classes: WindowSelectionPlugin and ScreenCaptureOmniParserPlugin.
-         * Consider updating references to use the new plugins directly.
-         */
+    /// <summary>
+    /// Screen capture plugin - now delegates to WindowSelectionPlugin only.
+    /// For web automation, use PlaywrightPlugin instead.
+    /// </summary>
     internal class ScreenCapturePlugin
     {
         private readonly WindowSelectionPlugin _windowSelector;
-        private readonly ScreenCaptureOmniParserPlugin _screenCaptureOmniParser;
 
         public ScreenCapturePlugin()
         {
             _windowSelector = new WindowSelectionPlugin();
-            _screenCaptureOmniParser = new ScreenCaptureOmniParserPlugin();
-        }
-
-        [Description("Used to capture the Screen and return Parsed Content")]
-        public async Task<List<ParsedContent>> CaptureScreen(string handleString)
-        {
-            return await _screenCaptureOmniParser.CaptureScreen(handleString);
-        }
-
-        //capture the whole screen
-        [Description("Used to capture the whole screen")]
-        public async Task<List<ParsedContent>> CapturewholeScreen()
-        {
-            return await _screenCaptureOmniParser.CaptureWholeScreen();
         }
 
         [Description("Used to set current handle as foreground")]

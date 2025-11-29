@@ -29,7 +29,7 @@ namespace FlowVision.lib.Classes
                 availableTools.Add(typeof(PowerShellPlugin));
                 
             if (toolConfig.EnableScreenCapturePlugin) 
-                availableTools.Add(typeof(ScreenCaptureOmniParserPlugin));
+                availableTools.Add(typeof(ScreenCapturePlugin));
                 
             if (toolConfig.EnableKeyboardPlugin) 
                 availableTools.Add(typeof(KeyboardPlugin));
@@ -119,12 +119,12 @@ namespace FlowVision.lib.Classes
                 if (methodName == "ExecuteScript")
                     return "execute a PowerShell script or command";
             }
-            else if (toolType == typeof(ScreenCaptureOmniParserPlugin))
+            else if (toolType == typeof(ScreenCapturePlugin))
             {
-                if (methodName == "CaptureScreen")
-                    return "take a screenshot of the current screen";
-                if (methodName == "CaptureWindow")
-                    return "take a screenshot of a specific application window";
+                if (methodName == "ForegroundSelect")
+                    return "bring a window to the foreground";
+                if (methodName == "ListWindowHandles")
+                    return "list available window handles";
             }
             else if (toolType == typeof(KeyboardPlugin))
             {

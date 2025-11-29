@@ -666,18 +666,9 @@ namespace FlowVision
 
         private void omniParserToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Check if the config form is already open
-            if (Application.OpenForms.OfType<OmniParserForm>().Count() == 1)
-            {
-                // If it is, bring it to the front
-                Application.OpenForms.OfType<OmniParserForm>().First().BringToFront();
-            }
-            else
-            {
-                // If it isn't, create a new instance of the form
-                OmniParserForm omniParserForm = new OmniParserForm();
-                omniParserForm.Show();
-            }
+            // OmniParser removed - show message
+            MessageBox.Show("OmniParser has been removed. Use Playwright for web automation instead.", 
+                "Feature Removed", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void RemoveMessagesByAuthor(string author)

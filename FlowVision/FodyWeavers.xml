@@ -1,3 +1,25 @@
 ﻿<Weavers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FodyWeavers.xsd">
-  <Costura />
+  <Costura>
+    <!-- Create temporary assemblies for native DLLs -->
+    <CreateTemporaryAssemblies>true</CreateTemporaryAssemblies>
+    
+    <!-- Specify directories to look for native DLLs -->
+    <Unmanaged64Assemblies>
+      leptonica-1.82.0
+      tesseract50
+    </Unmanaged64Assemblies>
+    
+    <Unmanaged32Assemblies>
+      leptonica-1.82.0
+      tesseract50
+    </Unmanaged32Assemblies>
+    
+    <PreloadOrder>
+      leptonica-1.82.0
+      tesseract50
+    </PreloadOrder>
+    
+    <!-- Include x64 native DLLs from packages folder -->
+    <NativeDir64>$(MSBuildThisFileDirectory)..\packages\Tesseract.5.2.0\x64\</NativeDir64>
+  </Costura>
 </Weavers>

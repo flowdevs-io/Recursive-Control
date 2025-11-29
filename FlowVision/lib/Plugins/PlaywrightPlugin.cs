@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using FlowVision.lib.Classes;
@@ -102,6 +103,7 @@ namespace FlowVision.lib.Plugins
 
         /// <summary>
         /// Initializes the Playwright environment if not already done.
+        /// Automatically installs browsers if they are missing.
         /// </summary>
         private async Task InitializePlaywrightAsync()
         {
@@ -115,6 +117,18 @@ namespace FlowVision.lib.Plugins
                 {
                     PluginLogger.LogPluginUsage("PlaywrightPlugin", "Initialize");
                     PluginLogger.NotifyTaskStart("Playwright initialization", "Setting up browser automation environment");
+                    
+                    // Set the driver path to the bundled .playwright folder
+                    string appDir = AppDomain.CurrentDomain.BaseDirectory;
+                    string driverPath = Path.Combine(appDir, ".playwright");
+                    if (Directory.Exists(driverPath))
+                    {
+                        Environment.SetEnvironmentVariable("PLAYWRIGHT_DRIVER_PATH", driverPath);
+                        PluginLogger.LogInfo("PlaywrightPlugin", "Initialize", $"Set PLAYWRIGHT_DRIVER_PATH to {driverPath}");
+                    }
+                    
+                    // Check if browsers are installed, if not install them
+                    await EnsureBrowsersInstalledAsync();
                     
                     _playwright = await Microsoft.Playwright.Playwright.CreateAsync();
                     _initialized = true;
@@ -130,6 +144,147 @@ namespace FlowVision.lib.Plugins
             finally
             {
                 _semaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Ensures Playwright browsers are installed. Downloads them if missing.
+        /// </summary>
+        private async Task EnsureBrowsersInstalledAsync()
+        {
+            // Check if chromium browser exists in the default location
+            string playwrightBrowsersPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "ms-playwright");
+            
+            // Always set the browsers path environment variable
+            Environment.SetEnvironmentVariable("PLAYWRIGHT_BROWSERS_PATH", playwrightBrowsersPath);
+            PluginLogger.LogInfo("PlaywrightPlugin", "EnsureBrowsersInstalled", $"Set PLAYWRIGHT_BROWSERS_PATH to {playwrightBrowsersPath}");
+            
+            bool browsersExist = Directory.Exists(playwrightBrowsersPath) && 
+                                 Directory.GetDirectories(playwrightBrowsersPath, "chromium-*").Length > 0;
+            
+            if (browsersExist)
+            {
+                PluginLogger.LogInfo("PlaywrightPlugin", "EnsureBrowsersInstalled", "Playwright browsers already installed");
+                return;
+            }
+            
+            PluginLogger.NotifyTaskStart("Browser download", "Downloading Chromium browser (first-time setup)");
+            PluginLogger.LogInfo("PlaywrightPlugin", "EnsureBrowsersInstalled", "Installing Playwright browsers...");
+            
+            try
+            {
+                // Find the playwright.ps1 script in the application directory
+                string appDir = AppDomain.CurrentDomain.BaseDirectory;
+                string playwrightScript = Path.Combine(appDir, "playwright.ps1");
+                
+                // Alternative: use the .playwright folder structure
+                string playwrightCmd = Path.Combine(appDir, ".playwright", "package", "cli.js");
+                string nodeExe = Path.Combine(appDir, ".playwright", "node", "win32_x64", "node.exe");
+                
+                ProcessStartInfo psi;
+                
+                if (File.Exists(nodeExe) && File.Exists(playwrightCmd))
+                {
+                    // Use bundled node and playwright CLI
+                    psi = new ProcessStartInfo
+                    {
+                        FileName = nodeExe,
+                        Arguments = $"\"{playwrightCmd}\" install chromium",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true,
+                        WorkingDirectory = appDir
+                    };
+                    // Set browsers path for the install process
+                    psi.EnvironmentVariables["PLAYWRIGHT_BROWSERS_PATH"] = Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                        "ms-playwright");
+                }
+                else if (File.Exists(playwrightScript))
+                {
+                    // Use playwright.ps1 script
+                    psi = new ProcessStartInfo
+                    {
+                        FileName = "powershell.exe",
+                        Arguments = $"-ExecutionPolicy Bypass -File \"{playwrightScript}\" install chromium",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true,
+                        WorkingDirectory = appDir
+                    };
+                }
+                else
+                {
+                    // Fallback: try using npx or global playwright
+                    psi = new ProcessStartInfo
+                    {
+                        FileName = "cmd.exe",
+                        Arguments = "/c npx playwright install chromium",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true,
+                        WorkingDirectory = appDir
+                    };
+                }
+                
+                using (var process = new Process { StartInfo = psi })
+                {
+                    var outputBuilder = new System.Text.StringBuilder();
+                    var errorBuilder = new System.Text.StringBuilder();
+                    
+                    process.OutputDataReceived += (sender, e) =>
+                    {
+                        if (e.Data != null)
+                        {
+                            outputBuilder.AppendLine(e.Data);
+                            PluginLogger.LogInfo("PlaywrightPlugin", "BrowserInstall", e.Data);
+                        }
+                    };
+                    
+                    process.ErrorDataReceived += (sender, e) =>
+                    {
+                        if (e.Data != null)
+                        {
+                            errorBuilder.AppendLine(e.Data);
+                        }
+                    };
+                    
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+                    
+                    // Wait for the process to complete (with timeout)
+                    await Task.Run(() => process.WaitForExit(300000)); // 5 minute timeout
+                    
+                    if (!process.HasExited)
+                    {
+                        process.Kill();
+                        throw new Exception("Browser installation timed out after 5 minutes");
+                    }
+                    
+                    if (process.ExitCode != 0)
+                    {
+                        string error = errorBuilder.ToString();
+                        if (!string.IsNullOrEmpty(error))
+                        {
+                            throw new Exception($"Browser installation failed: {error}");
+                        }
+                    }
+                    
+                    PluginLogger.NotifyTaskComplete("Browser download");
+                    PluginLogger.LogInfo("PlaywrightPlugin", "EnsureBrowsersInstalled", "Playwright browsers installed successfully");
+                }
+            }
+            catch (Exception ex)
+            {
+                PluginLogger.NotifyTaskComplete("Browser download", false);
+                PluginLogger.LogError("PlaywrightPlugin", "EnsureBrowsersInstalled", $"Failed to install browsers: {ex.Message}");
+                throw new Exception($"Failed to install Playwright browsers. Please run 'playwright install chromium' manually. Error: {ex.Message}", ex);
             }
         }
 
@@ -472,16 +627,96 @@ namespace FlowVision.lib.Plugins
                     Timeout = 30000
                 });
                 
+                // Wait a bit for any redirects or dynamic content to settle
+                await Task.Delay(1000);
+                
+                // Get the actual URL after any redirects
+                string actualUrl = _page.Url;
+                
                 // Auto-save session state after navigation
                 await AutoSaveSessionIfEnabled();
                 
                 PluginLogger.NotifyTaskComplete("Navigation");
-                return $"Successfully navigated to {url}. Session automatically saved.";
+                
+                if (actualUrl != url && !actualUrl.StartsWith(url))
+                {
+                    return $"Navigated to {url} but was redirected to {actualUrl}. This may indicate you are already logged in. Call GetPageElements() to see current page.";
+                }
+                
+                return $"Successfully navigated to {actualUrl}. Call GetPageElements() to see available elements.";
             }
             catch (Exception ex)
             {
                 PluginLogger.NotifyTaskComplete("Navigation", false);
                 return $"Error navigating to {url}: {ex.Message}";
+            }
+        }
+
+        /// <summary>
+        /// Waits for the page to finish loading after a navigation or action.
+        /// </summary>
+        [Description("Waits for the page to finish loading. Use after clicking links or submitting forms.")]
+        public async Task<string> WaitForPageLoad(
+            [Description("Wait strategy: load, domcontentloaded, networkidle")] string waitUntil = "load",
+            [Description("Maximum time to wait in seconds")] string timeout = "30")
+        {
+            PluginLogger.LogPluginUsage("PlaywrightPlugin", "WaitForPageLoad", $"WaitUntil: {waitUntil}");
+            
+            try
+            {
+                if (_page == null)
+                {
+                    return "Error: Browser not launched. Call LaunchBrowser first.";
+                }
+                
+                PluginLogger.NotifyTaskStart("Page load", "Waiting for page to load");
+                
+                int timeoutMs = int.Parse(timeout) * 1000;
+                
+                // Determine wait strategy
+                WaitUntilState waitState = WaitUntilState.Load;
+                switch (waitUntil?.ToLower())
+                {
+                    case "domcontentloaded":
+                        waitState = WaitUntilState.DOMContentLoaded;
+                        break;
+                    case "networkidle":
+                        waitState = WaitUntilState.NetworkIdle;
+                        break;
+                    case "commit":
+                        waitState = WaitUntilState.Commit;
+                        break;
+                }
+                
+                await _page.WaitForLoadStateAsync(LoadState.Load, new PageWaitForLoadStateOptions
+                {
+                    Timeout = timeoutMs
+                });
+                
+                // Also wait for network to be idle for better reliability
+                try
+                {
+                    await _page.WaitForLoadStateAsync(LoadState.NetworkIdle, new PageWaitForLoadStateOptions
+                    {
+                        Timeout = 5000
+                    });
+                }
+                catch (TimeoutException)
+                {
+                    // Network idle timeout is acceptable, page may have long-polling
+                }
+                
+                // Auto-save session state after page load
+                await AutoSaveSessionIfEnabled();
+                
+                string currentUrl = _page.Url;
+                PluginLogger.NotifyTaskComplete("Page load");
+                return $"Page loaded successfully. Current URL: {currentUrl}";
+            }
+            catch (Exception ex)
+            {
+                PluginLogger.NotifyTaskComplete("Page load", false);
+                return $"Error waiting for page load: {ex.Message}";
             }
         }
 
@@ -560,9 +795,10 @@ namespace FlowVision.lib.Plugins
         /// <summary>
         /// Clicks on an element identified by a selector and automatically saves session state.
         /// </summary>
-        [Description("Clicks on an element identified by CSS selector")]
+        [Description("Clicks on an element identified by CSS selector. Set waitForNavigation to true for links/submit buttons.")]
         public async Task<string> ClickElement(
-            [Description("CSS selector for the element to click")] string selector)
+            [Description("CSS selector for the element to click")] string selector,
+            [Description("Wait for page navigation after click (true/false)")] string waitForNavigation = "false")
         {
             PluginLogger.LogPluginUsage("PlaywrightPlugin", "ClickElement", $"Selector: {selector}");
             
@@ -577,6 +813,9 @@ namespace FlowVision.lib.Plugins
                 {
                     return "Error: Selector cannot be empty";
                 }
+                
+                bool shouldWaitForNav = !string.IsNullOrEmpty(waitForNavigation) && 
+                                        bool.TryParse(waitForNavigation, out bool nav) && nav;
                 
                 PluginLogger.NotifyTaskStart("Click interaction", $"Clicking on element: {selector}");
 
@@ -605,10 +844,41 @@ namespace FlowVision.lib.Plugins
 
                 try
                 {
-                    await _page.ClickAsync(selector, new PageClickOptions
+                    if (shouldWaitForNav)
                     {
-                        Timeout = 5000
-                    });
+                        // Click and wait for navigation
+                        await Task.WhenAll(
+                            _page.WaitForNavigationAsync(new PageWaitForNavigationOptions
+                            {
+                                WaitUntil = WaitUntilState.Load,
+                                Timeout = 30000
+                            }),
+                            _page.ClickAsync(selector, new PageClickOptions
+                            {
+                                Timeout = 5000
+                            })
+                        );
+                        
+                        // Wait a bit more for the page to stabilize
+                        try
+                        {
+                            await _page.WaitForLoadStateAsync(LoadState.NetworkIdle, new PageWaitForLoadStateOptions
+                            {
+                                Timeout = 5000
+                            });
+                        }
+                        catch (TimeoutException)
+                        {
+                            // Network idle timeout is acceptable
+                        }
+                    }
+                    else
+                    {
+                        await _page.ClickAsync(selector, new PageClickOptions
+                        {
+                            Timeout = 5000
+                        });
+                    }
                 }
                 catch (Exception clickEx)
                 {
@@ -619,13 +889,98 @@ namespace FlowVision.lib.Plugins
                 // Auto-save session state after clicking
                 await AutoSaveSessionIfEnabled();
                 
+                string result = $"Successfully clicked on element: {selector}.";
+                if (shouldWaitForNav)
+                {
+                    result += $" Page navigated to: {_page.Url}";
+                }
+                result += " Session automatically saved.";
+                
                 PluginLogger.NotifyTaskComplete("Click interaction");
-                return $"Successfully clicked on element: {selector}. Session automatically saved.";
+                return result;
             }
             catch (Exception ex)
             {
                 PluginLogger.NotifyTaskComplete("Click interaction", false);
                 return $"Error clicking element: {ex.Message}";
+            }
+        }
+
+        /// <summary>
+        /// Clicks on an element by its visible text. More reliable than CSS selectors for buttons and links.
+        /// </summary>
+        [Description("Clicks on a button or link by its visible text. Use this when CSS selectors don't work.")]
+        public async Task<string> ClickByText(
+            [Description("The visible text of the button or link to click")] string text,
+            [Description("Wait for page navigation after click (true/false)")] string waitForNavigation = "false")
+        {
+            PluginLogger.LogPluginUsage("PlaywrightPlugin", "ClickByText", $"Text: {text}");
+            
+            try
+            {
+                if (_page == null)
+                {
+                    return "Error: Browser not launched. Call LaunchBrowser first.";
+                }
+                
+                if (string.IsNullOrEmpty(text))
+                {
+                    return "Error: Text cannot be empty";
+                }
+                
+                bool shouldWaitForNav = !string.IsNullOrEmpty(waitForNavigation) && 
+                                        bool.TryParse(waitForNavigation, out bool nav) && nav;
+                
+                PluginLogger.NotifyTaskStart("Click by text", $"Clicking element with text: {text}");
+
+                try
+                {
+                    // Use Playwright's getByText or getByRole for more reliable clicking
+                    var locator = _page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = text });
+                    
+                    if (await locator.CountAsync() == 0)
+                    {
+                        // Try link
+                        locator = _page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = text });
+                    }
+                    
+                    if (await locator.CountAsync() == 0)
+                    {
+                        // Fall back to text matching
+                        locator = _page.GetByText(text, new PageGetByTextOptions { Exact = false });
+                    }
+                    
+                    if (await locator.CountAsync() == 0)
+                    {
+                        PluginLogger.NotifyTaskComplete("Click by text", false);
+                        return $"Error: Could not find element with text: {text}";
+                    }
+
+                    if (shouldWaitForNav)
+                    {
+                        await locator.First.ClickAsync();
+                        await _page.WaitForLoadStateAsync(LoadState.Load);
+                    }
+                    else
+                    {
+                        await locator.First.ClickAsync();
+                    }
+                    
+                    await AutoSaveSessionIfEnabled();
+                    
+                    PluginLogger.NotifyTaskComplete("Click by text");
+                    return $"Successfully clicked element with text: {text}";
+                }
+                catch (Exception clickEx)
+                {
+                    PluginLogger.NotifyTaskComplete("Click by text", false);
+                    return $"Error clicking element with text '{text}': {clickEx.Message}";
+                }
+            }
+            catch (Exception ex)
+            {
+                PluginLogger.NotifyTaskComplete("Click by text", false);
+                return $"Error: {ex.Message}";
             }
         }
         
@@ -959,6 +1314,134 @@ namespace FlowVision.lib.Plugins
             }
 
             return await _page.ContentAsync();
+        }
+
+        /// <summary>
+        /// Gets a summary of interactive elements on the page (buttons, links, inputs, forms).
+        /// This is more useful than raw HTML for understanding what actions are available.
+        /// </summary>
+        [Description("Gets a summary of clickable elements, links, buttons, and input fields on the current page. Use this to understand what you can interact with.")]
+        public async Task<string> GetPageElements()
+        {
+            PluginLogger.LogPluginUsage("PlaywrightPlugin", "GetPageElements");
+
+            if (_page == null)
+            {
+                return "Error: Browser not launched. Call LaunchBrowser first.";
+            }
+
+            try
+            {
+                // Wait for page to be stable before reading elements
+                try
+                {
+                    await _page.WaitForLoadStateAsync(LoadState.DOMContentLoaded, new PageWaitForLoadStateOptions { Timeout = 5000 });
+                }
+                catch (TimeoutException) { /* Continue anyway */ }
+                
+                // Small delay to let dynamic content settle
+                await Task.Delay(500);
+                
+                var result = new System.Text.StringBuilder();
+                result.AppendLine($"Current URL: {_page.Url}");
+                result.AppendLine($"Page Title: {await _page.TitleAsync()}");
+                result.AppendLine();
+
+                // Get buttons
+                var buttons = await _page.QuerySelectorAllAsync("button, input[type='submit'], input[type='button'], [role='button']");
+                if (buttons.Count > 0)
+                {
+                    result.AppendLine($"=== BUTTONS ({buttons.Count}) ===");
+                    int count = 0;
+                    foreach (var btn in buttons)
+                    {
+                        if (count >= 20) { result.AppendLine("... (more buttons)"); break; }
+                        try
+                        {
+                            string text = await btn.TextContentAsync() ?? "";
+                            string id = await btn.GetAttributeAsync("id") ?? "";
+                            string className = await btn.GetAttributeAsync("class") ?? "";
+                            string ariaLabel = await btn.GetAttributeAsync("aria-label") ?? "";
+                            bool isVisible = await btn.IsVisibleAsync();
+                            if (isVisible && (!string.IsNullOrWhiteSpace(text) || !string.IsNullOrEmpty(id) || !string.IsNullOrEmpty(ariaLabel)))
+                            {
+                                string selector = !string.IsNullOrEmpty(id) ? $"#{id}" : 
+                                                  !string.IsNullOrEmpty(ariaLabel) ? $"[aria-label='{ariaLabel}']" : 
+                                                  $"button:has-text(\"{text.Trim().Substring(0, Math.Min(20, text.Trim().Length))}\")";
+                                result.AppendLine($"  - \"{text.Trim()}\" | selector: {selector}");
+                                count++;
+                            }
+                        }
+                        catch { }
+                    }
+                    result.AppendLine();
+                }
+
+                // Get links
+                var links = await _page.QuerySelectorAllAsync("a[href]");
+                if (links.Count > 0)
+                {
+                    result.AppendLine($"=== LINKS ({links.Count}) ===");
+                    int count = 0;
+                    foreach (var link in links)
+                    {
+                        if (count >= 20) { result.AppendLine("... (more links)"); break; }
+                        try
+                        {
+                            string text = await link.TextContentAsync() ?? "";
+                            string href = await link.GetAttributeAsync("href") ?? "";
+                            bool isVisible = await link.IsVisibleAsync();
+                            if (isVisible && !string.IsNullOrWhiteSpace(text) && text.Trim().Length < 100)
+                            {
+                                result.AppendLine($"  - \"{text.Trim()}\" -> {href}");
+                                count++;
+                            }
+                        }
+                        catch { }
+                    }
+                    result.AppendLine();
+                }
+
+                // Get input fields
+                var inputs = await _page.QuerySelectorAllAsync("input:not([type='hidden']), textarea, select");
+                if (inputs.Count > 0)
+                {
+                    result.AppendLine($"=== INPUT FIELDS ({inputs.Count}) ===");
+                    int count = 0;
+                    foreach (var input in inputs)
+                    {
+                        if (count >= 20) { result.AppendLine("... (more inputs)"); break; }
+                        try
+                        {
+                            string type = await input.GetAttributeAsync("type") ?? "text";
+                            string id = await input.GetAttributeAsync("id") ?? "";
+                            string name = await input.GetAttributeAsync("name") ?? "";
+                            string placeholder = await input.GetAttributeAsync("placeholder") ?? "";
+                            string ariaLabel = await input.GetAttributeAsync("aria-label") ?? "";
+                            bool isVisible = await input.IsVisibleAsync();
+                            if (isVisible)
+                            {
+                                string selector = !string.IsNullOrEmpty(id) ? $"#{id}" :
+                                                  !string.IsNullOrEmpty(name) ? $"[name='{name}']" :
+                                                  $"input[type='{type}']";
+                                string label = !string.IsNullOrEmpty(placeholder) ? placeholder :
+                                              !string.IsNullOrEmpty(ariaLabel) ? ariaLabel :
+                                              !string.IsNullOrEmpty(name) ? name : type;
+                                result.AppendLine($"  - [{type}] \"{label}\" | selector: {selector}");
+                                count++;
+                            }
+                        }
+                        catch { }
+                    }
+                    result.AppendLine();
+                }
+
+                return result.ToString();
+            }
+            catch (Exception ex)
+            {
+                return $"Error getting page elements: {ex.Message}";
+            }
         }
 
         /// <summary>

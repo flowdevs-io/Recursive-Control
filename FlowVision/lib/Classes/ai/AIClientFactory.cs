@@ -13,6 +13,12 @@ namespace FlowVision.lib.Classes.ai
             if (config == null)
                 throw new ArgumentNullException(nameof(config));
 
+            if (string.IsNullOrWhiteSpace(config.EndpointURL))
+                throw new ArgumentException("EndpointURL is required but was null or empty", nameof(config));
+
+            if (string.IsNullOrWhiteSpace(config.APIKey))
+                throw new ArgumentException("APIKey is required but was null or empty", nameof(config));
+
             switch (config.ProviderType?.ToLowerInvariant())
             {
                 case "gemini":
