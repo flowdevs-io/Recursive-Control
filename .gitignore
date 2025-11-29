@@ -361,3 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Large model weights
+weights/
+
+# Git filter-branch leftovers
+.git-rewrite/
