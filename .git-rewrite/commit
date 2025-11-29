@@ -1,6 +1,26 @@
-tree b1024980951e08b68da28d1e1663f93dbdf24fda
-parent c068254463fd4c7734ddc92dfa4e5864aed69a1c
-author CakeRepository <takescake@outlook.com> 1745806808 -0500
-committer CakeRepository <takescake@outlook.com> 1745806808 -0500
+tree a0c6b84fdd0634a5d4e9623e376d7ebedae7937c
+parent 5914e02507e831f05e521888101e2909caa380d1
+parent e00d6b0f7a472014604394acebed11e35768d441
+author Justin Trantham <takescake@outlook.com> 1745898306 -0500
+committer GitHub <noreply@github.com> 1745898306 -0500
+gpgsig -----BEGIN PGP SIGNATURE-----
+ 
+ wsFcBAABCAAQBQJoEEtCCRC1aQ7uu5UhlAAA+AYQAKx1uc/6DDqPVkfsAEM1hWM8
+ xJ/E0eXt2Tb2qbcpMhQCOCVpybgn4ZBwHGI8UCk4HqpJEj//eHzwPiv7UQ4YApRv
+ BbMf5we4Ahia4J+8bE15AbloAqDbR04U/mOhaBihd66Ou7BnltHxp9vijRQRJNUd
+ sx7Iq8R08lhWxyPvD8WRAw6dPXGGcTl+d7Ka1RMNJaeNK6uHFXmUn6F/a8Mgjl6D
+ tKfxenCvyUIFQiTPaRSEc6pGjmYOkuYKNSjgZqMCYBX6aw9fkvtAj1VZ4D97s/wa
+ XDskIkW8GyRbYcvJAsGOmu0sY6i5ak6GUZnybGF/nR7C/UBBItaOYkW9gDshT+/G
+ jmCZy8rbJIyG0C5068TRriD4sWy0tLP1+0wvHm3TaTLaP3NHAM/z4ySQ/IjZfBHz
+ BbY3oOlgAL5+QkuD9zNsxSpiQsEcTsHIdk4Pg+u+4pf/eqcTGnWX6p+EBSi9qjZe
+ xPvYEen9OicL58svmVQ5jADPmbmdCtjx+SB07cce8F/pz1hwl8aCNW83SfG+5bWL
+ TKaPA/APqn5Zpbd1x0f+Tcr1a8xZAzT72VqY7Ip/rY1fA0GkikijCLMVXs2fGdPk
+ 6IXRy6M/FTEzlmnzZ8enQM4OUfpfnteYu0v/O+FfkrGl3dInx/ZLtRu1MuyVV6KD
+ WLKUhIVEtJQmqC813VRv
+ =f019
+ -----END PGP SIGNATURE-----
+ 
 
-Update README.md
+Merge pull request #5 from CakeRepository/multiagent
+
+Multiagent/darkmode
